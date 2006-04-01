@@ -846,14 +846,20 @@ namespace SMOz.UI
 
 	   #endregion
 
-	   private void applyTemplateToolStripMenuItem1_Click(object sender, EventArgs e) {	  
+	   private void applyTemplateToolStripMenuItem1_Click(object sender, EventArgs e) {
+		  MoveStartItemCommand[] commands = StartCategorizer.Categorize(template, startManager);
+
+		  if ((commands == null) || (commands.Length <= 0)) {
+			 MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			 return;
+		  }
+
 		 if (MessageBox.Show("Apply loaded template to Start Menu?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
-			MoveStartItemCommand[] commands = StartCategorizer.Categorize(template, startManager);
+			
 			using (ReviewChanges review = new ReviewChanges(true)) {
 			    foreach (MoveStartItemCommand cmd in commands) {
 				   review.Add("Move", "'" + cmd.OldName + "' to '" + cmd.NewName + "'");
 			    }
-
 			    if (review.ShowDialog(this) == DialogResult.OK) {
 				   CommandGroup group = new CommandGroup("Apply Template", commands);
 				   AddUndoCommand(group, true);
@@ -868,8 +874,16 @@ namespace SMOz.UI
 	   private void applyTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
 		  TreeNode node = clickedNode;
 		  if (node != null) {
+
+			 MoveStartItemCommand[] commands = StartCategorizer.Categorize(template, startManager, node.Name, false);
+
+			 if ((commands == null) || (commands.Length <= 0)) {
+				MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+			 }
+
 			 if(MessageBox.Show("Apply loaded template to " + (node.Name == "" ? "(empty)" : node.Name) + "?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes){
-				MoveStartItemCommand[] commands = StartCategorizer.Categorize(template, startManager, node.Name, false);
+				
 				using (ReviewChanges review = new ReviewChanges(true)) {
 				    foreach (MoveStartItemCommand cmd in commands) { 
 					  review.Add("Move", "'" + cmd.OldName + "' to '" + cmd.NewName + "'");
@@ -899,7 +913,13 @@ namespace SMOz.UI
 	   }
 
 	   private void convertToCategoryToolStripMenuItem_Click(object sender, EventArgs e) {
-		  if (clickedItem != null) {
+		  if ((_itemList.SelectedItems != null) && (_itemList.SelectedItems.Count > 1)) {
+			 if (MessageBox.Show("Convert " + _itemList.SelectedItems.Count + " items to category?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
+				foreach (ListViewItem item in _itemList.SelectedItems) {
+				    AddCategory(item.Name);
+				}
+			 }
+		  } else if (clickedItem != null) {
 			 if (((StartItem)clickedItem.Tag).Type == StartItemType.File) {
 				MessageBox.Show("Sorry, but '" + clickedItem.Name + "' is a file. Only folders can be made into categories", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
 			 }else if (MessageBox.Show("Make '" + clickedItem.Name + "' a category?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
@@ -926,8 +946,6 @@ namespace SMOz.UI
 
 	   private void AddCategory(string name) {
 		  KnownCategories.Instance.AddCategory(name);
-//		  provider.categories.Add(name); // ?
-//		  st.Remove(name);
 		  startManager.RemoveAllItems(name);
 		  foreach (string str in AddCategoryToTree(name)) {
 			 // This ensures that nodes that are not explicitly listed as categories are scanned
