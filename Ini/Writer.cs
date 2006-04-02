@@ -88,8 +88,7 @@ namespace SMOz.Ini
 
 	   public void Save(Stream stream) {
 		  string data = Build();
-		  byte[] buffer = new byte[data.Length];
-		  Encoding.UTF8.GetBytes(data, 0, data.Length, buffer, 0);
+		  byte[] buffer = Encoding.UTF8.GetBytes(data);
 		  stream.Write(buffer, 0, buffer.Length);
 	   }
     }

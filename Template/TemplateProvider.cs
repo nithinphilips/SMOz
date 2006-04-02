@@ -28,9 +28,11 @@ using System.Text;
 using SMOz.Ini;
 using SMOz.Utilities;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace SMOz.Template
 {
+    [Serializable]
     public class TemplateProvider : IEnumerable<Category>, ICategoryProvider
     {
 	   public TemplateProvider()
@@ -38,9 +40,9 @@ namespace SMOz.Template
 
 	   public TemplateProvider(List<Category> categories) {
 		  this.categories = categories;
-		  if (this.categories.Count != 0) {
-			 UpdateStrCategoryList();
-		  }
+//		  if (this.categories.Count != 0) {
+//			 UpdateStrCategoryList();
+//		  }
 	   }
 
 	   public static TemplateProvider FromFile(string file) {
@@ -48,17 +50,15 @@ namespace SMOz.Template
 		  IniSection[] sections = IniParser.Parse(file);
 
 		  for (int i = 0; i < sections.Length; i++) {
-			 Category category = new Category();
-			 category.FormattedName = sections[i].Name;
+			 Category category = Category.FromFormat(sections[i].Name);
 
 			 template.categories.Add(category);
 
 			 CategoryItem[] items = new CategoryItem[sections[i].Count];
 			 for (int j = 0; j < sections[i].Count; j++) {
-				items[j] = new CategoryItem();
-				items[j].FormattedValue = sections[i][j];
+				items[j] = CategoryItem.FromFormat(sections[i][j]);
 			 }
-			 category.AddItem(items);
+			 category.AddRange(items);
 		  }
 		  return template;
 	   }
@@ -66,46 +66,49 @@ namespace SMOz.Template
 	   List<Category> categories;
 
 	   string[] strCategories = new string[] { };
-	   public string[] Categories {
-		  get {
-			 return strCategories;
-		  }
+
+	   public Category this[int index] {
+		  get { return categories[index]; }
 	   }
 
-	   private void UpdateStrCategoryList() {
+	   public int Count {
+		  get { return categories.Count; }
+	   }
+
+	   public string[] ToStringArray() {
 		  List<string> newList = new List<string>();
 		  for (int i = 0; i < this.categories.Count; i++) {
-			 string[] tree = Utility.PathToTree(categories[i].Name);
-			 for (int j = 0; j < tree.Length; j++) {
-				if (!newList.Contains(tree[j])) {
-				    newList.Add(tree[j]);
-				    Debug.WriteLine(tree[j]);
-				}
-			 }
+		      string[] tree = Utility.PathToTree(categories[i].Name);
+		      for (int j = 0; j < tree.Length; j++) {
+		          if (!newList.Contains(tree[j])) {
+		              newList.Add(tree[j]);
+		              Debug.WriteLine(tree[j]);
+		          }
+		      }
 		  }
-		  this.strCategories = newList.ToArray();
+		  return newList.ToArray();
 	   }
 
 	   public void Add(Category category) {
 		  this.categories.Add(category);
-		  UpdateStrCategoryList();
+//		  UpdateStrCategoryList();
 	   }
 
 	   public void AddRange(Category[] category) {
 		  this.categories.AddRange(categories);
-		  UpdateStrCategoryList();
+//		  UpdateStrCategoryList();
 	   }
 
 	   public void Remove(Category category) {
 		  this.categories.Remove(category);
-		  UpdateStrCategoryList();
+//		  UpdateStrCategoryList();
 	   }
 
 	   public void Remove(string name) {
 		  for (int i = 0; i < this.categories.Count; i++) {
 			 if (categories[i].Name == name) {
 				categories.RemoveAt(i);
-				UpdateStrCategoryList();
+//				UpdateStrCategoryList();
 				break;
 			 }
 		  }

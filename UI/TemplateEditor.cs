@@ -44,6 +44,7 @@ namespace SMOz.UI
 
 	   public TemplateEditor(StartManager manager, TemplateProvider provider) {
 		  InitializeComponent();
+		  this.Icon = SMOz.Properties.Resources.Application;
 
 		  this.manager = manager;
 		  this.provider = provider;
@@ -66,7 +67,7 @@ namespace SMOz.UI
 		  _templateList.Items.Clear();
 		  foreach (Category category in provider) {
 			 foreach (CategoryItem item in category.Items) {
-				AddToListView(item.FormattedValue, category.FormattedName);
+				AddToListView(item.ToFormat(), category.ToFormat());
 			 }
 		  }
 		  _templateList.EndUpdate();
@@ -183,8 +184,9 @@ namespace SMOz.UI
 			 _templateList.Items.Clear();
 			 foreach (Category category in provider) {
 				foreach (CategoryItem item in category.Items) {
-				    if (item.FormattedValue.ToLower().Contains(query)) {
-					   AddToListView(item.FormattedValue, category.FormattedName);
+				    string item_format = item.ToFormat();
+				    if (item_format.ToLower().Contains(query)) {
+					   AddToListView(item_format, category.ToFormat());
 				    }
 				}
 			 }

@@ -25,27 +25,47 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace SMOz.Utilities
 {
-    public class KnownCategories : IEnumerable<string>
+    [Serializable]
+    public class KnownCategories : IEnumerable<string>, ISerializable
     {
-	   private KnownCategories(){
-		  knownCategories = new Dictionary<string, string>();
+
+	   public void From(KnownCategories from) {
+		  this.knownCategories = from.knownCategories;
 	   }
 
-	   private static KnownCategories instance;
+	   // change the default constructor to private
+	   private KnownCategories() {
+		  knownCategories = new SortedDictionary<string, string>();
+	   }
 
 	   public static KnownCategories Instance {
-		  get {
-			 if (instance == null) {
-				instance = new KnownCategories();
-			 }
-			 return instance;
+		  get { return SerializationProxy.sharedOnly; }
+	   }
+
+	   [Serializable]
+	   private class SerializationProxy : IObjectReference
+	   {
+		  internal static readonly KnownCategories sharedOnly = new KnownCategories();
+		  object IObjectReference.GetRealObject(StreamingContext context) {
+			 // When deserializing this object, return a reference to
+			 // Foo's singleton object instead.
+			 return sharedOnly;
 		  }
 	   }
 
-	   Dictionary<string, string> knownCategories;
+	   [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+	   void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+		  info.SetType(typeof(KnownCategories.SerializationProxy));
+	   }
+
+
+	   SortedDictionary<string, string> knownCategories = new SortedDictionary<string, string>();
+//	   Dictionary<string, string> knownCategories;
 
 	   public void AddCategories(string[] names) {
 		  for (int i = 0; i < names.Length; i++) {
@@ -53,7 +73,12 @@ namespace SMOz.Utilities
 		  }
 	   }
 
+	   public void Add(object name) {
+		  AddCategory(name.ToString());
+	   }
+
 	   public bool AddCategory(string name) {
+		  if (name == "") { return false; }
 		  string _name = name.ToLower();
 		  if (!knownCategories.ContainsKey(_name)) {
 			 knownCategories.Add(_name, name);

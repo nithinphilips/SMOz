@@ -52,15 +52,17 @@ namespace SMOz.UI
 		  this._categoryName = new System.Windows.Forms.TextBox();
 		  this._cancel = new System.Windows.Forms.Button();
 		  this._ok = new System.Windows.Forms.Button();
+		  this.pictureBox1 = new System.Windows.Forms.PictureBox();
+		  ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 		  this.SuspendLayout();
 		  // 
 		  // _categoryName
 		  // 
 		  this._categoryName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 				    | System.Windows.Forms.AnchorStyles.Right)));
-		  this._categoryName.Location = new System.Drawing.Point(12, 12);
+		  this._categoryName.Location = new System.Drawing.Point(34, 12);
 		  this._categoryName.Name = "_categoryName";
-		  this._categoryName.Size = new System.Drawing.Size(346, 20);
+		  this._categoryName.Size = new System.Drawing.Size(324, 20);
 		  this._categoryName.TabIndex = 0;
 		  // 
 		  // _cancel
@@ -84,6 +86,17 @@ namespace SMOz.UI
 		  this._ok.TabIndex = 2;
 		  this._ok.Text = "OK";
 		  this._ok.UseVisualStyleBackColor = true;
+		  this._ok.Click += new System.EventHandler(this._ok_Click);
+		  // 
+		  // pictureBox1
+		  // 
+		  this.pictureBox1.Image = global::SMOz.Properties.Resources.File_NewCategory;
+		  this.pictureBox1.Location = new System.Drawing.Point(12, 14);
+		  this.pictureBox1.Name = "pictureBox1";
+		  this.pictureBox1.Size = new System.Drawing.Size(16, 16);
+		  this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+		  this.pictureBox1.TabIndex = 3;
+		  this.pictureBox1.TabStop = false;
 		  // 
 		  // NewCategory
 		  // 
@@ -92,6 +105,7 @@ namespace SMOz.UI
 		  this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 		  this.CancelButton = this._cancel;
 		  this.ClientSize = new System.Drawing.Size(370, 69);
+		  this.Controls.Add(this.pictureBox1);
 		  this.Controls.Add(this._ok);
 		  this.Controls.Add(this._cancel);
 		  this.Controls.Add(this._categoryName);
@@ -99,6 +113,7 @@ namespace SMOz.UI
 		  this.Name = "NewCategory";
 		  this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 		  this.Text = "Create New Category";
+		  ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 		  this.ResumeLayout(false);
 		  this.PerformLayout();
 
@@ -109,5 +124,6 @@ namespace SMOz.UI
 	   private System.Windows.Forms.TextBox _categoryName;
 	   private System.Windows.Forms.Button _cancel;
 	   private System.Windows.Forms.Button _ok;
+	   private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

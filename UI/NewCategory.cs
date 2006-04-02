@@ -29,6 +29,8 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
+using SMOz.Utilities;
 
 namespace SMOz.UI
 {
@@ -36,12 +38,53 @@ namespace SMOz.UI
     {
 	   public NewCategory(string suggested) {
 		  InitializeComponent();
+		  this.Icon = SMOz.Properties.Resources.Application;
+
 		  this._categoryName.Text = suggested;
 	   }
 
 	   public string CategoryName {
 		  get { return _categoryName.Text; }
 		  set { _categoryName.Text = value; }
+	   }
+
+	   private void _ok_Click(object sender, EventArgs e) {
+		  // validate
+		  if(string.IsNullOrEmpty(this._categoryName.Text)){
+			 MessageBox.Show("Sorry, You must enter the name for a new category!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			 this.DialogResult = DialogResult.None;
+		  }else{
+
+			 if (!Utility.IsValidPath(this._categoryName.Text)) {
+				MessageBox.Show("Sorry, You must enter the valid name for a new category!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				this.DialogResult = DialogResult.None;
+				return;
+			 }
+
+			 // Remove leading path seperator
+			 if (this._categoryName.Text[0] == Path.DirectorySeparatorChar) {
+				this._categoryName.Text = this._categoryName.Text.Substring(1, this._categoryName.Text.Length - 1);
+			 }
+
+			 if (string.IsNullOrEmpty(this._categoryName.Text)) {
+				MessageBox.Show("Sorry, You must enter the valid name for a new category!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				this.DialogResult = DialogResult.None;
+				return;
+			 }
+
+
+			 // Remove trailing path seperator
+			 if (this._categoryName.Text[this._categoryName.Text.Length - 1] == Path.DirectorySeparatorChar) {
+				this._categoryName.Text = this._categoryName.Text.Substring(0, this._categoryName.Text.Length - 1);
+			 }
+
+			 if (string.IsNullOrEmpty(this._categoryName.Text)) {
+				MessageBox.Show("Sorry, You must enter the valid name for a new category!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				this.DialogResult = DialogResult.None;
+				return;
+			 }
+
+		  }
 	   }
     }
 }

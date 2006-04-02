@@ -36,6 +36,7 @@ namespace SMOz.UI
     {
 	   public MatchPreview() {
 		  InitializeComponent();
+		  this.Icon = SMOz.Properties.Resources.Application;
 	   }
     }
 }

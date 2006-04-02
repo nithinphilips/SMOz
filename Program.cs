@@ -26,6 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using SMOz.UI;
+using SMOz.Utilities;
+using System.IO;
+using SMOz.Template;
 
 namespace SMOz
 {
@@ -36,9 +39,37 @@ namespace SMOz
 	   /// </summary>
 	   [STAThread]
 	   static void Main() {
+
+		  LoadRuntimeData();
+
 		  Application.EnableVisualStyles();
 		  Application.SetCompatibleTextRenderingDefault(false);
 		  Application.Run(new MainForm());
 	   }
+
+	   public static void PersistRuntimeData() {
+		  Utility.Serialize<KnownCategories>(KnownCategories.Instance, Utility.KNOWN_CATEGORIES_FILE_PATH);
+		  Utility.Serialize<IgnoreList>(IgnoreList.Instance, Utility.IGNORE_LIST_FILE_PATH);
+	   }
+
+	   private static void LoadRuntimeData() {
+		  if (File.Exists(Utility.KNOWN_CATEGORIES_FILE_PATH)) {
+			 KnownCategories.Instance.From(Utility.DeSerialize<KnownCategories>(Utility.KNOWN_CATEGORIES_FILE_PATH));
+		  } else {
+			 Directory.CreateDirectory(Path.GetDirectoryName(Utility.KNOWN_CATEGORIES_FILE_PATH));
+		  }
+
+		  if (File.Exists(Utility.IGNORE_LIST_FILE_PATH)) {
+			 IgnoreList.Instance.From(Utility.DeSerialize<IgnoreList>(Utility.IGNORE_LIST_FILE_PATH));
+		  } else {
+			 Directory.CreateDirectory(Path.GetDirectoryName(Utility.IGNORE_LIST_FILE_PATH));
+			 IgnoreList.Instance.Name = "Ignore List";
+			 IgnoreList.Instance.Add(new CategoryItem("desktop.ini", CategoryItemType.WildCard));
+			 IgnoreList.Instance.Add(new CategoryItem("Startup", CategoryItemType.String));
+		  }
+	   }
+
+	   
+
     }
 }

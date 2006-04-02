@@ -36,7 +36,7 @@ namespace SMOz.Template
 		  IniWriter writer = new IniWriter();
 		  foreach (Category category in template){
 			 for (int i = 0; i < category.Count; i++){
-				writer.AddValue(category[i].FormattedValue, category.FormattedName);
+				writer.AddValue(category[i].ToFormat(), category.ToFormat());
 			 }
 		  }
 		  writer.Save(file);
@@ -47,31 +47,17 @@ namespace SMOz.Template
 		  return Build(IniParser.Parse(file));
 	   }
 
-	   private static Category BuildCategory(string format) {
-		  Category cat = new Category();
-		  cat.FormattedName = format;
-		  return cat;
-	   }
-
-	   private static bool ValidatePath(string path, out int index) {
-		  index = -1;
-		  return false;
-	   }
-
 	   public static TemplateProvider Build(IniSection[] sections) {
 		  List<Category> categories = new List<Category>(sections.Length);
 		  for (int i = 0; i < sections.Length; i++) {
-			 Category category = new Category(sections[i].Count);
-			 category.FormattedName = sections[i].Name;
+			 Category category = Category.FromFormat(sections[i].Name, sections[i].Count);
 			 for (int j = 0; j < sections[i].Count; j++) {
-				CategoryItem item = new CategoryItem();
-				item.FormattedValue = sections[i][j];
-				category.AddItem(item);
+				category.Add(CategoryItem.FromFormat(sections[i][j]));
 			 }
 			 categories.Add(category);
 		  }
 		  TemplateProvider template = new TemplateProvider(categories);
-		  KnownCategories.Instance.AddCategories(template.Categories);
+		  KnownCategories.Instance.AddCategories(template.ToStringArray());
 		  return template;
 	   }
     }

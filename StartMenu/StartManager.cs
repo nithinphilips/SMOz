@@ -28,6 +28,8 @@ using System.Text;
 using SMOz.Utilities;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace SMOz.StartMenu
 {
@@ -58,6 +60,10 @@ namespace SMOz.StartMenu
 
 	   public bool AddItem(string relativePath, StartItemType type) {
 		  return AddItem(new StartItem(relativePath, type, ""));
+	   }
+
+	   public void Add(StartItem item) {
+		  AddItem(item);
 	   }
 
 	   public bool AddItem(StartItem item) {
@@ -192,9 +198,7 @@ namespace SMOz.StartMenu
 	   private StartItem[] GetByPattern(string pattern, string category, bool allCategories) {
 		  List<StartItem> result = new List<StartItem>();
 
-		  RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Singleline;
-		  if (!Utility.IGNORE_CASE) { options = RegexOptions.Singleline; }
-		  Regex regex = new Regex(pattern, options);
+		  Regex regex = new Regex(pattern, Utility.REGEX_OPTIONS);
 
 		  if (allCategories) {
 			 foreach (StartItem startItem in this.startItems) {

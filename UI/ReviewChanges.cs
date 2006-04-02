@@ -36,6 +36,8 @@ namespace SMOz.UI
     {
 	   public ReviewChanges(bool list) {
 		  InitializeComponent();
+		  this.Icon = SMOz.Properties.Resources.Application;
+
 		  this._table.RowStyles.Clear();
 
 		  if (list) {

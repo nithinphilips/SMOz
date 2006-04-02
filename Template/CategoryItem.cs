@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SMOz.Template
 {
@@ -41,20 +42,59 @@ namespace SMOz.Template
 		  this.type = type;
 	   }
 	   
-	   string value;
+	   string value = string.Empty;
+	   string pattern = string.Empty;
 	   CategoryItemType type = CategoryItemType.String;
 
+	   /// <summary>
+	   /// Gets or Sets the type of this category item.
+	   /// </summary>
 	   public CategoryItemType Type {
 		  get { return type; }
-		  set { type = value; }
+		  set {
+			 this.pattern = string.Empty;
+			 type = value; 
+		  }
 	   }
 
+	   /// <summary>
+	   /// Get or sets the value of this category item.
+	   /// </summary>
 	   public string Value {
 		  get { return this.value; }
-		  set { this.value = value; }
+		  set {
+			 this.pattern = string.Empty;
+			 this.value = value; 
+		  }
 	   }
 
-	   public CategoryItem FromFormat(string format) {
+	   /// <summary>
+	   /// Gets the pattern of this item. When performing Regex match, use this property.
+	   /// </summary>
+	   public string Pattern {
+		  get {
+			 if (this.type == CategoryItemType.Regex) {
+				// Regex values are parsed as-is
+				return this.value;
+			 } else {
+				if (string.IsNullOrEmpty(this.pattern)) {
+				    switch (this.type) {
+					   case CategoryItemType.WildCard:
+						  // Escape wild card
+						  this.pattern = ".*" + Regex.Escape(this.value) + ".*";
+						  break;
+					   default:
+						  // Escape anything else by default
+						  this.pattern = Regex.Escape(this.value);
+						  break;
+				    }
+				}
+				return this.pattern;
+			 }
+		  }
+	   }
+
+	   public static CategoryItem FromFormat(string format) {
 		  CategoryItem item = new CategoryItem();
 
 		  if (string.IsNullOrEmpty(format)) {
@@ -86,43 +126,10 @@ namespace SMOz.Template
 				return "*" + this.value;
 			 case CategoryItemType.Regex:
 				return "@" + this.value;
+			 default:
+				return this.Value;
 		  }
-		  return this.Value;
 	   }
 
-	   [Obsolete]
-	   public string FormattedValue {
-		  get {
-			 switch (this.type) {
-				case CategoryItemType.WildCard:
-				    return "*" + this.value;
-				case CategoryItemType.Regex:
-				    return "@" + this.value;
-			 }
-			 return this.Value;
-		  }
-		  set {
-			 if (string.IsNullOrEmpty(value)) {
-				this.value = "";
-				this.type = CategoryItemType.String;
-			 } else {
-				char firstChar = value[0];
-				switch (firstChar) {
-				    case '*':
-					   this.type = CategoryItemType.WildCard;
-					   this.value = value.Substring(1);
-					   break;
-				    case '@':
-					   this.type = CategoryItemType.Regex;
-					   this.value = value.Substring(1);
-					   break;
-				    default:
-					   this.value = value;
-					   this.type = CategoryItemType.String;
-					   break;
-				}
-			 }
-		  }
-	   }
     }
 }

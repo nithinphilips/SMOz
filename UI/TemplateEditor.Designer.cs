@@ -191,7 +191,7 @@ namespace SMOz.UI
 		  // 
 		  this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 		  this.pictureBox1.BackColor = System.Drawing.SystemColors.Window;
-		  this.pictureBox1.Image = global::SMOz.Properties.Resources.kfind;
+		  this.pictureBox1.Image = global::SMOz.Properties.Resources.Edit_Find_Big;
 		  this.pictureBox1.Location = new System.Drawing.Point(455, 334);
 		  this.pictureBox1.Name = "pictureBox1";
 		  this.pictureBox1.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
@@ -217,7 +217,7 @@ namespace SMOz.UI
 		  // _showPreview
 		  // 
 		  this._showPreview.Appearance = System.Windows.Forms.Appearance.Button;
-		  this._showPreview.Image = global::SMOz.Properties.Resources.filefind;
+		  this._showPreview.Image = global::SMOz.Properties.Resources.Edit_Find;
 		  this._showPreview.Location = new System.Drawing.Point(12, 330);
 		  this._showPreview.Name = "_showPreview";
 		  this._showPreview.Size = new System.Drawing.Size(75, 24);

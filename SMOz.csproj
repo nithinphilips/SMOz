@@ -31,13 +31,13 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandConverter.cs" />
+    <Compile Include="Commands\UI\RenameStartItemCommand.cs" />
     <Compile Include="StartMenu\StartCategorizer.cs" />
     <Compile Include="Template\ICategoryProvider.cs" />
     <Compile Include="Commands\Command.cs">
@@ -49,7 +49,6 @@
     <Compile Include="Commands\CommandGroup.cs" />
     <Compile Include="Commands\UI\DeleteStartItemCommand.cs" />
     <Compile Include="Commands\UI\MoveStartItemCommand.cs" />
-    <Compile Include="Commands\UI\RenameStartItemCommand.cs" />
     <Compile Include="Ini\IniSection.cs" />
     <Compile Include="Ini\Parser.cs" />
     <Compile Include="Ini\Writer.cs" />
@@ -88,15 +87,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="StartMenu\StartItem.cs" />
     <Compile Include="StartMenu\StartManager.cs" />
@@ -149,39 +139,36 @@
     <Compile Include="Utilities\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\kfind.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\filefind.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\PasteHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Preferences.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\View.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\CopyHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\CutHS.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Delete.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="COPYING" />
     <None Include="README" />
     <None Include="Resources\CODING GUIDE" />
     <None Include="Resources\SMOz.cd" />
-    <None Include="Resources\Edit_UndoHS.png" />
     <None Include="Resources\Template.ini" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Installer\gpl.txt" />
+    <None Include="Resources\App.ico" />
+    <None Include="Resources\File_NewCategory.png" />
+    <None Include="Resources\Edit_View.png" />
+    <None Include="Resources\Tools_Organize.png" />
+    <None Include="Resources\Tool_GoUp.png" />
+    <None Include="Resources\Edit_Find_Binoc.png" />
+    <None Include="Resources\Edit_Rename.png" />
+    <None Include="Resources\Edit_Find_Big.png" />
+    <None Include="Resources\Help_Help.png" />
+    <None Include="Resources\Tools_Run.png" />
+    <None Include="Resources\Edit_Find.png" />
+    <None Include="Resources\File_Save.png" />
+    <None Include="Resources\File_Open.png" />
+    <None Include="Resources\Edit_Undo.png" />
+    <None Include="Resources\Edit_Redo.png" />
+    <None Include="Resources\Edit_Preferences.png" />
+    <None Include="Resources\Edit_Paste.png" />
+    <None Include="Resources\Edit_Delete.png" />
+    <None Include="Resources\Edit_Cut.png" />
+    <None Include="Resources\Edit_Copy.png" />
+    <None Include="Resources\Tools_Cleanup.png" />
+    <None Include="Resources\File_New.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

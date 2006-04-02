@@ -91,21 +91,34 @@ namespace SMOz.UI
 		  this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
 		  this.regexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this._searchText = new System.Windows.Forms.ToolStripTextBox();
+		  this._newTemplate = new System.Windows.Forms.ToolStripButton();
+		  this._open = new System.Windows.Forms.ToolStripButton();
+		  this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+		  this._cutButton = new System.Windows.Forms.ToolStripButton();
+		  this._pasteButton = new System.Windows.Forms.ToolStripButton();
+		  this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+		  this._undoButton = new System.Windows.Forms.ToolStripSplitButton();
+		  this._redoButton = new System.Windows.Forms.ToolStripSplitButton();
+		  this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 		  this._toggleView = new System.Windows.Forms.ToolStripSplitButton();
 		  this.tileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.iconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.smallIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.detailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+		  this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+		  this._applyChangesButton = new System.Windows.Forms.ToolStripButton();
 		  this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 		  this._categoryTree = new SMOz.Utilities.TreeViewEx();
 		  this._itemList = new System.Windows.Forms.ListView();
 		  this._colName = new System.Windows.Forms.ColumnHeader();
 		  this._colLocation = new System.Windows.Forms.ColumnHeader();
 		  this._itemListContext = new System.Windows.Forms.ContextMenuStrip(this.components);
-		  this.convertToCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+		  this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
-		  this.exporeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-		  this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripMenuItem();
+		  this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+		  this.deleteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+		  this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripSeparator();
+		  this.convertToCategoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this._categoryTreeContext = new System.Windows.Forms.ContextMenuStrip(this.components);
 		  this.newCategoryHereToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.hideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -154,9 +167,11 @@ namespace SMOz.UI
 		  // 
 		  // openTemplateToolStripMenuItem
 		  // 
+		  this.openTemplateToolStripMenuItem.Image = global::SMOz.Properties.Resources.File_Open;
 		  this.openTemplateToolStripMenuItem.Name = "openTemplateToolStripMenuItem";
 		  this.openTemplateToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
 		  this.openTemplateToolStripMenuItem.Text = "Open Template";
+		  this.openTemplateToolStripMenuItem.Click += new System.EventHandler(this.openTemplateToolStripMenuItem_Click);
 		  // 
 		  // saveTemplateToolStripMenuItem
 		  // 
@@ -166,6 +181,7 @@ namespace SMOz.UI
 		  // 
 		  // saveTemplateAsToolStripMenuItem
 		  // 
+		  this.saveTemplateAsToolStripMenuItem.Image = global::SMOz.Properties.Resources.File_Save;
 		  this.saveTemplateAsToolStripMenuItem.Name = "saveTemplateAsToolStripMenuItem";
 		  this.saveTemplateAsToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
 		  this.saveTemplateAsToolStripMenuItem.Text = "Save Template As...";
@@ -217,7 +233,7 @@ namespace SMOz.UI
 		  // 
 		  // undoToolStripMenuItem
 		  // 
-		  this.undoToolStripMenuItem.Image = global::SMOz.Properties.Resources.Edit_UndoHS;
+		  this.undoToolStripMenuItem.Image = global::SMOz.Properties.Resources.Edit_Undo;
 		  this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 		  this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
 		  this.undoToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
@@ -226,6 +242,7 @@ namespace SMOz.UI
 		  // 
 		  // redoToolStripMenuItem
 		  // 
+		  this.redoToolStripMenuItem.Image = global::SMOz.Properties.Resources.Edit_Redo;
 		  this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 		  this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
 		  this.redoToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
@@ -239,7 +256,7 @@ namespace SMOz.UI
 		  // 
 		  // cutToolStripMenuItem
 		  // 
-		  this.cutToolStripMenuItem.Image = global::SMOz.Properties.Resources.CutHS;
+		  this.cutToolStripMenuItem.Image = global::SMOz.Properties.Resources.Edit_Cut;
 		  this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 		  this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
 		  this.cutToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
@@ -248,7 +265,7 @@ namespace SMOz.UI
 		  // 
 		  // pasteToolStripMenuItem
 		  // 
-		  this.pasteToolStripMenuItem.Image = global::SMOz.Properties.Resources.PasteHS;
+		  this.pasteToolStripMenuItem.Image = global::SMOz.Properties.Resources.Edit_Paste;
 		  this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
 		  this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
 		  this.pasteToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
@@ -257,7 +274,7 @@ namespace SMOz.UI
 		  // 
 		  // deleteToolStripMenuItem
 		  // 
-		  this.deleteToolStripMenuItem.Image = global::SMOz.Properties.Resources.Delete;
+		  this.deleteToolStripMenuItem.Image = global::SMOz.Properties.Resources.Edit_Delete;
 		  this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
 		  this.deleteToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
 		  this.deleteToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
@@ -287,6 +304,7 @@ namespace SMOz.UI
 		  // 
 		  // addCategoryToolStripMenuItem
 		  // 
+		  this.addCategoryToolStripMenuItem.Image = global::SMOz.Properties.Resources.File_NewCategory;
 		  this.addCategoryToolStripMenuItem.Name = "addCategoryToolStripMenuItem";
 		  this.addCategoryToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 		  this.addCategoryToolStripMenuItem.Text = "Add Category";
@@ -313,6 +331,7 @@ namespace SMOz.UI
 		  // 
 		  // applyTemplateToolStripMenuItem1
 		  // 
+		  this.applyTemplateToolStripMenuItem1.Image = global::SMOz.Properties.Resources.Tools_Organize;
 		  this.applyTemplateToolStripMenuItem1.Name = "applyTemplateToolStripMenuItem1";
 		  this.applyTemplateToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
 		  this.applyTemplateToolStripMenuItem1.Text = "Apply Template";
@@ -332,6 +351,7 @@ namespace SMOz.UI
 		  // 
 		  // cleanupToolStripMenuItem
 		  // 
+		  this.cleanupToolStripMenuItem.Image = global::SMOz.Properties.Resources.Tools_Cleanup;
 		  this.cleanupToolStripMenuItem.Name = "cleanupToolStripMenuItem";
 		  this.cleanupToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
 		  this.cleanupToolStripMenuItem.Text = "Cleanup";
@@ -348,14 +368,15 @@ namespace SMOz.UI
 		  // 
 		  // helpToolStripMenuItem1
 		  // 
+		  this.helpToolStripMenuItem1.Image = global::SMOz.Properties.Resources.Help_Help;
 		  this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
-		  this.helpToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+		  this.helpToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
 		  this.helpToolStripMenuItem1.Text = "Help";
 		  // 
 		  // aboutToolStripMenuItem
 		  // 
 		  this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-		  this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+		  this.aboutToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
 		  this.aboutToolStripMenuItem.Text = "About";
 		  // 
 		  // _statusStrip
@@ -379,7 +400,18 @@ namespace SMOz.UI
 		  this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._searchOptions,
             this._searchText,
-            this._toggleView});
+            this._newTemplate,
+            this._open,
+            this.toolStripSeparator2,
+            this._cutButton,
+            this._pasteButton,
+            this.toolStripSeparator3,
+            this._undoButton,
+            this._redoButton,
+            this.toolStripSeparator1,
+            this._toggleView,
+            this.toolStripSeparator4,
+            this._applyChangesButton});
 		  this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 		  this.toolStrip1.Name = "toolStrip1";
 		  this.toolStrip1.Size = new System.Drawing.Size(685, 25);
@@ -445,6 +477,80 @@ namespace SMOz.UI
 		  this._searchText.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 		  this._searchText.TextChanged += new System.EventHandler(this._searchText_TextChanged);
 		  // 
+		  // _newTemplate
+		  // 
+		  this._newTemplate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._newTemplate.Image = global::SMOz.Properties.Resources.File_New;
+		  this._newTemplate.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._newTemplate.Name = "_newTemplate";
+		  this._newTemplate.Size = new System.Drawing.Size(23, 22);
+		  this._newTemplate.Text = "New";
+		  // 
+		  // _open
+		  // 
+		  this._open.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._open.Image = global::SMOz.Properties.Resources.File_Open;
+		  this._open.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._open.Name = "_open";
+		  this._open.Size = new System.Drawing.Size(23, 22);
+		  this._open.Text = "Open";
+		  this._open.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+		  // 
+		  // toolStripSeparator2
+		  // 
+		  this.toolStripSeparator2.Name = "toolStripSeparator2";
+		  this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+		  // 
+		  // _cutButton
+		  // 
+		  this._cutButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._cutButton.Image = global::SMOz.Properties.Resources.Edit_Cut;
+		  this._cutButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._cutButton.Name = "_cutButton";
+		  this._cutButton.Size = new System.Drawing.Size(23, 22);
+		  this._cutButton.Text = "Cut";
+		  this._cutButton.Click += new System.EventHandler(this.cutToolStripMenuItem_Click);
+		  // 
+		  // _pasteButton
+		  // 
+		  this._pasteButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._pasteButton.Image = global::SMOz.Properties.Resources.Edit_Paste;
+		  this._pasteButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._pasteButton.Name = "_pasteButton";
+		  this._pasteButton.Size = new System.Drawing.Size(23, 22);
+		  this._pasteButton.Text = "Paste";
+		  this._pasteButton.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
+		  // 
+		  // toolStripSeparator3
+		  // 
+		  this.toolStripSeparator3.Name = "toolStripSeparator3";
+		  this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+		  // 
+		  // _undoButton
+		  // 
+		  this._undoButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._undoButton.Image = global::SMOz.Properties.Resources.Edit_Undo;
+		  this._undoButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._undoButton.Name = "_undoButton";
+		  this._undoButton.Size = new System.Drawing.Size(32, 22);
+		  this._undoButton.Text = "Undo";
+		  this._undoButton.ButtonClick += new System.EventHandler(this.undoToolStripMenuItem_Click);
+		  // 
+		  // _redoButton
+		  // 
+		  this._redoButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._redoButton.Image = global::SMOz.Properties.Resources.Edit_Redo;
+		  this._redoButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._redoButton.Name = "_redoButton";
+		  this._redoButton.Size = new System.Drawing.Size(32, 22);
+		  this._redoButton.Text = "Redo";
+		  this._redoButton.ButtonClick += new System.EventHandler(this.redoToolStripMenuItem_Click);
+		  // 
+		  // toolStripSeparator1
+		  // 
+		  this.toolStripSeparator1.Name = "toolStripSeparator1";
+		  this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+		  // 
 		  // _toggleView
 		  // 
 		  this._toggleView.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -453,7 +559,7 @@ namespace SMOz.UI
             this.iconsToolStripMenuItem,
             this.smallIconsToolStripMenuItem,
             this.detailsToolStripMenuItem});
-		  this._toggleView.Image = global::SMOz.Properties.Resources.View;
+		  this._toggleView.Image = global::SMOz.Properties.Resources.Edit_View;
 		  this._toggleView.ImageTransparentColor = System.Drawing.Color.Magenta;
 		  this._toggleView.Name = "_toggleView";
 		  this._toggleView.Size = new System.Drawing.Size(32, 22);
@@ -488,6 +594,21 @@ namespace SMOz.UI
 		  this.detailsToolStripMenuItem.Text = "Details";
 		  this.detailsToolStripMenuItem.Click += new System.EventHandler(this.detailsToolStripMenuItem_Click);
 		  // 
+		  // toolStripSeparator4
+		  // 
+		  this.toolStripSeparator4.Name = "toolStripSeparator4";
+		  this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+		  // 
+		  // _applyChangesButton
+		  // 
+		  this._applyChangesButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._applyChangesButton.Image = global::SMOz.Properties.Resources.Tools_Run;
+		  this._applyChangesButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._applyChangesButton.Name = "_applyChangesButton";
+		  this._applyChangesButton.Size = new System.Drawing.Size(23, 22);
+		  this._applyChangesButton.Text = "Apply Changes";
+		  this._applyChangesButton.Click += new System.EventHandler(this.applyChangesToolStripMenuItem_Click);
+		  // 
 		  // splitContainer1
 		  // 
 		  this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -511,15 +632,18 @@ namespace SMOz.UI
 		  this._categoryTree.Dock = System.Windows.Forms.DockStyle.Fill;
 		  this._categoryTree.FullRowSelect = true;
 		  this._categoryTree.HideSelection = false;
+		  this._categoryTree.LabelEdit = true;
 		  this._categoryTree.Location = new System.Drawing.Point(0, 0);
 		  this._categoryTree.Name = "_categoryTree";
 		  this._categoryTree.Size = new System.Drawing.Size(187, 364);
 		  this._categoryTree.TabIndex = 0;
 		  this._categoryTree.DragDrop += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragDrop);
 		  this._categoryTree.DragOver += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragOver);
+		  this._categoryTree.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._categoryTree_AfterLabelEdit);
 		  this._categoryTree.DragLeave += new System.EventHandler(this._categoryTree_DragLeave);
 		  this._categoryTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this._categoryTree_AfterSelect);
 		  this._categoryTree.DragEnter += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragEnter);
+		  this._categoryTree.BeforeLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._categoryTree_BeforeLabelEdit);
 		  this._categoryTree.KeyDown += new System.Windows.Forms.KeyEventHandler(this._categoryTree_KeyDown);
 		  this._categoryTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this._categoryTree_MouseDown);
 		  // 
@@ -539,6 +663,7 @@ namespace SMOz.UI
 		  this._itemList.TileSize = new System.Drawing.Size(200, 56);
 		  this._itemList.UseCompatibleStateImageBehavior = false;
 		  this._itemList.View = System.Windows.Forms.View.Tile;
+		  this._itemList.DoubleClick += new System.EventHandler(this._itemList_DoubleClick);
 		  this._itemList.SelectedIndexChanged += new System.EventHandler(this._itemList_SelectedIndexChanged);
 		  this._itemList.KeyDown += new System.Windows.Forms.KeyEventHandler(this._itemList_KeyDown);
 		  this._itemList.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this._itemList_AfterLabelEdit);
@@ -557,12 +682,47 @@ namespace SMOz.UI
 		  // _itemListContext
 		  // 
 		  this._itemListContext.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.convertToCategoryToolStripMenuItem,
+            this.openToolStripMenuItem,
             this.toolStripMenuItem7,
-            this.exporeToolStripMenuItem});
+            this.renameToolStripMenuItem,
+            this.deleteToolStripMenuItem1,
+            this.toolStripMenuItem9,
+            this.convertToCategoryToolStripMenuItem});
 		  this._itemListContext.Name = "_itemListContext";
 		  this._itemListContext.ShowImageMargin = false;
-		  this._itemListContext.Size = new System.Drawing.Size(159, 54);
+		  this._itemListContext.Size = new System.Drawing.Size(159, 104);
+		  this._itemListContext.Opening += new System.ComponentModel.CancelEventHandler(this._itemListContext_Opening);
+		  // 
+		  // openToolStripMenuItem
+		  // 
+		  this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+		  this.openToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+		  this.openToolStripMenuItem.Text = "Locate";
+		  this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+		  // 
+		  // toolStripMenuItem7
+		  // 
+		  this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+		  this.toolStripMenuItem7.Size = new System.Drawing.Size(155, 6);
+		  // 
+		  // renameToolStripMenuItem
+		  // 
+		  this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+		  this.renameToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+		  this.renameToolStripMenuItem.Text = "Rename";
+		  this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
+		  // 
+		  // deleteToolStripMenuItem1
+		  // 
+		  this.deleteToolStripMenuItem1.Name = "deleteToolStripMenuItem1";
+		  this.deleteToolStripMenuItem1.Size = new System.Drawing.Size(158, 22);
+		  this.deleteToolStripMenuItem1.Text = "Delete";
+		  this.deleteToolStripMenuItem1.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+		  // 
+		  // toolStripMenuItem9
+		  // 
+		  this.toolStripMenuItem9.Name = "toolStripMenuItem9";
+		  this.toolStripMenuItem9.Size = new System.Drawing.Size(155, 6);
 		  // 
 		  // convertToCategoryToolStripMenuItem
 		  // 
@@ -570,25 +730,6 @@ namespace SMOz.UI
 		  this.convertToCategoryToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
 		  this.convertToCategoryToolStripMenuItem.Text = "Convert to category";
 		  this.convertToCategoryToolStripMenuItem.Click += new System.EventHandler(this.convertToCategoryToolStripMenuItem_Click);
-		  // 
-		  // toolStripMenuItem7
-		  // 
-		  this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-		  this.toolStripMenuItem7.Size = new System.Drawing.Size(155, 6);
-		  // 
-		  // exporeToolStripMenuItem
-		  // 
-		  this.exporeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem9});
-		  this.exporeToolStripMenuItem.Name = "exporeToolStripMenuItem";
-		  this.exporeToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-		  this.exporeToolStripMenuItem.Text = "Explore";
-		  // 
-		  // toolStripMenuItem9
-		  // 
-		  this.toolStripMenuItem9.Name = "toolStripMenuItem9";
-		  this.toolStripMenuItem9.Size = new System.Drawing.Size(97, 22);
-		  this.toolStripMenuItem9.Text = "...";
 		  // 
 		  // _categoryTreeContext
 		  // 
@@ -601,6 +742,7 @@ namespace SMOz.UI
 		  this._categoryTreeContext.Name = "_categoryTreeContext";
 		  this._categoryTreeContext.ShowImageMargin = false;
 		  this._categoryTreeContext.Size = new System.Drawing.Size(156, 98);
+		  this._categoryTreeContext.Opening += new System.ComponentModel.CancelEventHandler(this._categoryTreeContext_Opening);
 		  // 
 		  // newCategoryHereToolStripMenuItem
 		  // 
@@ -614,6 +756,7 @@ namespace SMOz.UI
 		  this.hideToolStripMenuItem.Name = "hideToolStripMenuItem";
 		  this.hideToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
 		  this.hideToolStripMenuItem.Text = "Hide";
+		  this.hideToolStripMenuItem.Click += new System.EventHandler(this.hideToolStripMenuItem_Click);
 		  // 
 		  // removeToolStripMenuItem
 		  // 
@@ -646,6 +789,7 @@ namespace SMOz.UI
 		  this.MainMenuStrip = this.menuStrip1;
 		  this.Name = "MainForm";
 		  this.Text = "SMOz";
+		  this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 		  this.menuStrip1.ResumeLayout(false);
 		  this.menuStrip1.PerformLayout();
 		  this._statusStrip.ResumeLayout(false);
@@ -713,8 +857,6 @@ namespace SMOz.UI
 	   private System.Windows.Forms.ToolStripMenuItem applyTemplateToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem applyTemplateToolStripMenuItem1;
 	   private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
-	   private System.Windows.Forms.ToolStripMenuItem exporeToolStripMenuItem;
-	   private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem9;
 	   private System.Windows.Forms.ToolStripMenuItem cleanupToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripSplitButton _toggleView;
@@ -726,5 +868,20 @@ namespace SMOz.UI
 	   private System.Windows.Forms.ToolStripSeparator toolStripMenuItem8;
 	   private System.Windows.Forms.ToolStripMenuItem categoryToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem addCategoryToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
+	   private System.Windows.Forms.ToolStripSeparator toolStripMenuItem9;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+	   private System.Windows.Forms.ToolStripButton _open;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+	   private System.Windows.Forms.ToolStripButton _newTemplate;
+	   private System.Windows.Forms.ToolStripButton _cutButton;
+	   private System.Windows.Forms.ToolStripButton _pasteButton;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+	   private System.Windows.Forms.ToolStripSplitButton _undoButton;
+	   private System.Windows.Forms.ToolStripSplitButton _redoButton;
+	   private System.Windows.Forms.ToolStripButton _applyChangesButton;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
     }
 }

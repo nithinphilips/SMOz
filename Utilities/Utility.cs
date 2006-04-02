@@ -27,21 +27,28 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using SMOz.Template;
+using System.Windows.Forms;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+using System.Text.RegularExpressions;
 
 namespace SMOz.Utilities
 {
     public sealed class Utility
     {
-	   public static bool IGNORE_CASE = true;
+	   public const bool IGNORE_CASE = true;
+	   public const RegexOptions REGEX_OPTIONS = RegexOptions.IgnoreCase | RegexOptions.Singleline;
 
-	   public static string USER_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\");
-	   public static string LOCAL_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\").Replace(Environment.UserName, "All Users");
+	   public static readonly string KNOWN_CATEGORIES_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\KnownCategories."
+	   + Application.ProductVersion + ".xml";
+	   public static readonly string IGNORE_LIST_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\IgnoreList."
+	   + Application.ProductVersion + ".xml";
 
-//	   public static string USER_START_ROOT = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\";
-//	   public static string LOCAL_START_ROOT = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu).Replace(Environment.UserName, "All Users") + "\\";
+	   public static readonly string USER_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\");
+	   public static readonly string LOCAL_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\").Replace(Environment.UserName, "All Users");
 
-	   public static string USER_TRASH_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SMOz\\Trash\\");
-	   public static string LOCAL_TRASH_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SMOz\\Trash\\");
+	   public static readonly string USER_TRASH_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SMOz\\Trash\\");
+	   public static readonly string LOCAL_TRASH_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SMOz\\Trash\\");
 
 	   public static string[] PathToTree(string path) {
 		  string[] parts = path.Split("\\".Split(), StringSplitOptions.None);
@@ -54,24 +61,68 @@ namespace SMOz.Utilities
 		  }
 		  return tree;
 	   }
-    }
 
-    public class IgnoreList : Category
-    {
-	   private IgnoreList() {
-		  this.AddItem(new CategoryItem("desktop.ini", CategoryItemType.WildCard));
-		  this.AddItem(new CategoryItem("Startup", CategoryItemType.String));
+
+	   public static bool IsValidPath(string path) {
+		  foreach (char illegalChar in Path.GetInvalidPathChars()) {
+			 if (path.IndexOf(illegalChar) >= 0) { return false; }
+		  }
+		  return true;
 	   }
 
-	   private static IgnoreList instance;
+	   public static bool IsValidFileName(string path) {
+		  foreach (char illegalChar in Path.GetInvalidFileNameChars()) {
+			 if (path.IndexOf(illegalChar) >= 0) { return false; }
+		  }
+		  return true;
+	   }
+
+	   public static void Serialize<T>(T instance, string fileName) where T : class {
+		  using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write)) {
+			 System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(T));
+			 xs.Serialize(fs, instance);
+			 fs.Flush();
+		  }
+	   }
+
+	   public static T DeSerialize<T>(string fileName) where T : class {
+		  object up;
+		  using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
+			 System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(T));
+			 up = xs.Deserialize(fs);
+		  }
+		  return up as T;
+	   }
+    }
+
+    public class IgnoreList : Category, ISerializable
+    {
+	   private IgnoreList() {}
+
+	   public void From(IgnoreList from) {
+		  this.items = from.items;
+		  this.name = from.name;
+		  this.restrictedPath = from.restrictedPath;
+	   }
 
 	   public static IgnoreList Instance {
-		  get {
-			 if (instance == null) {
-				instance = new IgnoreList();
-			 }
-			 return instance;
+		  get { return SerializationProxy.sharedOnly; }
+	   }
+
+	   [Serializable]
+	   private class SerializationProxy : IObjectReference
+	   {
+		  internal static readonly IgnoreList sharedOnly = new IgnoreList();
+		  object IObjectReference.GetRealObject(StreamingContext context) {
+			 // When deserializing this object, return a reference to
+			 // Foo's singleton object instead.
+			 return sharedOnly;
 		  }
+	   }
+
+	   [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+	   void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+		  info.SetType(typeof(IgnoreList.SerializationProxy));
 	   }
     }
 }

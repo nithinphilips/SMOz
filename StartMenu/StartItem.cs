@@ -73,6 +73,10 @@ namespace SMOz.StartMenu
     [Serializable]
     public class StartItem : IComparable<StartItem>
     {
+	   public StartItem()
+		  :this(string.Empty, StartItemType.File, "") 
+	   { }
+
 	   /// <summary>
 	   /// Create a new instance of StartItem
 	   /// </summary>

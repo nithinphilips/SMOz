@@ -27,9 +27,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
+using SMOz.Utilities;
 
 namespace SMOz.Template
 {
+    [Serializable]
     public class Category : IEnumerable<CategoryItem>
     {
 	   public Category() {
@@ -59,9 +61,9 @@ namespace SMOz.Template
 		  this.restrictedPath = restrictedPath;
 	   }
 
-	   string restrictedPath = string.Empty;
-	   string name;
-	   List<CategoryItem> items;
+	   protected string restrictedPath = string.Empty;
+	   protected string name;
+	   protected List<CategoryItem> items;
 
 	   public ReadOnlyCollection<CategoryItem> Items { 
 		  get { return this.items.AsReadOnly(); }
@@ -77,39 +79,26 @@ namespace SMOz.Template
 		  set { restrictedPath = value; }
 	   }
 
-	   public void AddItem(CategoryItem item) {
+	   public void Add(CategoryItem item) {
 		  this.items.Add(item);
 	   }
 
-	   public void AddItem(CategoryItem[] items) {
+	   public void AddRange(CategoryItem[] items) {
 		  this.items.AddRange(items);
 	   }
 
 	   public bool Match(string value) {
+		  CategoryItem result;
+		  return Match(value, out result);
+	   }
+
+	   public bool Match(string value, out CategoryItem item) {
+		  item = null;
 		  for (int i = 0; i < this.items.Count; i++) {
-			 switch (this.items[i].Type) {
-				case CategoryItemType.String: {
-					   if (string.Compare(this.items[i].Value, value, true) == 0) {
-						  return true;
-					   }
-					   break;
-				    }
-				case CategoryItemType.WildCard: {
-					   Regex regex = new Regex(".*" + Regex.Escape(this.items[i].Value) + ".*", RegexOptions.IgnoreCase);
-					   if (regex.Match(value).Success) {
-						  return true;
-					   }
-					   break;
-				    }
-				case CategoryItemType.Regex: {
-					   Regex regex = new Regex(this.items[i].Value, RegexOptions.IgnoreCase);
-					   if (regex.Match(value).Success) {
-						  return true;
-					   }
-					   break;
-				    }
-				default:
-				    break;
+			 Regex regex = new Regex(this.items[i].Pattern, Utility.REGEX_OPTIONS);
+			 if (regex.Match(value).Success) {
+				item = this.items[i];
+				return true;
 			 }
 		  }
 		  return false;
@@ -132,31 +121,6 @@ namespace SMOz.Template
 		  return this.ToFormat();
 	   }
 
-	   [Obsolete]
-	   public string FormattedName {
-		  get {
-			 if (string.IsNullOrEmpty(this.restrictedPath)) {
-				return this.name;
-			 } else {
-				return this.name + "->" + this.restrictedPath;
-			 }
-		  }
-		  set {
-			 if (value.Contains("->")) {
-				string[] pieces = value.Split(new string[] { "->" }, StringSplitOptions.None);
-				if (pieces.Length == 2) {
-				    this.Name = pieces[0];
-				    this.RestrictedPath = pieces[1];
-				} else {
-				    throw new ArgumentException();
-				}
-			 } else {
-				this.Name = value;
-				this.RestrictedPath = string.Empty;
-			 }
-		  }
-	   }
-
 	   public string ToFormat() {
 		  if (string.IsNullOrEmpty(this.restrictedPath)) {
 			 return this.name;
@@ -166,7 +130,11 @@ namespace SMOz.Template
 	   }
 
 	   public static Category FromFormat(string format) {
-		  Category newCategory = new Category();
+		  return FromFormat(format, 10);
+	   }
+
+	   public static Category FromFormat(string format, int capacity) {
+		  Category newCategory = new Category(capacity);
 		  if (format.Contains("->")) {
 			 string[] pieces = format.Split(new string[] { "->" }, StringSplitOptions.None);
 			 if (pieces.Length == 2) {
