@@ -65,19 +65,14 @@ namespace SMOz.Utilities
 
 
 	   SortedDictionary<string, string> knownCategories = new SortedDictionary<string, string>();
-//	   Dictionary<string, string> knownCategories;
 
-	   public void AddCategories(string[] names) {
+	   public void AddRange(string[] names) {
 		  for (int i = 0; i < names.Length; i++) {
-			 AddCategory(names[i]);
+			 Add(names[i]);
 		  }
 	   }
 
-	   public void Add(object name) {
-		  AddCategory(name.ToString());
-	   }
-
-	   public bool AddCategory(string name) {
+	   public bool Add(string name) {
 		  if (name == "") { return false; }
 		  string _name = name.ToLower();
 		  if (!knownCategories.ContainsKey(_name)) {

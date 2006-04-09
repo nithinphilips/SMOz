@@ -34,61 +34,173 @@ using SMOz.StartMenu;
 using System.Text.RegularExpressions;
 using SMOz.Template;
 using SMOz.Utilities;
+using EXControls;
 
 namespace SMOz.UI
 {
     public partial class TemplateEditor : Form
     {
 	   StartManager manager;
-	   TemplateProvider provider;
+	   IEnumerable<Category> categories;
 
-	   public TemplateEditor(StartManager manager, TemplateProvider provider) {
+	   ComboBox _pattern;	  // start item value
+	   ComboBox _type;		  // start item type
+	   ComboBox _category;	  // start item category
+
+	   public TemplateEditor(StartManager manager, IEnumerable<Category> categories) {
 		  InitializeComponent();
-		  this.Icon = SMOz.Properties.Resources.Application;
+		  Initialize();
 
 		  this.manager = manager;
-		  this.provider = provider;
+		  this.categories = categories;
 
 		  StartItem[] uncategorized = manager.GetByCategory("");
 		  string[] uncategorizedStr = new string[uncategorized.Length];
 		  for (int i = 0; i < uncategorized.Length; i++) {
 			 uncategorizedStr[i] = uncategorized[i].Name;
 		  }
-
 		  this._pattern.Items.AddRange(uncategorizedStr);
 		  this._category.Items.AddRange(KnownCategories.Instance.ToArray());
 
 		  AddToListView();
+
+		  if (this._templateList.Items.Count > 0) {
+			 this._templateList.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+			 this._templateList.Columns[1].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+			 this._templateList.Columns[2].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+		  }
+	   }
+
+	   public static ComboBox CreateTypeComboBox() {
+		  ComboBox _type = new ComboBox();
+		  _type.Items.Add(CategoryItemType.String.ToString());
+		  _type.Items.Add(CategoryItemType.WildCard.ToString());
+		  _type.Items.Add(CategoryItemType.Regex.ToString());
+		  _type.DropDownHeight = 40;
+		  _type.DropDownStyle = ComboBoxStyle.Simple;
+		  return _type;
+	   }
+
+	   public static EXListViewItem CategoryItemToListItem(CategoryItem item, Category category, ListViewGroup group){
+		  EXListViewItem newItem = new EXListViewItem(item.Value);
+		  newItem.SubItems.Add(new EXListViewSubItem(item.Type.ToString()));
+		  newItem.Name = item.Value;
+		  newItem.TagData = item;
+		  if (category != null) { newItem.SubItems.Add(new EXListViewSubItem(category.Name)); }
+		  if (group != null) { newItem.Group = group; }
+		  return newItem;
+	   }
+
+	   public static void PersistItemChanges(IEnumerable<EXListViewItem> listItems) {
+		  foreach (EXListViewItem listItem in listItems) {
+			 CategoryItem catiItem = listItem.TagData as CategoryItem;
+			 if (catiItem != null) {
+				catiItem.Value = listItem.SubItems[0].Text;
+				catiItem.Type = (CategoryItemType)Enum.Parse(typeof(CategoryItemType), listItem.SubItems[1].Text);
+			 }
+			 Console.WriteLine("{{{0}, {1}}}", catiItem.Value, catiItem.Type);
+		  }
 	   }
 
 
+	   Dictionary<string, Category> lookupTable = new Dictionary<string, Category>();
+
+	   private void PopulateLookupTable(TemplateProvider template) {
+		  lookupTable.Clear();
+		  foreach (Category category in template.Categories) {
+			 lookupTable.Add(category.ToFormat(), category);
+		  }
+	   }
+
+	   public void PersistAllChanges(TemplateProvider template, IEnumerable<EXListViewItem> listItems) {
+		  foreach (EXListViewItem listItem in listItems) {
+			 CategoryItem catiItem = listItem.TagData as CategoryItem;
+			 if (catiItem != null) {
+				catiItem.Value = listItem.SubItems[0].Text;
+				catiItem.Type = (CategoryItemType)Enum.Parse(typeof(CategoryItemType), listItem.SubItems[1].Text);
+				Category category = FindCategory(listItem.SubItems[2].Text);
+				if (catiItem.Parent != category) {
+				    category.Add(catiItem);
+				}
+				catiItem.Type = (CategoryItemType)Enum.Parse(typeof(CategoryItemType), listItem.SubItems[1].Text);
+			 }
+		  }
+	   }
+
+	   public Category FindCategory(string format) {
+		  Category result = lookupTable[format];
+		  if (result == null) {
+			 result = Category.FromFormat(format);
+		  }
+		  return result;
+	   }
+
+
+	   private void Initialize() {
+		  this.Icon = SMOz.Properties.Resources.Application;
+
+		  _pattern = new ComboBox();
+		  _pattern.AutoCompleteSource = AutoCompleteSource.ListItems;
+		  _pattern.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+
+		  _category = new ComboBox();
+		  _category.AutoCompleteSource = AutoCompleteSource.ListItems;
+		  _category.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+
+		  _type = CreateTypeComboBox();
+
+		  this._templateList.Columns.Add(new EXEditableColumnHeader("Name", _pattern));
+		  this._templateList.Columns.Add(new EXEditableColumnHeader("Type", _type));
+		  this._templateList.Columns.Add(new EXEditableColumnHeader("Category", _category));
+	   }
+
+	   
+
+	   void cmbType_TextUpdate(object sender, EventArgs e) {
+		  ComboBox sndr = sender as ComboBox;
+		  if (!sndr.Items.Contains(sndr.Text)) {
+			 sndr.Text = "String";
+		  }
+	   }
+
 	   private void AddToListView() {
+		  AddToListView(this.categories);
+	   }
+
+	   private void AddToListView(IEnumerable<Category> categories) {
 		  _templateList.BeginUpdate();
 		  _templateList.Items.Clear();
-		  foreach (Category category in provider) {
+		  foreach (Category category in categories) {
+			 ListViewGroup group = FindGroup(category);
 			 foreach (CategoryItem item in category.Items) {
-				AddToListView(item.ToFormat(), category.ToFormat());
+				AddToListView(item, group);
 			 }
 		  }
 		  _templateList.EndUpdate();
 	   }
 
-	   private void AddToListView(string pattern, string category) {
-		  ListViewItem newItem = new ListViewItem(new string[] { pattern, DeduceType(pattern) });
-		  newItem.Name = pattern;
-		  newItem.Group = FindGroup(category);
+	   private void AddToListView(CategoryItem item, ListViewGroup group) {
+		  EXListViewItem newItem = new EXListViewItem(item.Value);
+		  newItem.SubItems.Add(new EXListViewSubItem(item.Type.ToString()));
+		  newItem.SubItems.Add(new EXListViewSubItem(group.Name));
+		  newItem.Name = item.Value;
+		  newItem.Group = group;
 		  _templateList.Items.Add(newItem);
 	   }
 
-	   public string DeduceType(string value) {
-		  switch (value[0]) {
-			 case '@':
-				return "Regex";
-			 case '*':
-				return "Wildcard";
-			 default:
-				return "String";
+	   public ListViewGroup FindGroup(Category category) {
+		  foreach (ListViewGroup group in _templateList.Groups) {
+			 if (group.Name == category.ToFormat()) {
+				return group;
+			 }
 		  }
+		  string name = category.Name;
+		  if (!string.IsNullOrEmpty(category.RestrictedPath)) {
+			 name += " (" + category.RestrictedPath + ")";
+		  }
+		  ListViewGroup newGrp = new ListViewGroup(category.ToFormat(), name);
+		  _templateList.Groups.Add(newGrp);
+		  return newGrp;
 	   }
 
 	   public ListViewGroup FindGroup(string name) {
@@ -103,10 +215,10 @@ namespace SMOz.UI
 	   }
 
 	   private void _add_Click(object sender, EventArgs e) {
-		  if (string.IsNullOrEmpty(_category.Text)) {
-			 MessageBox.Show("A category is required. Choose one from the list or create a new one.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-			 return;
-		  }
+//		  if (string.IsNullOrEmpty(_category.Text)) {
+//			 MessageBox.Show("A category is required. Choose one from the list or create a new one.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+//			 return;
+//		  }
 
 		  //if (provider.table.ContainsKey(_pattern.Text)) {
 		  //    provider.table.Remove(_pattern.Text);
@@ -127,10 +239,12 @@ namespace SMOz.UI
 	   }
 
 	   private void _templateList_DoubleClick(object sender, EventArgs e) {
+		  /*
 		  if ((_templateList.SelectedItems != null) && (_templateList.SelectedItems.Count > 0)) {
 			 _pattern.Text = _templateList.SelectedItems[0].SubItems[0].Text;
 			 _category.Text = _templateList.SelectedItems[0].Group.Name;
 		  }
+		   */
 	   }
 
 	   private void _templateList_KeyUp(object sender, KeyEventArgs e) {
@@ -143,7 +257,7 @@ namespace SMOz.UI
 			 }
 		  } else if (e.KeyCode == Keys.F2) {
 			 if ((_senderList.SelectedItems != null) && (_senderList.SelectedItems.Count > 0)) {
-				_senderList.SelectedItems[0].BeginEdit();
+//				_senderList.SelectedItems[0]();
 			 }
 		  }
 	   }
@@ -182,11 +296,11 @@ namespace SMOz.UI
 			 this.Text = "Template Editor - Search";
 			 string query = _searchQuery.Text.ToLower();
 			 _templateList.Items.Clear();
-			 foreach (Category category in provider) {
+			 foreach (Category category in this.categories) {
 				foreach (CategoryItem item in category.Items) {
 				    string item_format = item.ToFormat();
 				    if (item_format.ToLower().Contains(query)) {
-					   AddToListView(item_format, category.ToFormat());
+					   AddToListView(item, FindGroup(category));
 				    }
 				}
 			 }
@@ -213,7 +327,7 @@ namespace SMOz.UI
 	   private void _pattern_Enter(object sender, EventArgs e) {
 		  if ((preview != null) && _previewAutoHide.Checked) {
 			 preview.Show();
-			 _pattern.Focus();
+//			 _pattern.Focus();
 		  }
 	   }
 
@@ -248,6 +362,7 @@ namespace SMOz.UI
 		  _showPreview.Checked = false;
 	   }
 
+	   /*
 	   private void _pattern_TextChanged(object sender, EventArgs e) {
 		  if (preview != null) {
 			 preview.PreviewList.BeginUpdate();
@@ -287,6 +402,7 @@ namespace SMOz.UI
 			 }
 			 preview.PreviewList.EndUpdate();
 		  }
+	    
 
 //		  if (provider.table.ContainsKey(_pattern.Text)) {
 //			 _add.Text = "Modify";
@@ -294,8 +410,8 @@ namespace SMOz.UI
 //			 _add.Text = "Add";
 //		  }
 	   }
+	   */
 
-	   
 
     }
 }

@@ -26,14 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using SMOz.Utilities;
 
-namespace SMOz.Template
-{
+namespace SMOz.Template{
+
     public enum CategoryItemType { String, WildCard, Regex };
 
-
-    //TODO: Can everything be regex
-    public class CategoryItem{
+    [Serializable]
+    public class CategoryItem : IComparable<CategoryItem>{
 
 	   public CategoryItem() { }
 
@@ -45,6 +45,15 @@ namespace SMOz.Template
 	   string value = string.Empty;
 	   string pattern = string.Empty;
 	   CategoryItemType type = CategoryItemType.String;
+	   Category parent;
+
+	   public Category Parent {
+		  get { return parent; }
+		  internal set {
+			 if (this.parent != null) { this.parent.Remove(this); }
+			 parent = value; 
+		  }
+	   }
 
 	   /// <summary>
 	   /// Gets or Sets the type of this category item.
@@ -131,5 +140,20 @@ namespace SMOz.Template
 		  }
 	   }
 
+	   public override string ToString() {
+		  return string.Format("{{{0}}, {{1}}}", this.type, this.value);
+	   }
+
+	   #region IComparable<CategoryItem> Members
+
+	   // Compared by: type, value
+	   public int CompareTo(CategoryItem other) {
+		  int result = 0;
+		  result = this.type.CompareTo(other.type);
+		  if (result == 0) { result = string.Compare(this.value, other.value, Utility.IGNORE_CASE); }
+		  return result;
+	   }
+
+	   #endregion
     }
 }

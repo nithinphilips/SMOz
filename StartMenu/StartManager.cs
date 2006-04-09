@@ -34,6 +34,7 @@ using System.Security.Permissions;
 namespace SMOz.StartMenu
 {
     //TODO: Move SmozDataManager methods to here
+    [Serializable]
     public class StartManager : IEnumerable<StartItem>
     {
 	   public StartManager() {

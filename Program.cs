@@ -29,17 +29,19 @@ using SMOz.UI;
 using SMOz.Utilities;
 using System.IO;
 using SMOz.Template;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace SMOz
 {
     static class Program
     {
 	   /// <summary>
-	   /// The main entry point for the application.
+	   /// The main entry point for the Application.
 	   /// </summary>
 	   [STAThread]
 	   static void Main() {
-
 		  LoadRuntimeData();
 
 		  Application.EnableVisualStyles();
@@ -48,28 +50,34 @@ namespace SMOz
 	   }
 
 	   public static void PersistRuntimeData() {
+		  Template.TemplateHelper.Save(new Category[] { IgnoreList.Instance }, Utility.IGNORE_LIST_FILE_PATH);
 		  Utility.Serialize<KnownCategories>(KnownCategories.Instance, Utility.KNOWN_CATEGORIES_FILE_PATH);
-		  Utility.Serialize<IgnoreList>(IgnoreList.Instance, Utility.IGNORE_LIST_FILE_PATH);
 	   }
 
 	   private static void LoadRuntimeData() {
 		  if (File.Exists(Utility.KNOWN_CATEGORIES_FILE_PATH)) {
 			 KnownCategories.Instance.From(Utility.DeSerialize<KnownCategories>(Utility.KNOWN_CATEGORIES_FILE_PATH));
-		  } else {
+		  }else{
 			 Directory.CreateDirectory(Path.GetDirectoryName(Utility.KNOWN_CATEGORIES_FILE_PATH));
 		  }
 
 		  if (File.Exists(Utility.IGNORE_LIST_FILE_PATH)) {
-			 IgnoreList.Instance.From(Utility.DeSerialize<IgnoreList>(Utility.IGNORE_LIST_FILE_PATH));
+			 Category[] ignore = Template.TemplateHelper.BuildCategories(Utility.IGNORE_LIST_FILE_PATH);
+			 if ((ignore.Length != 1) || (ignore[0].Name != "Ignore List")) {
+				MakeIgnoreListDefault();
+			 } else {
+				IgnoreList.Instance.From(ignore[0]);
+			 }
 		  } else {
 			 Directory.CreateDirectory(Path.GetDirectoryName(Utility.IGNORE_LIST_FILE_PATH));
-			 IgnoreList.Instance.Name = "Ignore List";
-			 IgnoreList.Instance.Add(new CategoryItem("desktop.ini", CategoryItemType.WildCard));
-			 IgnoreList.Instance.Add(new CategoryItem("Startup", CategoryItemType.String));
+			 MakeIgnoreListDefault();
 		  }
 	   }
 
-	   
-
+	   private static void MakeIgnoreListDefault() {
+		  IgnoreList.Instance.Name = "Ignore List";
+		  IgnoreList.Instance.Add(new CategoryItem("desktop.ini", CategoryItemType.WildCard));
+		  IgnoreList.Instance.Add(new CategoryItem("Startup", CategoryItemType.String));
+	   }
     }
 }

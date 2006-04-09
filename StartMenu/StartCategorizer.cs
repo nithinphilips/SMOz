@@ -69,7 +69,7 @@ namespace SMOz.StartMenu
 				    // Item is located in the root folder
 
 				    // Proceed unless the filter is restricted
-				    proceed = string.IsNullOrEmpty(predicted.RestrictedPath);
+				    proceed = !predicted.IsRestricted;
 
 				    // Proceed anyways if forced
 				    if (!proceed && forceAllFilters) {

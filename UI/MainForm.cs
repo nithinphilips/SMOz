@@ -39,6 +39,7 @@ using SMOz.Commands;
 using SMOz.Commands.UI;
 using System.Text.RegularExpressions;
 using SMOz.Commands.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SMOz.UI
 {
@@ -49,7 +50,7 @@ namespace SMOz.UI
 		  this.Icon = SMOz.Properties.Resources.Application;
 
 		  startManager = new StartManager();
-
+		  
 		  if (File.Exists("Template.ini")) {
 			 OpenTemplate("Template.ini");
 		  } else {
@@ -70,6 +71,11 @@ namespace SMOz.UI
 		  openToolStripMenuItem.Font = new Font(openToolStripMenuItem.Font, FontStyle.Bold);
 		  SetupFileSystemWatchers();
 	   }
+
+	   private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+		  Program.PersistRuntimeData();
+	   }
+
 
 
 	   #region File System Watcher
@@ -262,21 +268,35 @@ namespace SMOz.UI
 	   }
 
 	   private void Undo() {
+		  // This is just in case any real changes are made
+		  localWatcher.EnableRaisingEvents = false;
+		  userWatcher.EnableRaisingEvents = false;
+
 		  Debug.Assert(undoQueue.Count != 0);
 		  Command cmd = undoQueue.Pop();
 		  cmd.UnExecute();
 		  redoQueue.Push(cmd);
 
 		  UpdateItemListAfterUndoRedo(cmd, true);
+
+		  localWatcher.EnableRaisingEvents = true;
+		  userWatcher.EnableRaisingEvents = true;
 	   }
 
 	   private void Redo() {
+		  // This is just in case any real changes are made
+		  localWatcher.EnableRaisingEvents = false;
+		  userWatcher.EnableRaisingEvents = false;
+
 		  Debug.Assert(redoQueue.Count != 0);
 		  Command cmd = redoQueue.Pop();
 		  cmd.Execute();
 		  undoQueue.Push(cmd);
 
 		  UpdateItemListAfterUndoRedo(cmd, false);
+
+		  localWatcher.EnableRaisingEvents = true;
+		  userWatcher.EnableRaisingEvents = true;
 	   }
 
 	   private void UpdateItemListAfterUndoRedo(Command cmd, bool isUndo) {
@@ -313,7 +333,7 @@ namespace SMOz.UI
 			 }else if (((moveCmd.OldCategory == _categoryTree.SelectedNode.Name) && !isUndo) 
 			  || ((moveCmd.NewCategory == _categoryTree.SelectedNode.Name) && isUndo)) {
 				// item is now removed from this category
-				ListViewItem[] items = _itemList.Items.Find(moveCmd.StartItem.Name, false);
+				ListViewItem[] items = _itemList.Items.Find(moveCmd.NewName, false);
 				_itemList.Items.Remove(items[0]);
 			  }
 	
@@ -341,8 +361,8 @@ namespace SMOz.UI
 	   }
 
 	   private void undoToolStripMenuItem_Click(object sender, EventArgs e) {
-		  Undo();
-		  UpdateUndoRedo();
+		 Undo();
+		 UpdateUndoRedo();
 	   }
 
 	   private void redoToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -642,12 +662,18 @@ namespace SMOz.UI
 	   }
 
 	   private void templateEditorToolStripMenuItem_Click(object sender, EventArgs e) {
-		  using (TemplateEditor editor = new TemplateEditor(startManager, template)) {
+		  using (TemplateEditor editor = new TemplateEditor(startManager, template.Categories)) {
 			 editor.ShowDialog(this);
 		  }
 	   }
 
 	   private void applyChangesToolStripMenuItem_Click(object sender, EventArgs e) {
+
+		  if ((redoQueue.Count > 0) && (redoQueue.Peek().Name == "Apply Changes")) {
+			 // ...
+			 Redo();
+		  }
+
 		  List<Command> result = new List<Command>();
 		  foreach (Command command in undoQueue) {
 			 if (command.Type == SMOz.Commands.CommandType.Group) {
@@ -1000,7 +1026,7 @@ namespace SMOz.UI
 	   }
 
 	   private void ConvertToCategory(StartItem startItem) {
-		  KnownCategories.Instance.AddCategory(startItem.Name);
+		  KnownCategories.Instance.Add(startItem.Name);
 		  startManager.RemoveItem(startItem);
 		  foreach (string str in AddCategoryToTree(startItem.Name)) {
 			 // This ensures that nodes that are not explicitly listed as categories are scanned
@@ -1011,7 +1037,7 @@ namespace SMOz.UI
 	   }
 
 	   private void AddCategory(string name) {
-		  KnownCategories.Instance.AddCategory(name);
+		  KnownCategories.Instance.Add(name);
 		  startManager.RemoveAllItems(name);
 		  foreach (string str in AddCategoryToTree(name)) {
 			 // This ensures that nodes that are not explicitly listed as categories are scanned
@@ -1254,7 +1280,7 @@ namespace SMOz.UI
 			 }
 			 foreach (string str in AddCategoryToTree(current)) {
 				// This ensures that nodes that are not explicitly listed as categories are scanned
-				KnownCategories.Instance.AddCategory(str);
+				KnownCategories.Instance.Add(str);
 				startManager.RemoveAllItems(str);
 				AddToManager(str);
 			 }
@@ -1271,10 +1297,6 @@ namespace SMOz.UI
 		  Application.Exit();
 	   }
 
-	   private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
-		  Program.PersistRuntimeData();
-	   }
-
 	   private void hideToolStripMenuItem_Click(object sender, EventArgs e) {
 		  if (clickedNode != null) {
 			 HideCategory(clickedNode);
@@ -1286,6 +1308,32 @@ namespace SMOz.UI
 		  RecursiveRemoveCategory(node);
 	   }
 
+	   private void associateToolStripMenuItem_Click(object sender, EventArgs e) {
+		  using (AssociationBuilder asBuilder = new AssociationBuilder(this.startManager.StartItems)) {
+			 asBuilder.ShowDialog(this);
+		  }
+	   }
+
+	   private void validateToolStripMenuItem_Click(object sender, EventArgs e) {
+		  List<string> installedPrograms = new List<string>(SMOz.Cleanup.InstalledProgramList.RetrieveProgramList());
+		  string result = "";
+		  foreach (StartItem startItem in startManager.StartItems) {
+			 if (!string.IsNullOrEmpty(startItem.Application)) {
+				if (installedPrograms.Contains(startItem.Application)) {
+				    result += string.Format("{0} => {1} [OK]\n", startItem.Name, startItem.Application);
+				} else {
+				    result += string.Format("{0} => {1} [Missing]\n", startItem.Name, startItem.Application);
+				}
+			 }
+		  }
+		  MessageBox.Show(result, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+	   }
+
+	   private void preferencesToolStripMenuItem_Click(object sender, EventArgs e) {
+		  using (Preferences prefs = new Preferences()) {
+			 prefs.ShowDialog();
+		  }
+	   }
     }
 
 }

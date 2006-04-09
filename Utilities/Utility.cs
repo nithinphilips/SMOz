@@ -42,7 +42,7 @@ namespace SMOz.Utilities
 	   public static readonly string KNOWN_CATEGORIES_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\KnownCategories."
 	   + Application.ProductVersion + ".xml";
 	   public static readonly string IGNORE_LIST_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\IgnoreList."
-	   + Application.ProductVersion + ".xml";
+	   + Application.ProductVersion + ".ini";
 
 	   public static readonly string USER_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\");
 	   public static readonly string LOCAL_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\").Replace(Environment.UserName, "All Users");
@@ -78,11 +78,14 @@ namespace SMOz.Utilities
 	   }
 
 	   public static void Serialize<T>(T instance, string fileName) where T : class {
-		  using (System.IO.FileStream fs = new System.IO.FileStream(fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write)) {
+		  string tempFile = Path.GetTempFileName();
+		  using (System.IO.FileStream fs = new System.IO.FileStream(tempFile, System.IO.FileMode.Create, System.IO.FileAccess.Write)) {
 			 System.Xml.Serialization.XmlSerializer xs = new System.Xml.Serialization.XmlSerializer(typeof(T));
 			 xs.Serialize(fs, instance);
 			 fs.Flush();
 		  }
+		  File.Copy(tempFile, fileName, true);
+		  File.Delete(tempFile);
 	   }
 
 	   public static T DeSerialize<T>(string fileName) where T : class {
@@ -92,37 +95,6 @@ namespace SMOz.Utilities
 			 up = xs.Deserialize(fs);
 		  }
 		  return up as T;
-	   }
-    }
-
-    public class IgnoreList : Category, ISerializable
-    {
-	   private IgnoreList() {}
-
-	   public void From(IgnoreList from) {
-		  this.items = from.items;
-		  this.name = from.name;
-		  this.restrictedPath = from.restrictedPath;
-	   }
-
-	   public static IgnoreList Instance {
-		  get { return SerializationProxy.sharedOnly; }
-	   }
-
-	   [Serializable]
-	   private class SerializationProxy : IObjectReference
-	   {
-		  internal static readonly IgnoreList sharedOnly = new IgnoreList();
-		  object IObjectReference.GetRealObject(StreamingContext context) {
-			 // When deserializing this object, return a reference to
-			 // Foo's singleton object instead.
-			 return sharedOnly;
-		  }
-	   }
-
-	   [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-	   void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
-		  info.SetType(typeof(IgnoreList.SerializationProxy));
 	   }
     }
 }

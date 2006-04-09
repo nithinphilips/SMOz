@@ -28,11 +28,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using SMOz.Utilities;
+using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace SMOz.Template
 {
     [Serializable]
-    public class Category : IEnumerable<CategoryItem>
+    public class Category : IComparable<Category>
     {
 	   public Category() {
 		  this.items = new List<CategoryItem>();
@@ -42,27 +44,13 @@ namespace SMOz.Template
 		  this.items = new List<CategoryItem>(count);
 	   }
 
-	   public Category(string name) 
-		  : this(null, name, string.Empty) { }
-
-	   public Category(CategoryItem[] items)
-		  : this(items, string.Empty, string.Empty) { }
-
-	   public Category(string name, string restrictedPath)
-		  : this(null, name, restrictedPath) { }
-
-	   public Category(CategoryItem[] items, string name)
-		  : this(items, name, string.Empty) { }
-
-	   public Category(CategoryItem[] items, string name, string restrictedPath) {
-		  this.items = new List<CategoryItem>();
-		  if (items != null) { this.items.AddRange(items); }
+	   public Category(string name, string restrictedPath) : this() {
 		  this.name = name;
 		  this.restrictedPath = restrictedPath;
 	   }
 
 	   protected string restrictedPath = string.Empty;
-	   protected string name;
+	   protected string name = string.Empty;
 	   protected List<CategoryItem> items;
 
 	   public ReadOnlyCollection<CategoryItem> Items { 
@@ -79,14 +67,30 @@ namespace SMOz.Template
 		  set { restrictedPath = value; }
 	   }
 
+	   public bool IsRestricted {
+		  get { return !string.IsNullOrEmpty(restrictedPath); }
+	   }
+
 	   public void Add(CategoryItem item) {
+		  item.Parent = this;
 		  this.items.Add(item);
 	   }
 
 	   public void AddRange(CategoryItem[] items) {
+		  for (int i = 0; i < items.Length; i++) {
+			 items[i].Parent = this;
+		  }
 		  this.items.AddRange(items);
 	   }
 
+	   public bool Contains(CategoryItem item) {
+		  return items.Contains(item);
+	   }
+
+	   public bool Remove(CategoryItem categoryItem) {
+		  return items.Remove(categoryItem);
+	   }
+	   
 	   public bool Match(string value) {
 		  CategoryItem result;
 		  return Match(value, out result);
@@ -110,7 +114,6 @@ namespace SMOz.Template
 
 	   public CategoryItem this[int index] {
 		  get { return this.items[index];  }
-		  set { this.items[index] = value; }
 	   }
 
 	   public int Count {
@@ -150,20 +153,18 @@ namespace SMOz.Template
 		  return newCategory;
 	   }
 
-	   #region IEnumerable<CategoryItem> Members
+	   #region IComparable<Category> Members
 
-	   public IEnumerator<CategoryItem> GetEnumerator() {
-		  return items.GetEnumerator();
+	   // Compared by: name, restrictedPath
+	   public int CompareTo(Category other) {
+		  int result = 0;
+		  result = string.Compare(this.name, other.name, Utility.IGNORE_CASE);
+		  if (result == 0) { result = string.Compare(this.restrictedPath, other.restrictedPath, Utility.IGNORE_CASE); }
+		  return result;
 	   }
 
 	   #endregion
 
-	   #region IEnumerable Members
-
-	   System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-		  return items.GetEnumerator();
-	   }
-
-	   #endregion
+	   
     }
 }

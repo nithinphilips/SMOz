@@ -27,19 +27,27 @@ using System.Collections.Generic;
 using System.Text;
 using SMOz.Ini;
 using SMOz.Utilities;
+using System.IO;
 
 namespace SMOz.Template
 {
     public class TemplateHelper
     {
 	   public static void Save(TemplateProvider template, string file) {
+		  Save(template.Categories, file);
+	   }
+
+	   public static void Save(IEnumerable<Category> categories, string file) {
 		  IniWriter writer = new IniWriter();
-		  foreach (Category category in template){
+		  foreach (Category category in categories){
 			 for (int i = 0; i < category.Count; i++){
 				writer.AddValue(category[i].ToFormat(), category.ToFormat());
 			 }
 		  }
-		  writer.Save(file);
+		  string tempFile = Path.GetTempFileName();
+		  writer.Save(tempFile);
+		  File.Copy(tempFile, file, true);
+		  File.Delete(tempFile);
 	   }
 
 
@@ -48,6 +56,17 @@ namespace SMOz.Template
 	   }
 
 	   public static TemplateProvider Build(IniSection[] sections) {
+		  Category[] categories = BuildCategories(sections);
+		  TemplateProvider template = new TemplateProvider(categories);
+		  KnownCategories.Instance.AddRange(template.ToStringArray());
+		  return template;
+	   }
+
+	   public static Category[] BuildCategories(string file) {
+		  return BuildCategories(IniParser.Parse(file));
+	   }
+
+	   public static Category[] BuildCategories(IniSection[] sections) {
 		  List<Category> categories = new List<Category>(sections.Length);
 		  for (int i = 0; i < sections.Length; i++) {
 			 Category category = Category.FromFormat(sections[i].Name, sections[i].Count);
@@ -56,9 +75,7 @@ namespace SMOz.Template
 			 }
 			 categories.Add(category);
 		  }
-		  TemplateProvider template = new TemplateProvider(categories);
-		  KnownCategories.Instance.AddCategories(template.ToStringArray());
-		  return template;
+		  return categories.ToArray();
 	   }
     }
 }

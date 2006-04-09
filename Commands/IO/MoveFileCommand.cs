@@ -80,7 +80,7 @@ namespace SMOz.Commands.IO
 	   }
 
 	   public override void Execute() {
-		  startItem.RealName = newName;
+		  startItem.SetRealName(newName);
 		  if (startItem.Type == StartItemType.File) {
 			 MoveFile(source, target);
 		  } else {
@@ -89,7 +89,7 @@ namespace SMOz.Commands.IO
 	   }
 
 	   public override void UnExecute() {
-		  startItem.RealName = oldName;
+		  startItem.SetRealName(oldName);
 		  if (startItem.Type == StartItemType.File) {
 			 MoveFile(target, source);
 		  } else {

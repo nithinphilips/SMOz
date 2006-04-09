@@ -28,6 +28,7 @@ using System.Text;
 using SMOz.Utilities;
 using System.IO;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace SMOz.StartMenu
 {
@@ -92,8 +93,15 @@ namespace SMOz.StartMenu
 
 	   string name;
 	   string realName;
+	   string application;
+
 	   StartItemType type;
 	   string category;
+
+	   // Dynamic Data:
+	   [NonSerialized] string localPath = string.Empty;
+	   [NonSerialized] string userPath = string.Empty;
+	   [NonSerialized] StartItemLocation location = StartItemLocation.None;
 
 	   /// <summary>
 	   /// Name of the object. Relative to the root folder.
@@ -108,10 +116,11 @@ namespace SMOz.StartMenu
 	   /// </summary>
 	   public string RealName {
 		  get { return realName; }
-		  set { 
-			 this.realName = value;
-			 InvalidateDynamicData();
-		  } 
+	   }
+
+	   public void SetRealName(string value) {
+		 this.realName = value;
+		 InvalidateDynamicData();
 	   }
 
 	   public StartItemType Type {
@@ -124,15 +133,19 @@ namespace SMOz.StartMenu
 		  set { category = value; }
 	   }
 
+	   /// <summary>
+	   /// Represents the application associated with this StartItem
+	   /// </summary>
+	   public string Application {
+		  get { return application; }
+		  set { application = value; }
+	   }
+
 	   private void InvalidateDynamicData() {
 		  this.localPath = string.Empty;
 		  this.userPath = string.Empty;
 		  this.location = StartItemLocation.None;
 	   }
-
-	   string localPath = string.Empty;
-	   string userPath = string.Empty;
-	   StartItemLocation location = StartItemLocation.None;
 
 	   /// <summary>
 	   /// Absolute location of the item in the local folder. The path referred may not exist.

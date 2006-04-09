@@ -33,16 +33,13 @@ using System.Collections.ObjectModel;
 namespace SMOz.Template
 {
     [Serializable]
-    public class TemplateProvider : IEnumerable<Category>, ICategoryProvider
+    public class TemplateProvider : ICategoryProvider
     {
 	   public TemplateProvider()
 		  : this(new List<Category>()) { }
 
-	   public TemplateProvider(List<Category> categories) {
-		  this.categories = categories;
-//		  if (this.categories.Count != 0) {
-//			 UpdateStrCategoryList();
-//		  }
+	   public TemplateProvider(IEnumerable<Category> categories) {
+		  this.categories = new List<Category>(categories);
 	   }
 
 	   public static TemplateProvider FromFile(string file) {
@@ -65,7 +62,11 @@ namespace SMOz.Template
 
 	   List<Category> categories;
 
-	   string[] strCategories = new string[] { };
+	   public ReadOnlyCollection<Category> Categories {
+		  get {
+			 return categories.AsReadOnly();
+		  }
+	   }
 
 	   public Category this[int index] {
 		  get { return categories[index]; }
@@ -82,7 +83,7 @@ namespace SMOz.Template
 		      for (int j = 0; j < tree.Length; j++) {
 		          if (!newList.Contains(tree[j])) {
 		              newList.Add(tree[j]);
-		              Debug.WriteLine(tree[j]);
+//		              Debug.WriteLine(tree[j]);
 		          }
 		      }
 		  }
@@ -91,24 +92,20 @@ namespace SMOz.Template
 
 	   public void Add(Category category) {
 		  this.categories.Add(category);
-//		  UpdateStrCategoryList();
 	   }
 
 	   public void AddRange(Category[] category) {
 		  this.categories.AddRange(categories);
-//		  UpdateStrCategoryList();
 	   }
 
 	   public void Remove(Category category) {
 		  this.categories.Remove(category);
-//		  UpdateStrCategoryList();
 	   }
 
 	   public void Remove(string name) {
 		  for (int i = 0; i < this.categories.Count; i++) {
 			 if (categories[i].Name == name) {
 				categories.RemoveAt(i);
-//				UpdateStrCategoryList();
 				break;
 			 }
 		  }
@@ -118,13 +115,9 @@ namespace SMOz.Template
 		  return this.categories.Contains(category);
 	   }
 
-	   public bool Contains(string name) {
-		  return Contains(name, false);
-	   }
-
-	   public bool Contains(string name, bool ignoreCase) {
+	   public bool Contains(string format) {
 		  for (int i = 0; i < this.categories.Count; i++) {
-			 if (string.Compare(categories[i].Name, name, ignoreCase) == 0) {
+			 if (categories[i].ToFormat().CompareTo(format) == 0) {
 				return true;
 			 }
 		  }
@@ -140,21 +133,5 @@ namespace SMOz.Template
 		  return null;
 	   }
 
-
-	   #region IEnumerable<TemplateProvider> Members
-
-	   public IEnumerator<Category> GetEnumerator() {
-		  return categories.GetEnumerator();
-	   }
-
-	   #endregion
-
-	   #region IEnumerable Members
-
-	   System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-		  return categories.GetEnumerator();
-	   }
-
-	   #endregion
     }
 }

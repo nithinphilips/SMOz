@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Start Menu Organizer")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Nithin Philips")]
-[assembly: AssemblyProduct("SMOz")]
+[assembly: AssemblyProduct("SMOz (Start Menu Organizer)")]
 [assembly: AssemblyCopyright("Copyright (c) Nithin Philips 2006")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
