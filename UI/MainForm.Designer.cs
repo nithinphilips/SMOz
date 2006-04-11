@@ -81,7 +81,6 @@ namespace SMOz.UI
 		  this.applyChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.cleanupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.associateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-		  this.validateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 		  this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -110,11 +109,13 @@ namespace SMOz.UI
 		  this.smallIconsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.detailsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+		  this._applyTemplateButton = new System.Windows.Forms.ToolStripButton();
 		  this._applyChangesButton = new System.Windows.Forms.ToolStripButton();
 		  this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 		  this._itemList = new System.Windows.Forms.ListView();
 		  this._colName = new System.Windows.Forms.ColumnHeader();
 		  this._colLocation = new System.Windows.Forms.ColumnHeader();
+		  this._colApplication = new System.Windows.Forms.ColumnHeader();
 		  this._itemListContext = new System.Windows.Forms.ContextMenuStrip(this.components);
 		  this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
@@ -129,7 +130,6 @@ namespace SMOz.UI
 		  this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
 		  this.applyTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this._categoryTree = new SMOz.Utilities.TreeViewEx();
-		  this._applyTemplateButton = new System.Windows.Forms.ToolStripButton();
 		  this.menuStrip1.SuspendLayout();
 		  this._statusStrip.SuspendLayout();
 		  this.toolStrip1.SuspendLayout();
@@ -379,19 +379,10 @@ namespace SMOz.UI
 		  // 
 		  // associateToolStripMenuItem
 		  // 
-		  this.associateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.validateToolStripMenuItem});
 		  this.associateToolStripMenuItem.Name = "associateToolStripMenuItem";
 		  this.associateToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
 		  this.associateToolStripMenuItem.Text = "Associate";
 		  this.associateToolStripMenuItem.Click += new System.EventHandler(this.associateToolStripMenuItem_Click);
-		  // 
-		  // validateToolStripMenuItem
-		  // 
-		  this.validateToolStripMenuItem.Name = "validateToolStripMenuItem";
-		  this.validateToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
-		  this.validateToolStripMenuItem.Text = "Validate";
-		  this.validateToolStripMenuItem.Click += new System.EventHandler(this.validateToolStripMenuItem_Click);
 		  // 
 		  // helpToolStripMenuItem
 		  // 
@@ -406,13 +397,13 @@ namespace SMOz.UI
 		  // 
 		  this.helpToolStripMenuItem1.Image = global::SMOz.Properties.Resources.Help_Help;
 		  this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
-		  this.helpToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
+		  this.helpToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
 		  this.helpToolStripMenuItem1.Text = "Help";
 		  // 
 		  // aboutToolStripMenuItem
 		  // 
 		  this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-		  this.aboutToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+		  this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 		  this.aboutToolStripMenuItem.Text = "About";
 		  // 
 		  // _statusStrip
@@ -636,6 +627,16 @@ namespace SMOz.UI
 		  this.toolStripSeparator4.Name = "toolStripSeparator4";
 		  this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
 		  // 
+		  // _applyTemplateButton
+		  // 
+		  this._applyTemplateButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+		  this._applyTemplateButton.Image = global::SMOz.Properties.Resources.Tools_Organize;
+		  this._applyTemplateButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+		  this._applyTemplateButton.Name = "_applyTemplateButton";
+		  this._applyTemplateButton.Size = new System.Drawing.Size(23, 22);
+		  this._applyTemplateButton.Text = "Apply Template";
+		  this._applyTemplateButton.Click += new System.EventHandler(this.applyTemplateToolStripMenuItem1_Click);
+		  // 
 		  // _applyChangesButton
 		  // 
 		  this._applyChangesButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -667,7 +668,8 @@ namespace SMOz.UI
 		  // 
 		  this._itemList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this._colName,
-            this._colLocation});
+            this._colLocation,
+            this._colApplication});
 		  this._itemList.ContextMenuStrip = this._itemListContext;
 		  this._itemList.Dock = System.Windows.Forms.DockStyle.Fill;
 		  this._itemList.FullRowSelect = true;
@@ -694,6 +696,10 @@ namespace SMOz.UI
 		  // _colLocation
 		  // 
 		  this._colLocation.Text = "Location";
+		  // 
+		  // _colApplication
+		  // 
+		  this._colApplication.Text = "Application";
 		  // 
 		  // _itemListContext
 		  // 
@@ -814,16 +820,6 @@ namespace SMOz.UI
 		  this._categoryTree.KeyDown += new System.Windows.Forms.KeyEventHandler(this._categoryTree_KeyDown);
 		  this._categoryTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this._categoryTree_MouseDown);
 		  // 
-		  // _applyTemplateButton
-		  // 
-		  this._applyTemplateButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-		  this._applyTemplateButton.Image = global::SMOz.Properties.Resources.Tools_Organize;
-		  this._applyTemplateButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-		  this._applyTemplateButton.Name = "_applyTemplateButton";
-		  this._applyTemplateButton.Size = new System.Drawing.Size(23, 22);
-		  this._applyTemplateButton.Text = "Apply Template";
-		  this._applyTemplateButton.Click += new System.EventHandler(this.applyTemplateToolStripMenuItem1_Click);
-		  // 
 		  // MainForm
 		  // 
 		  this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -931,9 +927,9 @@ namespace SMOz.UI
 	   private System.Windows.Forms.ToolStripButton _applyChangesButton;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 	   private System.Windows.Forms.ToolStripMenuItem associateToolStripMenuItem;
-	   private System.Windows.Forms.ToolStripMenuItem validateToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripSeparator toolStripMenuItem10;
 	   private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripButton _applyTemplateButton;
+	   private System.Windows.Forms.ColumnHeader _colApplication;
     }
 }

@@ -120,6 +120,7 @@ namespace SMOz.UI
 		  // 
 		  // _templateList
 		  // 
+		  this._templateList.AllowColumnSort = false;
 		  this._templateList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 				    | System.Windows.Forms.AnchorStyles.Left)
 				    | System.Windows.Forms.AnchorStyles.Right)));
@@ -161,7 +162,9 @@ namespace SMOz.UI
 		  this.Controls.Add(this._searchQuery);
 		  this.Controls.Add(this._add);
 		  this.Controls.Add(this._templateList);
+		  this.MinimizeBox = false;
 		  this.Name = "TemplateEditor";
+		  this.ShowInTaskbar = false;
 		  this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 		  this.Text = "Template Editor";
 		  this.ResumeLayout(false);

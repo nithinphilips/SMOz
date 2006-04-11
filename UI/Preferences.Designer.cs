@@ -28,12 +28,12 @@ namespace SMOz.UI
 		  this.components = new System.ComponentModel.Container();
 		  this._tabContainer = new System.Windows.Forms.TabControl();
 		  this._tabIgnoreList = new System.Windows.Forms.TabPage();
-		  this._cancel = new System.Windows.Forms.Button();
-		  this._ok = new System.Windows.Forms.Button();
+		  this._ignoreList = new EXControls.EXListView();
 		  this._contextIgnoreList = new System.Windows.Forms.ContextMenuStrip(this.components);
 		  this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-		  this._ignoreList = new EXControls.EXListView();
+		  this._cancel = new System.Windows.Forms.Button();
+		  this._ok = new System.Windows.Forms.Button();
 		  this._tabContainer.SuspendLayout();
 		  this._tabIgnoreList.SuspendLayout();
 		  this._contextIgnoreList.SuspendLayout();
@@ -59,26 +59,20 @@ namespace SMOz.UI
 		  this._tabIgnoreList.Text = "Ignore List";
 		  this._tabIgnoreList.UseVisualStyleBackColor = true;
 		  // 
-		  // _cancel
+		  // _ignoreList
 		  // 
-		  this._cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-		  this._cancel.Location = new System.Drawing.Point(362, 292);
-		  this._cancel.Name = "_cancel";
-		  this._cancel.Size = new System.Drawing.Size(75, 23);
-		  this._cancel.TabIndex = 1;
-		  this._cancel.Text = "Cancel";
-		  this._cancel.UseVisualStyleBackColor = true;
-		  // 
-		  // _ok
-		  // 
-		  this._ok.DialogResult = System.Windows.Forms.DialogResult.OK;
-		  this._ok.Location = new System.Drawing.Point(443, 292);
-		  this._ok.Name = "_ok";
-		  this._ok.Size = new System.Drawing.Size(75, 23);
-		  this._ok.TabIndex = 2;
-		  this._ok.Text = "OK";
-		  this._ok.UseVisualStyleBackColor = true;
-		  this._ok.Click += new System.EventHandler(this._ok_Click);
+		  this._ignoreList.AllowColumnSort = false;
+		  this._ignoreList.ContextMenuStrip = this._contextIgnoreList;
+		  this._ignoreList.FullRowSelect = true;
+		  this._ignoreList.Location = new System.Drawing.Point(6, 6);
+		  this._ignoreList.Name = "_ignoreList";
+		  this._ignoreList.OwnerDraw = true;
+		  this._ignoreList.Size = new System.Drawing.Size(490, 236);
+		  this._ignoreList.TabIndex = 0;
+		  this._ignoreList.UseCompatibleStateImageBehavior = false;
+		  this._ignoreList.View = System.Windows.Forms.View.Details;
+		  this._ignoreList.SelectedIndexChanged += new System.EventHandler(this._ignoreList_SelectedIndexChanged);
+		  this._ignoreList.MouseUp += new System.Windows.Forms.MouseEventHandler(this._ignoreList_MouseUp);
 		  // 
 		  // _contextIgnoreList
 		  // 
@@ -104,20 +98,26 @@ namespace SMOz.UI
 		  this.deleteToolStripMenuItem.Text = "Delete";
 		  this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
 		  // 
-		  // _ignoreList
+		  // _cancel
 		  // 
-		  this._ignoreList.AllowColumnSort = false;
-		  this._ignoreList.ContextMenuStrip = this._contextIgnoreList;
-		  this._ignoreList.FullRowSelect = true;
-		  this._ignoreList.Location = new System.Drawing.Point(6, 6);
-		  this._ignoreList.Name = "_ignoreList";
-		  this._ignoreList.OwnerDraw = true;
-		  this._ignoreList.Size = new System.Drawing.Size(490, 236);
-		  this._ignoreList.TabIndex = 0;
-		  this._ignoreList.UseCompatibleStateImageBehavior = false;
-		  this._ignoreList.View = System.Windows.Forms.View.Details;
-		  this._ignoreList.SelectedIndexChanged += new System.EventHandler(this._ignoreList_SelectedIndexChanged);
-		  this._ignoreList.MouseUp += new System.Windows.Forms.MouseEventHandler(this._ignoreList_MouseUp);
+		  this._cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+		  this._cancel.Location = new System.Drawing.Point(362, 292);
+		  this._cancel.Name = "_cancel";
+		  this._cancel.Size = new System.Drawing.Size(75, 23);
+		  this._cancel.TabIndex = 1;
+		  this._cancel.Text = "Cancel";
+		  this._cancel.UseVisualStyleBackColor = true;
+		  // 
+		  // _ok
+		  // 
+		  this._ok.DialogResult = System.Windows.Forms.DialogResult.OK;
+		  this._ok.Location = new System.Drawing.Point(443, 292);
+		  this._ok.Name = "_ok";
+		  this._ok.Size = new System.Drawing.Size(75, 23);
+		  this._ok.TabIndex = 2;
+		  this._ok.Text = "OK";
+		  this._ok.UseVisualStyleBackColor = true;
+		  this._ok.Click += new System.EventHandler(this._ok_Click);
 		  // 
 		  // Preferences
 		  // 
@@ -131,6 +131,7 @@ namespace SMOz.UI
 		  this.MaximizeBox = false;
 		  this.MinimizeBox = false;
 		  this.Name = "Preferences";
+		  this.ShowInTaskbar = false;
 		  this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 		  this.Text = "Preferences";
 		  this._tabContainer.ResumeLayout(false);

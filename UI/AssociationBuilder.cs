@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using SMOz.StartMenu;
 using EXControls;
 using System.IO;
+using SMOz.Cleanup;
 
 namespace SMOz.UI
 {
@@ -18,6 +19,8 @@ namespace SMOz.UI
 
 	   public AssociationBuilder(StartItem[] startItems) {
 		  InitializeComponent();
+
+		  this.Icon = SMOz.Properties.Resources.Application;
 
 		  installedPrograms = SMOz.Cleanup.InstalledProgramList.RetrieveProgramList();
 		  itemTags = new Dictionary<EXListViewItem, StartItem>(startItems.Length);
@@ -50,22 +53,32 @@ namespace SMOz.UI
 		  foreach (EXListViewItem listItem in _associationList.Items) {
 			 if (!string.IsNullOrEmpty(listItem.SubItems[1].Text)) {
 				itemTags[listItem].Application = listItem.SubItems[1].Text;
-				Console.WriteLine("{0} => {1}", itemTags[listItem], listItem.SubItems[1].Text);
 			 }
 		  }
 	   }
 
 	   private void _autoAssociate_Click(object sender, EventArgs e) {
+		  float bestResult;
+		  if (!float.TryParse(_autoTreshold.Text, out bestResult)) {
+			 bestResult = 0.5f;
+		  } else {
+			 if ((bestResult < 0) || (bestResult > 1)) {
+				MessageBox.Show("Tolerence value out of range. Allowed range is [0-1].", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				return;
+			 }
+		  }
+
 		  foreach ( EXListViewItem listItem in _associationList.Items ) {
 			 if ( string.IsNullOrEmpty(listItem.SubItems[1].Text) ) {
-				listItem.SubItems[1].Text = FindAssociatedProgram(Path.GetFileName(listItem.SubItems[0].Text));
+				listItem.SubItems[1].Text = FindAssociatedProgram(Path.GetFileName(listItem.SubItems[0].Text), bestResult);
 			 }
 		  }
 	   }
 
-	   private string FindAssociatedProgram(string startEntryName) {
+	   private string FindAssociatedProgram(string startEntryName, float bestResult) {
 		  string bestMatch = "";
-		  float bestResult = 0.5f; // This is the minimum treshold
+//		  float bestResult = 0.5f; // This is the minimum treshold
+		  
 		  foreach (string installedProgram in installedPrograms) {
 			 float similarity = GetSimilarity(startEntryName, installedProgram);
 			 if (similarity > bestResult) {
@@ -144,6 +157,10 @@ namespace SMOz.UI
 
 	   private void contextMenuStrip1_Opening(object sender, CancelEventArgs e) {
 		  _autoTreshold.Focus();
+	   }
+
+	   private void AssociationBuilder_SizeChanged(object sender, EventArgs e) {
+		  _associationList.Columns[1].Width = _associationList.Width - _associationList.Columns[0].Width - 30;
 	   }
     }
 }

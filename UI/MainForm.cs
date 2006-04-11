@@ -63,6 +63,7 @@ namespace SMOz.UI
 				AddToManager(str);
 			 }
 		  }
+		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 
 		  SysImageListHelper.SetTreeViewImageList(_categoryTree, treeIconList, false);
 
@@ -73,7 +74,14 @@ namespace SMOz.UI
 	   }
 
 	   private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+		  startManager.SaveAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 		  Program.PersistRuntimeData();
+
+		  if ((undoQueue.Count > 0) && (undoQueue.Peek().Name != "Apply Changes")) {
+			 if (MessageBox.Show("It appears that you have unsaved changes. Do you still want to quit?", "Changes Not Saved - " + Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+				e.Cancel = true;
+			 }
+		  }
 	   }
 
 
@@ -405,17 +413,29 @@ namespace SMOz.UI
 		  string path = startItem.HasUser ?  path = startItem.UserPath : startItem.LocalPath;
 
 		  if (startItem.Type == StartItemType.File) {
+#if DEBUG
+			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
+#else
 			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString()});
+#endif
 			 if (File.Exists(path)) {
 				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
 			 }
 		  } else {
+#if DEBUG
+			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
+#else
 			 listItem = new ListViewItem(new string[] { Path.GetFileName(startItem.Name), startItem.Location.ToString() });
+#endif
+//			 listItem = new ListViewItem(new string[] { Path.GetFileName(startItem.Name), startItem.Application });
 			 if (Directory.Exists(path)) {
 				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
 			 }
 		  }
 		  listItem.SubItems[1].ForeColor = SystemColors.GrayText;
+#if DEBUG
+		  listItem.SubItems[2].ForeColor = SystemColors.GrayText;
+#endif
 
 		  listItem.ImageIndex = imageIndex;
 		  listItem.Tag = startItem;
@@ -978,11 +998,30 @@ namespace SMOz.UI
 	   }
 
 	   private void cleanupToolStripMenuItem_Click(object sender, EventArgs e) {
+		  CleanUp();
 		  // 1. Delete Empty Category Folders
 
 		  // 2. Delete Empty Folders
 
 		  // 3. Delete Folders with links that point to nowhere
+	   }
+
+	   private void CleanUp() {
+		  List<string> installedPrograms = new List<string>(SMOz.Cleanup.InstalledProgramList.RetrieveProgramList());
+		  string result = "";
+		  foreach (StartItem startItem in startManager.StartItems) {
+			 if (!string.IsNullOrEmpty(startItem.Application)) {
+				if (!installedPrograms.Contains(startItem.Application)) {
+				    result += string.Format("{0} => {1}\n", startItem.Name, startItem.Application);
+				    Console.WriteLine("{0} => {1}\n", startItem.Name, startItem.Application);
+				}
+			 }
+		  }
+		  if (result != "") {
+			 MessageBox.Show("The following start menu items belong to uninstalled programs:\n\n" + result, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		  } else {
+			 MessageBox.Show("Everything is OK.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+		  }
 	   }
 
 	   
@@ -1032,6 +1071,7 @@ namespace SMOz.UI
 			 // This ensures that nodes that are not explicitly listed as categories are scanned
 			 AddToManager(str);
 		  }
+		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 		  categoryCache.Invalidate();
 		  _categoryTree.SelectedNode = _categoryTree.Nodes.Find(startItem.Name, true)[0];
 	   }
@@ -1043,6 +1083,7 @@ namespace SMOz.UI
 			 // This ensures that nodes that are not explicitly listed as categories are scanned
 			 AddToManager(str);
 		  }
+		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH); // Update
 		  categoryCache.Invalidate();
 		  _categoryTree.SelectedNode = _categoryTree.Nodes.Find(name, true)[0];
 	   }
@@ -1285,7 +1326,7 @@ namespace SMOz.UI
 				AddToManager(str);
 			 }
 		  }
-
+		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 		  categoryCache.Invalidate();
 
 		  this.template = template;
@@ -1310,23 +1351,10 @@ namespace SMOz.UI
 
 	   private void associateToolStripMenuItem_Click(object sender, EventArgs e) {
 		  using (AssociationBuilder asBuilder = new AssociationBuilder(this.startManager.StartItems)) {
-			 asBuilder.ShowDialog(this);
-		  }
-	   }
-
-	   private void validateToolStripMenuItem_Click(object sender, EventArgs e) {
-		  List<string> installedPrograms = new List<string>(SMOz.Cleanup.InstalledProgramList.RetrieveProgramList());
-		  string result = "";
-		  foreach (StartItem startItem in startManager.StartItems) {
-			 if (!string.IsNullOrEmpty(startItem.Application)) {
-				if (installedPrograms.Contains(startItem.Application)) {
-				    result += string.Format("{0} => {1} [OK]\n", startItem.Name, startItem.Application);
-				} else {
-				    result += string.Format("{0} => {1} [Missing]\n", startItem.Name, startItem.Application);
-				}
+			 if (asBuilder.ShowDialog(this) == DialogResult.OK) {
+				this.startManager.SaveAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 			 }
 		  }
-		  MessageBox.Show(result, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 	   }
 
 	   private void preferencesToolStripMenuItem_Click(object sender, EventArgs e) {

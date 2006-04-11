@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Win32;
 using SMOz.Utilities;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace SMOz.Cleanup
 {
@@ -10,11 +13,17 @@ namespace SMOz.Cleanup
     public class ApplicationAssociationList : SortedDictionary<string, string> {
 
 	   public void Save(string fileName) {
-		  Utility.Serialize<ApplicationAssociationList>(this, fileName);
+		  using (Stream stream = File.Open(fileName, FileMode.Create, FileAccess.Write, FileShare.None)) {
+			 IFormatter formatter = new BinaryFormatter();
+			 formatter.Serialize(stream, this);
+		  }
 	   }
 
 	   public static ApplicationAssociationList Load(string fileName) {
-		  return Utility.DeSerialize<ApplicationAssociationList>(fileName);
+		  using (Stream stream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None)) {
+			 IFormatter formatter = new BinaryFormatter();
+			 return (ApplicationAssociationList)formatter.Deserialize(stream);
+		  }
 	   }
 
     }

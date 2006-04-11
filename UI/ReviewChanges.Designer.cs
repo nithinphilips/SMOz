@@ -144,6 +144,7 @@ namespace SMOz.UI
 		  this.Controls.Add(this.label1);
 		  this.Controls.Add(this._table);
 		  this.Controls.Add(this._ok);
+		  this.MinimizeBox = false;
 		  this.Name = "ReviewChanges";
 		  this.ShowInTaskbar = false;
 		  this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

@@ -67,7 +67,11 @@ namespace SMOz.UI
 		  this.ClientSize = new System.Drawing.Size(324, 240);
 		  this.Controls.Add(this.PreviewList);
 		  this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+		  this.MaximizeBox = false;
+		  this.MinimizeBox = false;
 		  this.Name = "MatchPreview";
+		  this.ShowIcon = false;
+		  this.ShowInTaskbar = false;
 		  this.Text = "Preview";
 		  this.ResumeLayout(false);
 

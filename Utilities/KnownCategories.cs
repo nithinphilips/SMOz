@@ -40,7 +40,7 @@ namespace SMOz.Utilities
 
 	   // change the default constructor to private
 	   private KnownCategories() {
-		  knownCategories = new SortedDictionary<string, string>();
+		  knownCategories = new SortedList<string, int>(StringComparer.CurrentCultureIgnoreCase);
 	   }
 
 	   public static KnownCategories Instance {
@@ -63,8 +63,8 @@ namespace SMOz.Utilities
 		  info.SetType(typeof(KnownCategories.SerializationProxy));
 	   }
 
-
-	   SortedDictionary<string, string> knownCategories = new SortedDictionary<string, string>();
+	   // Umm... the int still takes 4bytes! may be something smaller
+	   SortedList<string, int> knownCategories;
 
 	   public void AddRange(string[] names) {
 		  for (int i = 0; i < names.Length; i++) {
@@ -74,9 +74,8 @@ namespace SMOz.Utilities
 
 	   public bool Add(string name) {
 		  if (name == "") { return false; }
-		  string _name = name.ToLower();
-		  if (!knownCategories.ContainsKey(_name)) {
-			 knownCategories.Add(_name, name);
+		  if (!knownCategories.ContainsKey(name)) {
+			 knownCategories.Add(name, 0);
 			 return true;
 		  } else {
 			 return false;
@@ -96,7 +95,7 @@ namespace SMOz.Utilities
 	   #region IEnumerable<string> Members
 
 	   public IEnumerator<string> GetEnumerator() {
-		  return knownCategories.Values.GetEnumerator();
+		  return knownCategories.Keys.GetEnumerator();
 	   }
 
 	   #endregion
@@ -110,12 +109,8 @@ namespace SMOz.Utilities
 	   #endregion
 
 	   public string[] ToArray() {
-		  string[] result = new string[knownCategories.Count];
-		  int index = 0;
-		  foreach (string item in knownCategories.Values) {
-			 result[index] = item;
-			 index++;
-		  }
+		  string[] result = new string[knownCategories.Keys.Count];
+		  for (int i = 0; i < knownCategories.Keys.Count; i++){ result[i] = knownCategories.Keys[i]; }
 		  return result;
 	   }
     }

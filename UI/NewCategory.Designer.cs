@@ -111,6 +111,9 @@ namespace SMOz.UI
 		  this.Controls.Add(this._categoryName);
 		  this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
 		  this.Name = "NewCategory";
+		  this.Opacity = 0.9;
+		  this.ShowIcon = false;
+		  this.ShowInTaskbar = false;
 		  this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 		  this.Text = "Create New Category";
 		  ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

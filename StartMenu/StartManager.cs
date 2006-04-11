@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using SMOz.Cleanup;
 
 namespace SMOz.StartMenu
 {
@@ -98,6 +99,29 @@ namespace SMOz.StartMenu
 		  }
 	   }
 
+	   public void SaveAssociationList(string fileName) {
+		  ApplicationAssociationList assocList = new ApplicationAssociationList();
+		  foreach(StartItem item in this.startItems){
+			 if (!string.IsNullOrEmpty(item.Application)) {
+				assocList.Add(item.RealName, item.Application);
+			 }
+		  }
+		  assocList.Save(fileName);
+	   }
+
+	   public void LoadAssociationList(string fileName) {
+		  if (!File.Exists(fileName)) {
+			 Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+			 return;
+		  }
+		  ApplicationAssociationList assocList = ApplicationAssociationList.Load(fileName);
+		  string value;
+		  foreach (StartItem item in this.startItems) {
+			 if (assocList.TryGetValue(item.RealName, out value)) {
+				item.Application = value;
+			 }
+		  }
+	   }
 
 	   /// <summary>
 	   /// Searches the start items' categories and returns ones that matches the string.

@@ -39,6 +39,8 @@ namespace SMOz.Utilities
 	   public const bool IGNORE_CASE = true;
 	   public const RegexOptions REGEX_OPTIONS = RegexOptions.IgnoreCase | RegexOptions.Singleline;
 
+	   public static readonly string ASSOCIATION_LIST_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\Association."
+	   + Application.ProductVersion + ".bin";
 	   public static readonly string KNOWN_CATEGORIES_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\KnownCategories."
 	   + Application.ProductVersion + ".xml";
 	   public static readonly string IGNORE_LIST_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\IgnoreList."
