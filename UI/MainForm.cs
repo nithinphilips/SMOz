@@ -450,7 +450,11 @@ namespace SMOz.UI
 	   private void ResizeListHeaders() {
 		  if ((_itemList.Items.Count > 0) && (_itemList.View == View.Details)) {
 			 foreach (ColumnHeader header in _itemList.Columns) {
-				header.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+				if (header.Index == 1) {
+				    header.AutoResize(ColumnHeaderAutoResizeStyle.HeaderSize);
+				} else {
+				    header.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+				}
 			 }
 		  }
 	   }
