@@ -33,9 +33,10 @@ namespace SMOz.Template{
     public enum CategoryItemType { String, WildCard, Regex };
 
     [Serializable]
-    public class CategoryItem : IComparable<CategoryItem>{
+    public class CategoryItem : IComparable<CategoryItem>, IEquatable<CategoryItem>
+    {
 
-	   public CategoryItem() { }
+	   public CategoryItem() : this(string.Empty, CategoryItemType.String) { }
 
 	   public CategoryItem(string value, CategoryItemType type) {
 		  this.value = value;
@@ -51,7 +52,7 @@ namespace SMOz.Template{
 		  get { return parent; }
 		  internal set {
 			 if (this.parent != null) { this.parent.Remove(this); }
-			 parent = value; 
+			 parent = value;
 		  }
 	   }
 
@@ -92,8 +93,14 @@ namespace SMOz.Template{
 						  // Escape wild card
 						  this.pattern = ".*" + Regex.Escape(this.value) + ".*";
 						  break;
-					   default:
+					   case CategoryItemType.String:
+						  this.pattern = "^" + Regex.Escape(this.value) + "$";
+						  break;
+					   case CategoryItemType.Regex:
 						  // Escape anything else by default
+						  this.pattern = this.value;
+						  break;
+					   default:
 						  this.pattern = Regex.Escape(this.value);
 						  break;
 				    }
@@ -141,7 +148,7 @@ namespace SMOz.Template{
 	   }
 
 	   public override string ToString() {
-		  return string.Format("{{{0}}, {{1}}}", this.type, this.value);
+		  return string.Format("{{ {0}, {1} }}", this.type, this.value);
 	   }
 
 	   #region IComparable<CategoryItem> Members
@@ -151,7 +158,16 @@ namespace SMOz.Template{
 		  int result = 0;
 		  result = this.type.CompareTo(other.type);
 		  if (result == 0) { result = string.Compare(this.value, other.value, Utility.IGNORE_CASE); }
+		  if (result == 0) { if ((this.parent != null) && (other.parent != null)) {  result = this.parent.CompareTo(other.parent); }}
 		  return result;
+	   }
+
+	   #endregion
+
+	   #region IEquatable<CategoryItem> Members
+
+	   public bool Equals(CategoryItem other) {
+		  return (this.CompareTo(other) == 0);
 	   }
 
 	   #endregion

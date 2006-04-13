@@ -118,8 +118,23 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="App" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Start.Icon.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Application" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\App.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ContributionInfo" xml:space="preserve">
+    <value>{0} v{1}
+
+This program is made possible by the following contributors:
+     Magic Control Library 1.7.4.0:  Phil Wright &lt;http://www.dotnetmagic.com/&gt;
+     XPTable: Mathew Hall &lt;http://www.codeproject.com/cs/miscctrl/XPTable.asp&gt;
+     EXListView: Michiel van Eerd &lt;http://www.webessence.nl/&gt;
+     SysIconList: vbAccelerator &lt;http://vbaccelerator.com/&gt;
+     
+Screenshots and Icon of this program feature 'Luna Element 5' Visual Style by tornado 5 
+     &lt;http://www.deviantart.com/deviation/28246317&gt;</value>
   </data>
   <data name="Edit_Copy" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Edit_Copy.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -172,6 +187,13 @@
   <data name="Help_Help" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Help_Help.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="LicenseInfo" xml:space="preserve">
+    <value>This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,Inc.,59 Temple Place - Suite 330,Boston,MA 02111-1307, USA.</value>
+  </data>
   <data name="Tool_GoUp" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Tool_GoUp.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -183,5 +205,15 @@
   </data>
   <data name="Tools_Run" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Tools_Run.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VersionInfo" xml:space="preserve">
+    <value>{0} v{1}
+Written by Nithin Philips &lt;spikiermonkey@users.sourceforge.net&gt;.
+
+Copyright (C) 2004-2006 Nithin Philips.
+This is free software; There is NO warranty
+not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Read COPYING in application directory or visit http://www.gnu.org/copyleft/gpl.html for more info.</value>
   </data>
 </root>

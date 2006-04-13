@@ -116,6 +116,17 @@ namespace XPTable.Editors
 
 		#endregion
 
+	    /// <summary>
+	    /// Occurs when the text of the edit control is modified.
+	    /// </summary>
+	    public event EventHandler TextChanged {
+		   add {
+			  this.TextBox.TextChanged += value;
+		   }
+		   remove {
+			  this.TextBox.TextChanged -= value;
+		   }
+	    }
 
 		#region Methods
 

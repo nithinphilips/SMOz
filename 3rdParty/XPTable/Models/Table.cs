@@ -237,6 +237,11 @@ namespace XPTable.Models
 		public event CellEditEventHandler BeginEditing;
 
 		/// <summary>
+		/// Occurs after the Table editing of a cell
+		/// </summary>
+	    public event CellEditEventHandler AfterEditing;
+
+		/// <summary>
 		/// Occurs when the Table stops editing a Cell
 		/// </summary>
 		public event CellEditEventHandler EditingStopped;
@@ -5678,6 +5683,18 @@ namespace XPTable.Models
 			}
 		}
 
+		/// <summary>
+		/// Raises the AfterEditing event
+		/// </summary>
+		/// <param name="e">A CellEditEventArgs that contains the event data</param>
+	    protected internal virtual void OnAfterEditing(CellEditEventArgs e) {
+		   if (this.CanRaiseEvents) {
+			  if (AfterEditing != null) {
+				 AfterEditing(e.Cell, e);
+			  }
+		   }
+	    }
+
 
 		/// <summary>
 		/// Raises the EditingStopped event
@@ -6522,8 +6539,8 @@ namespace XPTable.Models
 			if (this.hotColumn != -1)
 			{
 				this.ColumnModel.Columns[this.hotColumn].InternalColumnState = ColumnState.Normal;
-				
 				this.ResetHotColumn();
+				this.Cursor = Cursors.Default;
 			}
 
 			// if there is a pressed column, its state need to beset to normal

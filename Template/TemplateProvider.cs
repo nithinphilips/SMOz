@@ -133,5 +133,23 @@ namespace SMOz.Template
 		  return null;
 	   }
 
+
+	   public void Merge(TemplateProvider other) {
+		  foreach (Category otherCategory in other.categories) {
+			 Category existingCategory = this.categories.Find(
+				delegate(Category match) {
+				    return (string.Compare(match.ToFormat(), otherCategory.ToFormat(), Utility.IGNORE_CASE) == 0); 
+				});
+			 if (existingCategory != null) {
+				for (int i = 0; i < otherCategory.Count; i++) {
+				    if (!existingCategory.Contains(otherCategory[i])) {
+					   existingCategory.Add(otherCategory[i]);
+				    }
+				}
+			 } else {
+				this.categories.Add(otherCategory);
+			 }
+		  }
+	   }
     }
 }

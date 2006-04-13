@@ -76,6 +76,10 @@ namespace SMOz.Template
 		  this.items.Add(item);
 	   }
 
+	   //internal void ChildAdd(CategoryItem item) {
+	   //    this.items.Add(item);
+	   //}
+
 	   public void AddRange(CategoryItem[] items) {
 		  for (int i = 0; i < items.Length; i++) {
 			 items[i].Parent = this;

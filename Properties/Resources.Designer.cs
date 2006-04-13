@@ -60,10 +60,35 @@ namespace SMOz.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap App {
+            get {
+                object obj = ResourceManager.GetObject("App", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Icon Application {
             get {
                 object obj = ResourceManager.GetObject("Application", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} v{1}
+        ///
+        ///This program is made possible by the following contributors:
+        ///     Magic Control Library 1.7.4.0:  Phil Wright &lt;http://www.dotnetmagic.com/&gt;
+        ///     XPTable: Mathew Hall &lt;http://www.codeproject.com/cs/miscctrl/XPTable.asp&gt;
+        ///     EXListView: Michiel van Eerd &lt;http://www.webessence.nl/&gt;
+        ///     SysIconList: vbAccelerator &lt;http://vbaccelerator.com/&gt;
+        ///     
+        ///Screenshots and Icon of this program feature &apos;Luna Element 5&apos; Visual Style by tornado 5 
+        ///     &lt;http://www.deviantart.com/deviation/28246317&gt;.
+        /// </summary>
+        internal static string ContributionInfo {
+            get {
+                return ResourceManager.GetString("ContributionInfo", resourceCulture);
             }
         }
         
@@ -186,6 +211,19 @@ namespace SMOz.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+        ///
+        ///This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+        ///
+        ///You should have received a copy  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string LicenseInfo {
+            get {
+                return ResourceManager.GetString("LicenseInfo", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap Tool_GoUp {
             get {
                 object obj = ResourceManager.GetObject("Tool_GoUp", resourceCulture);
@@ -211,6 +249,22 @@ namespace SMOz.Properties {
             get {
                 object obj = ResourceManager.GetObject("Tools_Run", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} v{1}
+        ///Written by Nithin Philips &lt;spikiermonkey@users.sourceforge.net&gt;.
+        ///
+        ///Copyright (C) 2004-2006 Nithin Philips.
+        ///This is free software; There is NO warranty
+        ///not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+        ///
+        ///Read COPYING in application directory or visit http://www.gnu.org/copyleft/gpl.html for more info..
+        /// </summary>
+        internal static string VersionInfo {
+            get {
+                return ResourceManager.GetString("VersionInfo", resourceCulture);
             }
         }
     }

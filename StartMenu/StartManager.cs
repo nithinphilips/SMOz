@@ -258,5 +258,11 @@ namespace SMOz.StartMenu
 	   }
 
 	   #endregion
+
+	   public string[] ToStringArray() {
+		  string[] result = new string[this.startItems.Count];
+		  for (int i = 0; i < this.startItems.Count; i++) { result[i] = startItems[i].Name; }
+		  return result;
+	   }
     }
 }

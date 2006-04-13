@@ -79,5 +79,19 @@ namespace SMOz
 		  IgnoreList.Instance.Add(new CategoryItem("desktop.ini", CategoryItemType.WildCard));
 		  IgnoreList.Instance.Add(new CategoryItem("Startup", CategoryItemType.String));
 	   }
+
+
+	   public static string GetVersionInfo() {
+		  return string.Format(Properties.Resources.VersionInfo, Application.ProductName, Application.ProductVersion);
+	   }
+
+	   public static string GetContributionInfo() {
+		  return string.Format(Properties.Resources.ContributionInfo, Application.ProductName, Application.ProductVersion);
+	   }
+
+	   public static string GetLicenseInfo() {
+		  return Properties.Resources.LicenseInfo;
+	   }
+
     }
 }

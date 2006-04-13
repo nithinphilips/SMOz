@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "SMOz"
-!define PRODUCT_VERSION "0.6.0.1"
+!define PRODUCT_VERSION "0.6.5.0"
 !define PRODUCT_PUBLISHER "Nithin Philips"
 !define PRODUCT_WEB_SITE "http://smoz.sourceforge.net/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}.exe"
@@ -66,16 +66,23 @@ ShowUnInstDetails show
 Section "Application" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
+  
   File "..\bin\Release\SMOz.exe"
+  File "..\bin\Release\MagicLocalLibrary.dll"
+  File "..\bin\Release\XPTable.dll"
   File "..\Resources\Template.ini"
+  
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\${PRODUCT_NAME}.lnk" "$INSTDIR\SMOz.exe"
 SectionEnd
 
 Section Uninstall
   ReadRegStr $ICONS_GROUP ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "${PRODUCT_STARTMENU_REGVAL}"
+  
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\SMOz.exe"
+  Delete "$INSTDIR\MagicLocalLibrary.dll"
+  Delete "$INSTDIR\XPTable.dll"
   Delete "$INSTDIR\Template.ini"
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"

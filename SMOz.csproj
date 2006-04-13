@@ -31,12 +31,20 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="About\AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About\AboutBox.Designer.cs">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="About\InformationPage.cs" />
     <Compile Include="Cleanup\InstalledProgramList.cs" />
     <Compile Include="Commands\CommandConverter.cs" />
     <Compile Include="Commands\UI\RenameStartItemCommand.cs" />
@@ -179,6 +187,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Installer\gpl.txt" />
+    <None Include="Resources\Start.Icon.png" />
+    <None Include="Installer\Installer.nsi" />
+    <None Include="Resources\App.png" />
     <None Include="Resources\App.ico" />
     <None Include="Resources\File_NewCategory.png" />
     <None Include="Resources\Edit_View.png" />
@@ -201,6 +212,16 @@
     <None Include="Resources\Edit_Copy.png" />
     <None Include="Resources\Tools_Cleanup.png" />
     <None Include="Resources\File_New.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="3rdParty\MagicLibrary\MagicLibrary.csproj">
+      <Project>{92F94EA0-9910-4895-B8A1-FED1543A9DA1}</Project>
+      <Name>MagicLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="3rdParty\XPTable\XPTable.csproj">
+      <Project>{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}</Project>
+      <Name>XPTable</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

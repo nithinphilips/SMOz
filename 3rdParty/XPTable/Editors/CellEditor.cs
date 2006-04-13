@@ -263,6 +263,7 @@ namespace XPTable.Editors
 				this.SetCellValue();
 			}
 
+			this.table.OnAfterEditing(e);
 			this.RemoveEditControl();
 		}
 

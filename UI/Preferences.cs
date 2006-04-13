@@ -17,7 +17,7 @@ namespace SMOz.UI
 		  InitializeComponent();
 
 		  _ignoreList.Columns.Add(new EXEditableColumnHeader("Name", new TextBox()));
-		  _ignoreList.Columns.Add(new EXEditableColumnHeader("Type", TemplateEditor.CreateTypeComboBox()));
+		  _ignoreList.Columns.Add(new EXEditableColumnHeader("Type", new ComboBox()));
 
 		  if (_tabContainer.SelectedTab == _tabIgnoreList) {
 			 if (_ignoreList.Items.Count == 0) {

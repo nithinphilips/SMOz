@@ -35,50 +35,242 @@ using System.Text.RegularExpressions;
 using SMOz.Template;
 using SMOz.Utilities;
 using EXControls;
+using XPTable.Models;
+using XPTable.Editors;
+using System.IO;
 
 namespace SMOz.UI
 {
+    // Note: Edits are live.
     public partial class TemplateEditor : Form
     {
 	   StartManager manager;
-	   IEnumerable<Category> categories;
+	   TemplateProvider template;
 
-	   ComboBox _pattern;	  // start item value
-	   ComboBox _type;		  // start item type
-	   ComboBox _category;	  // start item category
-
-	   public TemplateEditor(StartManager manager, IEnumerable<Category> categories) {
+	   public TemplateEditor(StartManager manager, TemplateProvider template) {
 		  InitializeComponent();
-		  Initialize();
+		  this.Icon = SMOz.Properties.Resources.Application;
 
+		  this.template = template;
 		  this.manager = manager;
-		  this.categories = categories;
 
 		  StartItem[] uncategorized = manager.GetByCategory("");
 		  string[] uncategorizedStr = new string[uncategorized.Length];
 		  for (int i = 0; i < uncategorized.Length; i++) {
 			 uncategorizedStr[i] = uncategorized[i].Name;
 		  }
-		  this._pattern.Items.AddRange(uncategorizedStr);
-		  this._category.Items.AddRange(KnownCategories.Instance.ToArray());
 
-		  AddToListView();
+		  InitializeTable(uncategorizedStr, KnownCategories.Instance.ToArray());
 
-		  if (this._templateList.Items.Count > 0) {
-			 this._templateList.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
-			 this._templateList.Columns[1].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
-			 this._templateList.Columns[2].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+		  AddToTable(string.Empty);
+	   }
+
+	   Category orphan = new Category("", "");
+
+	   public void InitializeTable(string[] patterns, string[] categories) {
+		  this._templateTable.ColumnModel = new ColumnModel();
+		  this._templateTable.TableModel = new TableModel();
+		  // 0: Name
+		  ComboBoxColumn patternCol = new ComboBoxColumn("Pattern");
+		  ComboBoxCellEditor patternEditor = new ComboBoxCellEditor();
+		  patternEditor.TextChanged += new EventHandler(patternEditor_TextChanged);
+		  patternEditor.DropDownStyle = DropDownStyle.DropDown;
+		  patternEditor.Items.AddRange(patterns);
+		  patternCol.Editor = patternEditor;
+		  patternCol.Editable = true;
+		  this._templateTable.ColumnModel.Columns.Add(patternCol);
+		  // 1: Type
+		  ComboBoxColumn typeCol = new ComboBoxColumn("Type");
+		  ComboBoxCellEditor typeEditor = new ComboBoxCellEditor();
+		  typeEditor.Items.Add(CategoryItemType.String.ToString());
+		  typeEditor.Items.Add(CategoryItemType.WildCard.ToString());
+		  typeEditor.Items.Add(CategoryItemType.Regex.ToString());
+		  typeCol.Editor = typeEditor;
+		  typeCol.Editable = true;
+		  this._templateTable.ColumnModel.Columns.Add(typeCol);
+		  // 2: Category
+		  ComboBoxColumn categoryCol = new ComboBoxColumn("Category");
+		  ComboBoxCellEditor categoryEditor = new ComboBoxCellEditor();
+		  categoryEditor.DropDownStyle = DropDownStyle.DropDown;
+		  categoryEditor.Items.AddRange(categories);
+		  categoryCol.Editor = categoryEditor;
+		  categoryCol.Editable = true;
+		  this._templateTable.ColumnModel.Columns.Add(categoryCol);
+
+		  AdjustColumnWidth();
+
+		  this._templateTable.BeginEditing += new XPTable.Events.CellEditEventHandler(_templateTable_BeginEditing);
+		  this._templateTable.AfterEditing += new XPTable.Events.CellEditEventHandler(_templateTable_AfterEditing);
+		  this._templateTable.MouseDown += new System.Windows.Forms.MouseEventHandler(this._templateTable_MouseDown);
+		  this._templateTable.AlternatingRowColor = Color.LightBlue;
+	   }
+
+
+	   CategoryItem editingCategoryItem;
+	   
+	   void patternEditor_TextChanged(object sender, EventArgs e) {
+		  if (editingCategoryItem != null) {
+			 TextBox senderBox = sender as TextBox;
+			 if (senderBox != null) {
+				ShowLivePreview(new CategoryItem(senderBox.Text, editingCategoryItem.Type));
+			 }
 		  }
 	   }
 
-	   public static ComboBox CreateTypeComboBox() {
-		  ComboBox _type = new ComboBox();
-		  _type.Items.Add(CategoryItemType.String.ToString());
-		  _type.Items.Add(CategoryItemType.WildCard.ToString());
-		  _type.Items.Add(CategoryItemType.Regex.ToString());
-		  _type.DropDownHeight = 40;
-		  _type.DropDownStyle = ComboBoxStyle.Simple;
-		  return _type;
+	   void _templateTable_BeginEditing(object sender, XPTable.Events.CellEditEventArgs e) {
+		  if (e.Column == 0) { // The Pattern column
+			 Row currentRow = _templateTable.TableModel.Rows[e.Row];
+			 editingCategoryItem = (CategoryItem)currentRow.Tag;
+			 Console.WriteLine(editingCategoryItem);
+		  }
+	   }
+
+	   void _templateTable_AfterEditing(object sender, XPTable.Events.CellEditEventArgs e) {
+		  if (preview != null) {
+			 // reset preview
+			 preview.PreviewList.Items.Clear();
+		  }
+
+		  editingCategoryItem = null;
+		  Row currentRow = _templateTable.TableModel.Rows[e.Row];
+		  CategoryItem currentItem = (CategoryItem)currentRow.Tag;
+
+		  if (e.Column == 0) { // The Pattern column
+			 currentItem.Value = e.Cell.Text;
+		  } else if (e.Column == 1) { // The Type column
+			 currentItem.Type = (CategoryItemType)Enum.Parse(typeof(CategoryItemType), e.Cell.Text);
+		  } else if (e.Column == 2) { // The Category column
+			 SetCategory(currentItem, e.Cell.Text);
+		  }
+	   }
+
+	   void SetCategory(CategoryItem item, string formatCategoryName) {
+		  Category cat = FindCategory(formatCategoryName);
+		  if (cat == null) {
+			 Category newCat = Category.FromFormat(formatCategoryName);
+			 this.template.Add(newCat);
+			 item.Parent = newCat;
+			 item.Parent.Add(item);
+			 AddCategoryToTree(newCat.Name);
+		  } else {
+			 item.Parent = cat;
+			 item.Parent.Add(item);
+		  }
+	   }
+
+	   private void ShowLivePreview(CategoryItem categoryItem){
+		  if (preview != null) {
+			 preview.PreviewList.BeginUpdate();
+			 preview.PreviewList.Items.Clear();
+			 string star = "";
+
+			 Regex regex = null;
+			 try {
+				regex = new Regex(categoryItem.Pattern, Utility.REGEX_OPTIONS);
+				Console.WriteLine(categoryItem.Pattern);
+			 } catch (Exception ex) {
+				preview.PreviewList.Items.Clear();
+				preview.PreviewList.Items.Add(ex.Message);
+				preview.PreviewList.EndUpdate();
+				return;
+			 }
+
+			 foreach (StartItem item in manager.StartItems) {
+				star = item.Name.Contains("\\") ? "*" : "";
+				if (regex.Match(item.Name).Success) {
+				    preview.PreviewList.Items.Add(star + item.Name);
+				}
+			 }
+			 preview.PreviewList.EndUpdate();
+		  }
+	   }
+
+	   private void AdjustColumnWidth() {
+		  int colWidth = (this._templateTable.Width / 3) - 8;
+		  this._templateTable.ColumnModel.Columns[0].Width = colWidth;
+		  this._templateTable.ColumnModel.Columns[1].Width = colWidth;
+		  this._templateTable.ColumnModel.Columns[2].Width = colWidth;
+	   }
+
+	   public static Row CategoryItemToRow(CategoryItem item) {
+		  string category = "";
+		  if (item.Parent != null) { category = item.Parent.ToFormat(); }
+		  Row result = new Row(new string[] { item.Value, item.Type.ToString(), category });
+		  result.Tag = item;
+		  return result;
+	   }
+
+
+	   private void AddToTable(string nameFilter) {
+		  _templateTable.BeginUpdate();
+		  _templateTable.TableModel.Rows.Clear();
+
+		  for (int i = -1; i < this.template.Count; i++) {
+			 Category current;
+			 if (i == -1) {
+				if (!string.IsNullOrEmpty(nameFilter)) { continue; }
+				current = this.orphan;
+			 } else {
+				current = this.template[i];
+				if ((!string.IsNullOrEmpty(nameFilter)) && (nameFilter != current.Name)) { continue; }
+			 }
+			 AddCategoryToTree(current.Name);
+			 foreach (CategoryItem item in current.Items) {
+				_templateTable.TableModel.Rows.Add(CategoryItemToRow(item));
+			 }
+		  }
+
+		  foreach (Category category in this.template.Categories) {
+			 
+		  }
+		  _templateTable.EndUpdate();
+	   }
+
+	   private string[] AddCategoryToTree(string text) {
+		  int iconIndex = 0;
+
+		  string[] tree;
+		  if (text == "") {
+			 tree = new string[] { text };
+		  } else {
+			 tree = Utility.PathToTree(text);
+		  }
+
+		  TreeNode[] nodes;
+		  TreeNode node, lastNode = null;
+		  // look from 
+		  bool orphan = true;
+		  for (int j = tree.Length - 1; j >= 0; j--) {
+			 nodes = _categoryTree.Nodes.Find(tree[j], true);
+			 if (nodes == null || nodes.Length <= 0) {
+				// create it
+				node = CreateTreeNode(tree[j], iconIndex);
+				if (lastNode != null) {
+				    node.Nodes.Add(lastNode);
+				}
+				lastNode = node;
+			 } else {
+				// tree exists
+				orphan = false;
+				if (lastNode != null) { nodes[0].Nodes.Add(lastNode); }
+				break;
+			 }
+		  }
+		  if (orphan) {
+			 _categoryTree.Nodes.Add(lastNode);
+		  }
+
+		  return tree;
+	   }
+
+	   private TreeNode CreateTreeNode(string text, int iconIndex) {
+		  TreeNode node = new TreeNode(text.Substring(text.LastIndexOf(Path.DirectorySeparatorChar) + 1));
+		  if (text == "") { node.Text = "All"; }
+		  node.ImageIndex = iconIndex;
+		  node.SelectedImageIndex = iconIndex;
+
+		  node.Name = text;
+		  return node;
 	   }
 
 	   public static EXListViewItem CategoryItemToListItem(CategoryItem item, Category category, ListViewGroup group){
@@ -101,7 +293,6 @@ namespace SMOz.UI
 			 Console.WriteLine("{{{0}, {1}}}", catiItem.Value, catiItem.Type);
 		  }
 	   }
-
 
 	   Dictionary<string, Category> lookupTable = new Dictionary<string, Category>();
 
@@ -127,124 +318,26 @@ namespace SMOz.UI
 		  }
 	   }
 
-	   public Category FindCategory(string format) {
-		  Category result = lookupTable[format];
-		  if (result == null) {
-			 result = Category.FromFormat(format);
+	   public Category FindCategoryByName(string name) {
+		  foreach (Category category in this.template.Categories) {
+			 if (string.Compare(category.Name, name, true) == 0) {
+				return category;
+			 }
 		  }
-		  return result;
+		  return null;
 	   }
-
-
-	   private void Initialize() {
-		  this.Icon = SMOz.Properties.Resources.Application;
-
-		  _pattern = new ComboBox();
-		  _pattern.AutoCompleteSource = AutoCompleteSource.ListItems;
-		  _pattern.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-
-		  _category = new ComboBox();
-		  _category.AutoCompleteSource = AutoCompleteSource.ListItems;
-		  _category.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-
-		  _type = CreateTypeComboBox();
-
-		  this._templateList.Columns.Add(new EXEditableColumnHeader("Name", _pattern));
-		  this._templateList.Columns.Add(new EXEditableColumnHeader("Type", _type));
-		  this._templateList.Columns.Add(new EXEditableColumnHeader("Category", _category));
-	   }
-
 	   
 
-	   void cmbType_TextUpdate(object sender, EventArgs e) {
-		  ComboBox sndr = sender as ComboBox;
-		  if (!sndr.Items.Contains(sndr.Text)) {
-			 sndr.Text = "String";
-		  }
-	   }
-
-	   private void AddToListView() {
-		  AddToListView(this.categories);
-	   }
-
-	   private void AddToListView(IEnumerable<Category> categories) {
-		  _templateList.BeginUpdate();
-		  _templateList.Items.Clear();
-		  foreach (Category category in categories) {
-			 ListViewGroup group = FindGroup(category);
-			 foreach (CategoryItem item in category.Items) {
-				AddToListView(item, group);
+	   public Category FindCategory(string format) {
+		  foreach (Category category in this.template.Categories) {
+			 if (string.Compare(category.ToFormat(), format, true) == 0) {
+				return category;
 			 }
 		  }
-		  _templateList.EndUpdate();
-	   }
-
-	   private void AddToListView(CategoryItem item, ListViewGroup group) {
-		  EXListViewItem newItem = new EXListViewItem(item.Value);
-		  newItem.SubItems.Add(new EXListViewSubItem(item.Type.ToString()));
-		  newItem.SubItems.Add(new EXListViewSubItem(group.Name));
-		  newItem.Name = item.Value;
-		  newItem.Group = group;
-		  _templateList.Items.Add(newItem);
-	   }
-
-	   public ListViewGroup FindGroup(Category category) {
-		  foreach (ListViewGroup group in _templateList.Groups) {
-			 if (group.Name == category.ToFormat()) {
-				return group;
-			 }
-		  }
-		  string name = category.Name;
-		  if (!string.IsNullOrEmpty(category.RestrictedPath)) {
-			 name += " (" + category.RestrictedPath + ")";
-		  }
-		  ListViewGroup newGrp = new ListViewGroup(category.ToFormat(), name);
-		  _templateList.Groups.Add(newGrp);
-		  return newGrp;
-	   }
-
-	   public ListViewGroup FindGroup(string name) {
-		  foreach (ListViewGroup group in _templateList.Groups) {
-			 if (group.Name == name) {
-				return group;
-			 }
-		  }
-		  ListViewGroup newGrp  = new ListViewGroup(name, name);
-		  _templateList.Groups.Add(newGrp);
-		  return newGrp;
-	   }
-
-	   private void _add_Click(object sender, EventArgs e) {
-//		  if (string.IsNullOrEmpty(_category.Text)) {
-//			 MessageBox.Show("A category is required. Choose one from the list or create a new one.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-//			 return;
-//		  }
-
-		  //if (provider.table.ContainsKey(_pattern.Text)) {
-		  //    provider.table.Remove(_pattern.Text);
-		  //    _templateList.Items.RemoveByKey(_pattern.Text);
-		  //} else {
-		  //    _pattern.Items.Remove(_pattern.Text);
-		  //}
-
-		  //provider.table.Add(_pattern.Text, _category.Text);
-		  //ListViewItem newItem = new ListViewItem(new string[] { _pattern.Text, DeduceType(_pattern.Text) });
-		  //newItem.Group = FindGroup(_category.Text);
-		  //_templateList.Items.Add(newItem);
-
-		  //if (!string.IsNullOrEmpty(_searchQuery.Text)) {
-		  //    // Update Search Results
-		  //    DoSearch();
-		  //}
+		  return null;
 	   }
 
 	   private void _templateList_DoubleClick(object sender, EventArgs e) {
-		  /*
-		  if ((_templateList.SelectedItems != null) && (_templateList.SelectedItems.Count > 0)) {
-			 _pattern.Text = _templateList.SelectedItems[0].SubItems[0].Text;
-			 _category.Text = _templateList.SelectedItems[0].Group.Name;
-		  }
-		   */
 	   }
 
 	   private void _templateList_KeyUp(object sender, KeyEventArgs e) {
@@ -286,26 +379,38 @@ namespace SMOz.UI
 		  this.Invoke(new MethodInvoker(this.DoSearch));
 	   }
 
+	   private void ResetSearch() {
+		  this.Text = "Template Editor";
+		  AddToTable(_categoryTree.SelectedNode.Name);
+		  _templateTable.NoItemsText = "Right Click to add a new pattern.";
+	   }
+
 	   private void DoSearch() {
-		  _templateList.BeginUpdate();
+		  _templateTable.BeginUpdate();
 
 		  if (string.IsNullOrEmpty(_searchQuery.Text)) {
-			 this.Text = "Template Editor";
-			 AddToListView();
+			 ResetSearch();
 		  } else {
 			 this.Text = "Template Editor - Search";
-			 string query = _searchQuery.Text.ToLower();
-			 _templateList.Items.Clear();
-			 foreach (Category category in this.categories) {
+			 _templateTable.NoItemsText = "No results found for '" + _searchQuery.Text + "'.";
+			 Regex regex = new Regex(".*" + Regex.Escape(_searchQuery.Text) + ".*", RegexOptions.IgnoreCase);
+			 _templateTable.TableModel.Rows.Clear();
+
+			 for (int i = -1; i < this.template.Count; i++) {
+				Category category = null;
+				if (i == -1) { category = this.orphan; } else { category = this.template[i]; }
 				foreach (CategoryItem item in category.Items) {
-				    string item_format = item.ToFormat();
-				    if (item_format.ToLower().Contains(query)) {
-					   AddToListView(item, FindGroup(category));
+				    if (regex.Match(item.Value).Success) {
+					   _templateTable.TableModel.Rows.Add(CategoryItemToRow(item));
 				    }
 				}
 			 }
+
+			 foreach (Category category in this.template.Categories) {
+				
+			 }
 		  }
-		  _templateList.EndUpdate();
+		  _templateTable.EndUpdate();
 	   }
 
 	   private void _templateList_AfterLabelEdit(object sender, LabelEditEventArgs e) {
@@ -338,9 +443,6 @@ namespace SMOz.UI
 	   }
 
 	   MatchPreview preview;
-	   private void _showPreview_Click(object sender, EventArgs e) {
-		  	  
-	   }
 
 	   private void _showPreview_CheckedChanged(object sender, EventArgs e) {
 		  if (_showPreview.Checked) {
@@ -362,56 +464,74 @@ namespace SMOz.UI
 		  _showPreview.Checked = false;
 	   }
 
-	   /*
-	   private void _pattern_TextChanged(object sender, EventArgs e) {
-		  if (preview != null) {
-			 preview.PreviewList.BeginUpdate();
-			 preview.PreviewList.Items.Clear();
-			 string star = "";
-			 Regex regex = null;
+	   Row clickedItem;
 
-			 if (_pattern.Text.StartsWith("@")) {
-				try {
-				    regex = new Regex(_pattern.Text.Substring(1), RegexOptions.IgnoreCase);
-				} catch (Exception ex) {
-				    preview.PreviewList.Items.Clear();
-				    preview.PreviewList.Items.Add(ex.Message);
-				    preview.PreviewList.EndUpdate();
-				    return;
-				}
+	   private void newToolStripMenuItem_Click(object sender, EventArgs e) {
+		  Category category = null;
+		  if ((_categoryTree.SelectedNode != null) && (_categoryTree.SelectedNode.Name != "")) {
+			 category = FindCategoryByName(_categoryTree.SelectedNode.Name);
+			 if (category == null) {
+				// this may be a middle node;
+				Category newCat = Category.FromFormat(_categoryTree.SelectedNode.Name);
+				this.template.Add(newCat);
+//				AddCategoryToTree(newCat.Name);  // not necessary
+				category = newCat;
 			 }
-
-			 foreach (StartItem item in manager.StartItems) {
-				star = item.Name.Contains("\\") ? "*" : "";
-				if (_pattern.Text.StartsWith("*")) {
-				    // Secondly, Wildcard match
-				    if (item.Name.ToLower().Contains(_pattern.Text.ToLower().Substring(1))) {
-					   preview.PreviewList.Items.Add(star + item.Name);
-				    }
-				} else if (_pattern.Text.StartsWith("@")) {
-				    // Thirdly, regex comparison
-				    if (regex.Match(item.Name).Success) {
-					   preview.PreviewList.Items.Add(star + item.Name);
-				    }
-				} else {
-				    // Finally, case insensitive comparison
-				    if (string.Compare(item.Name, _pattern.Text, true) == 0) {
-					   preview.PreviewList.Items.Add(star + item.Name);
-				    }
-				}
-			 }
-			 preview.PreviewList.EndUpdate();
+		  } else {
+			 category = orphan;
 		  }
-	    
-
-//		  if (provider.table.ContainsKey(_pattern.Text)) {
-//			 _add.Text = "Modify";
-//		  } else {
-//			 _add.Text = "Add";
-//		  }
+		  CategoryItem item = new CategoryItem();
+		  item.Value = "Pattern " + (category.Items.Count + 1);
+		  category.Add(item);
+		  _templateTable.TableModel.Rows.Add(CategoryItemToRow(item));
 	   }
-	   */
 
+	   private void deleteToolStripMenuItem_Click(object sender, EventArgs e) {
+		  if (clickedItem != null) {
+			 CategoryItem item = clickedItem.Tag as CategoryItem;
+			 item.Parent.Remove(item);
+			 _templateTable.TableModel.Rows.Remove(clickedItem);
+			 clickedItem = null;
+		  }
+	   }
+
+	   private void _contextIgnoreList_Opening(object sender, CancelEventArgs e) {
+		  if (clickedItem != null) {
+			 newToolStripMenuItem.Visible = true;
+			 deleteToolStripMenuItem.Visible = true;
+		  } else {
+			 newToolStripMenuItem.Visible = true;
+			 deleteToolStripMenuItem.Visible = false;
+		  }
+	   }
+
+	   private void _categoryTree_AfterSelect(object sender, TreeViewEventArgs e) {
+		  ResetSearch();
+		  _searchQuery.Text = "";
+
+		  AddToTable(e.Node.Name);
+	   }
+
+	   private void TemplateEditor_SizeChanged(object sender, EventArgs e) {
+		  AdjustColumnWidth();
+	   }
+
+	   private void TemplateEditor_FormClosing(object sender, FormClosingEventArgs e) {
+		  if (this.orphan.Count > 0) {
+			 if (MessageBox.Show("Some of the patterns you've created are not assigned a category. These patterns will be saved.\nDo you still want to close?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2) == DialogResult.No) {
+				e.Cancel = true;	
+			 }
+		  }
+	   }
+
+	   private void _templateTable_MouseDown(object sender, MouseEventArgs e) {
+		  if (e.Button == MouseButtons.Right) {
+			 int rowIndex = _templateTable.RowIndexAt(e.X, e.Y);
+			 if (rowIndex >= 0) {
+				clickedItem = _templateTable.TableModel.Rows[rowIndex];
+			 }
+		  }
+	   }
 
     }
 }

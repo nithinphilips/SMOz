@@ -1,3 +1,6 @@
+// (C) Michiel van Eerd  http://www.webessence.nl/
+// Modified by Nithin Philips
+
 using System;
 using System.Windows.Forms;
 using System.Drawing;

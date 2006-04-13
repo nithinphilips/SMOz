@@ -40,6 +40,7 @@ using SMOz.Commands.UI;
 using System.Text.RegularExpressions;
 using SMOz.Commands.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Nithin.Philips.Utilities.AboutBox;
 
 namespace SMOz.UI
 {
@@ -54,7 +55,8 @@ namespace SMOz.UI
 		  if (File.Exists("Template.ini")) {
 			 OpenTemplate("Template.ini");
 		  } else {
-			 OpenTemplate(new TemplateProvider());
+			 this.template = new TemplateProvider();
+			 OpenTemplate(this.template);
 		  }
 
 		  foreach (string knownCategory in KnownCategories.Instance) {
@@ -413,29 +415,18 @@ namespace SMOz.UI
 		  string path = startItem.HasUser ?  path = startItem.UserPath : startItem.LocalPath;
 
 		  if (startItem.Type == StartItemType.File) {
-#if DEBUG
 			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
-#else
-			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString()});
-#endif
 			 if (File.Exists(path)) {
 				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
 			 }
 		  } else {
-#if DEBUG
 			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
-#else
-			 listItem = new ListViewItem(new string[] { Path.GetFileName(startItem.Name), startItem.Location.ToString() });
-#endif
-//			 listItem = new ListViewItem(new string[] { Path.GetFileName(startItem.Name), startItem.Application });
 			 if (Directory.Exists(path)) {
 				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
 			 }
 		  }
 		  listItem.SubItems[1].ForeColor = SystemColors.GrayText;
-#if DEBUG
 		  listItem.SubItems[2].ForeColor = SystemColors.GrayText;
-#endif
 
 		  listItem.ImageIndex = imageIndex;
 		  listItem.Tag = startItem;
@@ -682,7 +673,7 @@ namespace SMOz.UI
 	   }
 
 	   private void templateEditorToolStripMenuItem_Click(object sender, EventArgs e) {
-		  using (TemplateEditor editor = new TemplateEditor(startManager, template.Categories)) {
+		  using (TemplateEditor editor = new TemplateEditor(startManager, template)) {
 			 editor.ShowDialog(this);
 		  }
 	   }
@@ -895,24 +886,7 @@ namespace SMOz.UI
 	   #endregion
 
 	   private void applyTemplateToolStripMenuItem1_Click(object sender, EventArgs e) {
-		  MoveStartItemCommand[] commands = StartCategorizer.Categorize(template, startManager);
-
-		  if ((commands == null) || (commands.Length <= 0)) {
-			 MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-			 return;
-		  }
-
-		  using (ReviewChanges review = new ReviewChanges(true)) {
-			 foreach (MoveStartItemCommand cmd in commands) {
-				review.Add("Move", "'" + cmd.OldName + "' to '" + cmd.NewName + "'");
-			 }
-			 if (review.ShowDialog(this) == DialogResult.OK) {
-				CommandGroup group = new CommandGroup("Apply Template", commands);
-				AddUndoCommand(group, true);
-				categoryCache.Invalidate();
-				UpdateItemList();
-			 }
-		  }
+		  ApplyTemplate(StartCategorizer.Categorize(template, startManager), "Start Menu");
 	   }
 
 	   TreeNode clickedNode;
@@ -920,29 +894,35 @@ namespace SMOz.UI
 		  TreeNode node = clickedNode;
 		  if (node != null) {
 
-			 MoveStartItemCommand[] commands = StartCategorizer.Categorize(template, startManager, node.Name, false);
+			 ApplyTemplate(StartCategorizer.Categorize(template, startManager, node.Name, false), node.Name);
 
-			 if ((commands == null) || (commands.Length <= 0)) {
-				MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-				return;
+			 
+		  }
+	   }
+
+	   void ApplyTemplate(MoveStartItemCommand[] commands, string name) {
+		  if ((commands == null) || (commands.Length <= 0)) {
+			 MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			 return;
+		  }
+
+		  using (ReviewChanges review = new ReviewChanges(true)) {
+			 foreach (MoveStartItemCommand cmd in commands) {
+				foreach (string str in AddCategoryToTree(cmd.NewCategory)) {
+				    // Ensure that the target category is visible to user
+				    AddToManager(str);
+				}
+				review.Add("Move", "'" + cmd.OldName + "' to '" + cmd.NewName + "'");
 			 }
 
-			 if(MessageBox.Show("Apply loaded template to " + (node.Name == "" ? "(empty)" : node.Name) + "?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes){
-				
-				using (ReviewChanges review = new ReviewChanges(true)) {
-				    foreach (MoveStartItemCommand cmd in commands) { 
-					  review.Add("Move", "'" + cmd.OldName + "' to '" + cmd.NewName + "'");
-				    }
-				    
-				    if (review.ShowDialog(this) == DialogResult.OK) {
-					  CommandGroup group = new CommandGroup("Apply Template", commands);
-					  AddUndoCommand(group, true);
-					  categoryCache.Invalidate();
-					  UpdateItemList();
-				    }
-				}
+			 if (review.ShowDialog(this) == DialogResult.OK) {
+				CommandGroup group = new CommandGroup("Apply Template", commands);
+				AddUndoCommand(group, true);
+				categoryCache.Invalidate();
+				UpdateItemList();
 			 }
 		  }
+	  
 	   }
 
 	   private void _categoryTree_MouseDown(object sender, MouseEventArgs e) {
@@ -1177,7 +1157,6 @@ namespace SMOz.UI
 
 	   #endregion
 
-	   
 	   #region ListView View
 
 	   private void detailsToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -1292,48 +1271,6 @@ namespace SMOz.UI
 
 	   #endregion
 
-	   #region Open Template
-
-	   private void openTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
-		  OpenTemplate();
-	   }
-
-	   private void OpenTemplate() {
-		  using (OpenFileDialog dlgOpen = new OpenFileDialog()) {
-			 dlgOpen.Filter = "Configuration Files (*.ini)|*.ini|All Files (*.*)|*.*";
-			 if (dlgOpen.ShowDialog(this) == DialogResult.OK) {
-				OpenTemplate(dlgOpen.FileName);
-			 }
-		  }
-	   }
-
-	   private void OpenTemplate(string path) {
-		  OpenTemplate(Template.TemplateHelper.Build(path));
-	   }
-
-	   private void OpenTemplate(TemplateProvider template) {
-		  for (int i = -1; i < template.Count; i++) {
-			 string current;
-			 if (i == -1) {
-				current = "";
-			 } else {
-				current = template[i].Name;
-			 }
-			 foreach (string str in AddCategoryToTree(current)) {
-				// This ensures that nodes that are not explicitly listed as categories are scanned
-				KnownCategories.Instance.Add(str);
-				startManager.RemoveAllItems(str);
-				AddToManager(str);
-			 }
-		  }
-		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
-		  categoryCache.Invalidate();
-
-		  this.template = template;
-	   } 
-
-	   #endregion
-
 	   private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
 		  Application.Exit();
 	   }
@@ -1362,6 +1299,113 @@ namespace SMOz.UI
 			 prefs.ShowDialog();
 		  }
 	   }
+
+	   private void saveTemplateAsToolStripMenuItem_Click(object sender, EventArgs e) {
+		  SaveTemplate();
+	   }
+
+	   private void openTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
+		  OpenTemplate();
+	   }
+
+	   private void mergeTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
+		  MergeTemplate();
+	   }
+
+	   private void SaveTemplate() {
+		  using (SaveFileDialog dlgSave = new SaveFileDialog()) {
+			 dlgSave.Filter = "Configuration Files (*.ini)|*.ini|All Files (*.*)|*.*";
+			 dlgSave.FileName = "Template.ini";
+			 if (dlgSave.ShowDialog(this) == DialogResult.OK) {
+				SaveTemplate(dlgSave.FileName);
+			 }
+		  }
+	   }
+
+	   private void SaveTemplate(string fileName) {
+		  Template.TemplateHelper.Save(template, fileName);
+	   }
+
+	   private void OpenTemplate() {
+		  using (OpenFileDialog dlgOpen = new OpenFileDialog()) {
+			 dlgOpen.Filter = "Configuration Files (*.ini)|*.ini|All Files (*.*)|*.*";
+			 if (dlgOpen.ShowDialog(this) == DialogResult.OK) {
+				OpenTemplate(dlgOpen.FileName);
+			 }
+		  }
+	   }
+
+	   private void OpenTemplate(string path) {
+		  TemplateProvider template = Template.TemplateHelper.Build(path);
+		  OpenTemplate(template);
+		  this.template = template;
+	   }
+
+	   private void OpenTemplate(TemplateProvider template) {
+		  for (int i = -1; i < template.Count; i++) {
+			 string current;
+			 if (i == -1) {
+				current = "";
+			 } else {
+				current = template[i].Name;
+			 }
+			 foreach (string str in AddCategoryToTree(current)) {
+				// This ensures that nodes that are not explicitly listed as categories are scanned
+				KnownCategories.Instance.Add(str);
+				startManager.RemoveAllItems(str);
+				AddToManager(str);
+			 }
+		  }
+		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
+		  categoryCache.Invalidate();
+	   } 
+
+	   private void MergeTemplate() {
+		  using (OpenFileDialog dlgOpen = new OpenFileDialog()) {
+			 dlgOpen.Title = "Choose template to merge";
+			 dlgOpen.Filter = "Configuration Files (*.ini)|*.ini|All Files (*.*)|*.*";
+			 if (dlgOpen.ShowDialog(this) == DialogResult.OK) {
+				MergeTemplate(dlgOpen.FileName);
+			 }
+		  }
+	   }
+
+	   private void MergeTemplate(string path) {
+		  TemplateProvider template = Template.TemplateHelper.Build(path);
+		  // Add to currently loaded template
+		  this.template.Merge(template);
+		  OpenTemplate(this.template);
+	   }
+
+	   private void _newTemplate_Click(object sender, EventArgs e) {
+		  this.template = new TemplateProvider();
+	   }
+
+	   private void helpToolStripMenuItem1_Click(object sender, EventArgs e) {
+		  Process.Start("http://smoz.sourceforge.net/");
+	   }
+
+	   private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
+		  using (AboutBox about = new AboutBox()) {
+			 List<InformationPage> ipages = new List<InformationPage>(3);
+			 ipages.Add(new InformationPage("Version", Program.GetVersionInfo()));
+			 ipages.Add(new InformationPage("License", Program.GetLicenseInfo()));
+			 ipages.Add(new InformationPage("Contributors", Program.GetContributionInfo()));
+			 about.PageCollection = ipages;
+
+			 about.ProductName = "Start Menu Organizer";
+			 about.ProductVersion = Application.ProductVersion;
+			 about.ProductCopyright = "(C) 2004-2006 Nithin Philips";
+			 about.ProductUrl = "http://smoz.sourceforge.net/";
+
+			 about.ProductLargeIcon = Properties.Resources.App;
+			 about.Icon = Properties.Resources.Application;
+
+			 about.ShowDialog(this);
+		  }
+	   }
+
+
     }
 
 }
