@@ -189,7 +189,6 @@
     <Content Include="Installer\gpl.txt" />
     <None Include="Resources\Start.Icon.png" />
     <None Include="Installer\Installer.nsi" />
-    <None Include="Resources\App.png" />
     <None Include="Resources\App.ico" />
     <None Include="Resources\File_NewCategory.png" />
     <None Include="Resources\Edit_View.png" />
