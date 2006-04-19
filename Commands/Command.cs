@@ -32,6 +32,7 @@ namespace SMOz.Commands
     {
 	   None = 0,
 	   Group,
+	   UIConvertToCategory,
 	   UIMove,
 	   UIDelete,
 	   UIRename,

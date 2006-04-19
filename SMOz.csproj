@@ -47,6 +47,7 @@
     <Compile Include="About\InformationPage.cs" />
     <Compile Include="Cleanup\InstalledProgramList.cs" />
     <Compile Include="Commands\CommandConverter.cs" />
+    <Compile Include="Commands\UI\ConvertToCategoryCommand.cs" />
     <Compile Include="Commands\UI\RenameStartItemCommand.cs" />
     <Compile Include="StartMenu\StartCategorizer.cs" />
     <Compile Include="Template\ICategoryProvider.cs" />
