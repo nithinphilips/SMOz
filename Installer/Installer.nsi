@@ -71,6 +71,8 @@ Section "Application" SEC01
   File "..\bin\Release\MagicLocalLibrary.dll"
   File "..\bin\Release\XPTable.dll"
   File "..\Resources\Template.ini"
+  File "..\COPYING"
+  File "..\README"
   
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\${PRODUCT_NAME}.lnk" "$INSTDIR\SMOz.exe"
@@ -84,6 +86,8 @@ Section Uninstall
   Delete "$INSTDIR\MagicLocalLibrary.dll"
   Delete "$INSTDIR\XPTable.dll"
   Delete "$INSTDIR\Template.ini"
+  Delete "$INSTDIR\COPYING"
+  Delete "$INSTDIR\README"
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\SMOz.lnk"
