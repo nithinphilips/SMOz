@@ -39,7 +39,6 @@ using SMOz.Commands;
 using SMOz.Commands.UI;
 using System.Text.RegularExpressions;
 using SMOz.Commands.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using Nithin.Philips.Utilities.AboutBox;
 
 namespace SMOz.UI

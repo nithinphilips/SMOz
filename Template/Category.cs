@@ -33,6 +33,9 @@ using System.Diagnostics;
 
 namespace SMOz.Template
 {
+    /// <summary>
+    /// Represents a template category.
+    /// </summary>
     [Serializable]
     public class Category : IComparable<Category>
     {

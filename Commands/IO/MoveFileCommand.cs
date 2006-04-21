@@ -30,6 +30,9 @@ using System.IO;
 
 namespace SMOz.Commands.IO
 {
+    /// <summary>
+    /// Moves an actual file or directory.
+    /// </summary>
     public class MoveFileCommand : Command
     {
 	   protected MoveFileCommand() { }

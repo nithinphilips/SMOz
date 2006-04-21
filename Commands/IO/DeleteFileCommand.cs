@@ -29,6 +29,10 @@ using SMOz.StartMenu;
 
 namespace SMOz.Commands.IO
 {
+    /// <summary>
+    /// Deletes an actual file or directory.
+    /// </summary>
+    /// <remarks>Deleted files or directories are moved to .\Application Data\Smoz\Trash</remarks>
     public class DeleteFileCommand : MoveFileCommand
     {
 

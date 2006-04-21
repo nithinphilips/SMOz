@@ -29,6 +29,10 @@ using SMOz.StartMenu;
 
 namespace SMOz.Commands.UI
 {
+    /// <summary>
+    /// Deletes a start item.
+    /// </summary>
+    /// <remarks>No changes are made to the actual file or directory by this command.</remarks>
     public class DeleteStartItemCommand : Command
     {
 	   public DeleteStartItemCommand(StartItem startItem, StartManager startMenu) {

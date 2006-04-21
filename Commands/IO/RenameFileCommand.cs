@@ -29,6 +29,9 @@ using SMOz.StartMenu;
 
 namespace SMOz.Commands.IO
 {
+    /// <summary>
+    /// Renames an actual file or directory.
+    /// </summary>
     public class RenameFileCommand : MoveFileCommand
     {
 	   public RenameFileCommand(string source, string target, StartItem startItem, string oldName, string newName) {

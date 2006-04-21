@@ -30,6 +30,10 @@ using System.IO;
 
 namespace SMOz.Commands.UI
 {
+    /// <summary>
+    /// Renames a start item.
+    /// </summary>
+    /// <remarks>No changes are made to the actual file or directory by this command.</remarks>
     public class RenameStartItemCommand : MoveStartItemCommand
     {
 	   public RenameStartItemCommand(StartItem startItem, string newName) {

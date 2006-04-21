@@ -30,6 +30,10 @@ using System.IO;
 
 namespace SMOz.Commands.UI
 {
+    /// <summary>
+    /// Moves a start item.
+    /// </summary>
+    /// <remarks>No changes are made to the actual file or directory by this command.</remarks>
     public class MoveStartItemCommand : Command
     {
 	   protected MoveStartItemCommand() {}

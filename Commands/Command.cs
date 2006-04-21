@@ -41,9 +41,19 @@ namespace SMOz.Commands
 	   IORename
     }
 
+    /// <summary>
+    /// Base class for all Undo/Redo commands.
+    /// </summary>
+    /// <remarks>This class is abstract</remarks>
     public abstract class Command{
+	   /// <summary>
+	   /// Display name of this command.
+	   /// </summary>
 	   public abstract string Name { get; }
-	   
+
+	   /// <summary>
+	   /// Type of this command. If, an unknown command <code>CommandType.None</code> is returned
+	   /// </summary>
 	   public abstract CommandType Type { get; }
 
 	   public abstract void Execute();

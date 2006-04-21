@@ -28,6 +28,10 @@ using System.Text;
 
 namespace SMOz.Commands
 {
+    /// <summary>
+    /// Represents a group of commands.
+    /// </summary>
+    /// <remarks>Members of this collection may contain other CommandGroup objects.</remarks>
     public class CommandGroup : Command	
     {
 	   public CommandGroup(string name)
