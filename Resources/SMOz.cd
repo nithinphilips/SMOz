@@ -1,317 +1,280 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Font Name="Tahoma" Size="8.25" />
-  <Class Name="SMOz.Commands.Command" Collapsed="true">
-    <Position X="5.25" Y="0.5" Width="1.5" />
+  <Class Name="SMOz.Cleanup.ApplicationAssociationList">
+    <Position X="15.5" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <FileName>Cleanup\InstalledProgramList.cs</FileName>
+      <HashCode>AAAAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SMOz.Cleanup.InstalledProgramList" Collapsed="true">
+    <Position X="15.5" Y="1.5" Width="2.5" />
+    <TypeIdentifier>
+      <FileName>Cleanup\InstalledProgramList.cs</FileName>
+      <HashCode>AAAAAAAAAAAEAAAAAIAAAAAAAAAAAQAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SMOz.Commands.Command">
+    <Position X="3.75" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\Command.cs</FileName>
       <HashCode>AAAAgAAAAAAAAAQEAAAAAAQBAAAAAAAAAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Type" />
+    </ShowAsAssociation>
   </Class>
-  <Class Name="SMOz.Commands.CommandConverter" Collapsed="true">
-    <Position X="14" Y="0.5" Width="1.5" />
+  <Class Name="SMOz.Commands.CommandConverter">
+    <Position X="6" Y="2" Width="2" />
     <TypeIdentifier>
       <FileName>Commands\CommandConverter.cs</FileName>
       <HashCode>AAAAAAAAAAAgAAQAAAAAAAAAAAAAACgAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="SMOz.Commands.CommandGroup" Collapsed="true">
-    <Position X="5.25" Y="1.75" Width="1.5" />
+    <Position X="8.5" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\CommandGroup.cs</FileName>
       <HashCode>AAAAggAAAAIAAAQAAAAAAAQAAAAEAAAAAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="SMOz.Commands.IO.DeleteFileCommand" Collapsed="true">
-    <Position X="7.5" Y="3.25" Width="1.5" />
+    <Position X="2.75" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\IO\DeleteFileCommand.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="SMOz.Commands.IO.MoveFileCommand" Collapsed="true">
-    <Position X="8.75" Y="1.75" Width="1.5" />
+    <Position X="1.5" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\IO\MoveFileCommand.cs</FileName>
       <HashCode>AAAEiAACAgAAAgcAIAABAGQAAAAEAAAIAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="SMOz.Commands.IO.RenameFileCommand" Collapsed="true">
-    <Position X="9.75" Y="3.25" Width="1.5" />
+    <Position X="0.5" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\IO\RenameFileCommand.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
+  <Class Name="SMOz.Commands.UI.ConvertToCategoryCommand" Collapsed="true">
+    <Position X="3.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Commands\UI\ConvertToCategoryCommand.cs</FileName>
+      <HashCode>BAAAgAAAAAAAAAUAAAAAAAQAAAAAAAAAAQAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
   <Class Name="SMOz.Commands.UI.DeleteStartItemCommand" Collapsed="true">
-    <Position X="0.75" Y="1.75" Width="1.5" />
+    <Position X="5" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\UI\DeleteStartItemCommand.cs</FileName>
       <HashCode>AAAAgAAAAAAAAAUAAAABAAUAAAEFAAABAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="SMOz.Commands.UI.MoveStartItemCommand" Collapsed="true">
-    <Position X="3" Y="1.75" Width="1.5" />
+    <Position X="6.75" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\UI\MoveStartItemCommand.cs</FileName>
       <HashCode>AAAAiAACAABAAgUAAAABAAQAAAAEAAAIARAAAEAQAAA=</HashCode>
     </TypeIdentifier>
   </Class>
   <Class Name="SMOz.Commands.UI.RenameStartItemCommand" Collapsed="true">
-    <Position X="3" Y="3.25" Width="1.5" />
+    <Position X="6.75" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\UI\RenameStartItemCommand.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
-  <Class Name="SMOz.Ini.IniSection" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="17.5" Y="0.5" Width="1.5" />
+  <Class Name="SMOz.Ini.IniSection" BaseTypeListCollapsed="true">
+    <Position X="13" Y="3" Width="1.5" />
     <TypeIdentifier>
       <FileName>Ini\IniSection.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAQAAAAEAAAAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
-    <Lollipop Position="0.2" Collapsed="true" />
+    <Lollipop Position="0.2" />
   </Class>
-  <Class Name="SMOz.Ini.IniParser" Collapsed="true">
-    <Position X="15.75" Y="0.5" Width="1.5" />
+  <Class Name="SMOz.Ini.IniParser">
+    <Position X="11.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <FileName>Ini\Parser.cs</FileName>
       <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
+    <NestedTypes>
+      <Class Name="SMOz.Ini.IniParser.SectionBuilder" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Ini\Parser.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
   </Class>
   <Class Name="SMOz.Ini.IniWriter" Collapsed="true">
-    <Position X="19.25" Y="0.5" Width="1.5" />
+    <Position X="11.25" Y="3" Width="1.5" />
     <TypeIdentifier>
       <FileName>Ini\Writer.cs</FileName>
       <HashCode>AAQAAIAEAACAAAAAAQAAAAAAAAAAwAAAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
-  <Class Name="SMOz.Program" Collapsed="true">
-    <Position X="19.25" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Program.cs</FileName>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.Properties.Resources" Collapsed="true">
-    <Position X="12.25" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AACAAAAAAAAAAAAACAABkAAAAQEBAgAAAAAAAAhAAMA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.Properties.Settings" Collapsed="true">
-    <Position X="19.25" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.StartMenu.StartCategorizer" Collapsed="true">
-    <Position X="12.25" Y="3.5" Width="1.5" />
+  <Class Name="SMOz.StartMenu.StartCategorizer">
+    <Position X="15.5" Y="2.25" Width="2.5" />
     <TypeIdentifier>
       <FileName>StartMenu\StartCategorizer.cs</FileName>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Class>
-  <Class Name="SMOz.StartMenu.StartItem" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="14" Y="3.5" Width="1.5" />
+  <Class Name="SMOz.StartMenu.StartItem" BaseTypeListCollapsed="true">
+    <Position X="10.75" Y="8.5" Width="1.5" />
     <TypeIdentifier>
       <FileName>StartMenu\StartItem.cs</FileName>
-      <HashCode>AAAAAAAAAAAAIAQkACIAEAQCBDANAAAgAQAIAAAACAA=</HashCode>
+      <HashCode>AAAAEAAAABAAIAQkACIAEAQCBDANAAAgAQAIAAAICAA=</HashCode>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Location" />
+      <Property Name="Type" />
+    </ShowAsAssociation>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="SMOz.StartMenu.StartManager" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="15.75" Y="3.5" Width="1.5" />
+    <Position X="13.25" Y="9" Width="1.5" />
     <TypeIdentifier>
       <FileName>StartMenu\StartManager.cs</FileName>
-      <HashCode>AKCAAABAAAAAABAgAAAAIABAgAAAAAAEAAAAAAIAAAg=</HashCode>
+      <HashCode>AKKAAABAAAACABAgAAAAIABAoAAAAAAEAAAAAAIAAAo=</HashCode>
     </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="StartItems" />
+    </ShowAsCollectionAssociation>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
-  <Class Name="SMOz.Template.Category" Collapsed="true">
-    <Position X="0.5" Y="3.5" Width="1.5" />
+  <Class Name="SMOz.Template.Category">
+    <Position X="3.25" Y="9.5" Width="1.5" />
     <TypeIdentifier>
       <FileName>Template\Category.cs</FileName>
-      <HashCode>ACAAAgAAAAAACBAUCAgAAAQAgAAGAAAAQAAAAGAAAAA=</HashCode>
+      <HashCode>AAIAAgAAAAAACBQECAgABAQAAAAWAAAAQAAAAGAUAAA=</HashCode>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Items" />
+    </ShowAsCollectionAssociation>
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SMOz.Template.CategoryItem" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Template\CategoryItem.cs</FileName>
+      <HashCode>AAAAAAAAAAAAABREgAAAQAAQAAABECAAAQAgACAAAAA=</HashCode>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Parent" />
+      <Property Name="Type" />
+    </ShowAsAssociation>
+    <AssociationLine Name="Parent" Type="SMOz.Template.Category" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.75" Y="9.938" />
+        <Point X="4.75" Y="9.938" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.685" Y="-0.249" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="SMOz.Template.TemplateHelper">
+    <Position X="15.5" Y="3.5" Width="2.5" />
+    <TypeIdentifier>
+      <FileName>Template\TemplateHelper.cs</FileName>
+      <HashCode>AAAAAIAEAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SMOz.Template.TemplateProvider" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Template\TemplateProvider.cs</FileName>
+      <HashCode>AAIAAAAAAAACAAAACAAABAQQAAAAEQAEAAAAAAAUAAA=</HashCode>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Categories" />
+    </ShowAsCollectionAssociation>
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SMOz.Utilities.IgnoreList" Collapsed="true">
+    <Position X="3.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Utilities\IgnoreList.cs</FileName>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAAAACAAAAAQAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="SMOz.Template.CategoryItem" Collapsed="true">
-    <Position X="12.25" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Template\CategoryItem.cs</FileName>
-      <HashCode>AAAgAAAAAAAAABAAAAAAAAAAAAABACAAAQAgACAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.Template.TemplateHelper" Collapsed="true">
-    <Position X="14" Y="4.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Template\TemplateHelper.cs</FileName>
-      <HashCode>AAAAEIAAAAAAAAAAAAAAAAAAAIAAgAAAAAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.Template.TemplateProvider" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="15.75" Y="4.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Template\TemplateProvider.cs</FileName>
-      <HashCode>ACIAAAAAAAAAABAAAAAABAAQAAAAEAAEgAAAABAUAAA=</HashCode>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" Collapsed="true" />
-  </Class>
-  <Class Name="SMOz.UI.MainForm" Collapsed="true">
-    <Position X="14" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>UI\MainForm.cs</FileName>
-      <HashCode>NaeHlgPkmiUS3AJLIEHOJuG3FxjLBQJSB3BxNPKV4ZI=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.UI.MatchPreview" Collapsed="true">
-    <Position X="15.75" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>UI\MatchPreview.cs</FileName>
-      <HashCode>AAAAAAAAACAAAAAAAACAAAACAAAAAAAAAAAAAAAAAAg=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.UI.NewCategory" Collapsed="true">
-    <Position X="17.5" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>UI\NewCategory.cs</FileName>
-      <HashCode>AAACAAAAACBAAAAAAACAAAACACAAEAAAAAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.UI.ReviewChanges" Collapsed="true">
-    <Position X="14" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>UI\ReviewChanges.cs</FileName>
-      <HashCode>AAICAAwAECAAAhAAAACAAAACCAAAEAAAQAAAoAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.UI.ReviewListItem" Collapsed="true">
-    <Position X="15.75" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>UI\ReviewListItem.cs</FileName>
-      <HashCode>AEAgAgAAAuAAAgAAAACAACACQAAAAAAAAAAAAAAAAAQ=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.UI.TemplateEditor" Collapsed="true">
-    <Position X="12.25" Y="4.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>UI\TemplateEditor.cs</FileName>
-      <HashCode>QKAAAgwAACiARAAAAACIIBAWEACAJSQgjABAAADBCEA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="SMOz.Utilities.KnownCategories" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="12.25" Y="1.5" Width="1.5" />
+  <Class Name="SMOz.Utilities.KnownCategories" BaseTypeListCollapsed="true">
+    <Position X="5.25" Y="12.75" Width="1.5" />
     <TypeIdentifier>
       <FileName>Utilities\KnownCategories.cs</FileName>
-      <HashCode>ACAAAAAAAAQAABAAAAAAAgAAACBAAIAAQAAQAABAAAA=</HashCode>
+      <HashCode>AiIAAAAAAAAAABAAAAAAAgAAACCAAAAAQAAQAABEAAA=</HashCode>
     </TypeIdentifier>
-    <Lollipop Position="0.2" Collapsed="true" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="SMOz.Utilities.KnownCategories.SerializationProxy" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Utilities\KnownCategories.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="SMOz.Utilities.SearchCacheProvider&lt;TKey, UValue&gt;" Collapsed="true">
-    <Position X="17.5" Y="2.5" Width="1.5" />
+    <Position X="15.5" Y="6.5" Width="2.5" />
     <TypeIdentifier>
       <FileName>Utilities\SearchCacheProvider.cs</FileName>
       <HashCode>AAAAAAAEAAgAAAAAAAEAAAAAAAOAAAAAAAAAAAQAAAQ=</HashCode>
     </TypeIdentifier>
   </Class>
-  <Class Name="SMOz.Utilities.TreeViewEx" Collapsed="true">
-    <Position X="17.5" Y="4.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\TreeViewEx.cs</FileName>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
   <Class Name="SMOz.Utilities.Utility" Collapsed="true">
-    <Position X="19.25" Y="4.5" Width="1.5" />
+    <Position X="15.5" Y="7.25" Width="2.5" />
     <TypeIdentifier>
       <FileName>Utilities\Utility.cs</FileName>
-      <HashCode>AAAAAAAAAAgAAAAAAAAAIAAAAAAAAAIAAAQAARAAAAA=</HashCode>
+      <HashCode>AAAAAIEAAIgAAAAAAABAoAAAACBAAAIAAAQAARABAAA=</HashCode>
     </TypeIdentifier>
   </Class>
-  <Class Name="SMOz.Utilities.IgnoreList" Collapsed="true">
-    <Position X="0.5" Y="4.75" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\Utility.cs</FileName>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="vbAccelerator.Components.ImageList.SysImageList" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="17.5" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\SysImageList.cs</FileName>
-      <HashCode>ARIQogCAACCSoBAAAIAAIAgAAKEIAAIAAABHEQkAAAA=</HashCode>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" Collapsed="true" />
-  </Class>
-  <Class Name="vbAccelerator.Components.ImageList.SysImageListHelper" Collapsed="true">
-    <Position X="19.25" Y="3.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\SysImageList.cs</FileName>
-      <HashCode>AAAIAAAAAAAAAAAAACgAAAAAAAEAAAEAIAgAAEAEAEg=</HashCode>
-    </TypeIdentifier>
-  </Class>
-  <Interface Name="SMOz.Template.ICategoryProvider" Collapsed="true">
-    <Position X="12.25" Y="5.75" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Template\ICategoryProvider.cs</FileName>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Interface>
   <Enum Name="SMOz.Commands.CommandType" Collapsed="true">
-    <Position X="14" Y="6.75" Width="1.5" />
+    <Position X="3.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <FileName>Commands\Command.cs</FileName>
-      <HashCode>AAAAgEAAAAAAAAAAABAAAAAAAAAAAAIIAAIAAEEAAAA=</HashCode>
+      <HashCode>AAAAgEAAAAAAAAAAABAAAAAAAAAAAAIIAAIAAGEAAAA=</HashCode>
     </TypeIdentifier>
   </Enum>
-  <Enum Name="SMOz.StartMenu.StartItemType" Collapsed="true">
-    <Position X="14" Y="7.5" Width="1.5" />
+  <Enum Name="SMOz.StartMenu.StartItemType">
+    <Position X="15" Y="10.25" Width="1.5" />
     <TypeIdentifier>
       <FileName>StartMenu\StartItem.cs</FileName>
       <HashCode>AAAAABAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Enum>
-  <Enum Name="SMOz.StartMenu.StartItemLocation" Collapsed="true">
-    <Position X="12.25" Y="7.5" Width="1.5" />
+  <Enum Name="SMOz.StartMenu.StartItemLocation">
+    <Position X="13.25" Y="10.25" Width="1.5" />
     <TypeIdentifier>
       <FileName>StartMenu\StartItem.cs</FileName>
       <HashCode>AAABAAAAAAAAAAAAAAAAAAAAAABAAAAAAIAAAAEAAAA=</HashCode>
     </TypeIdentifier>
   </Enum>
-  <Enum Name="SMOz.Template.CategoryItemType" Collapsed="true">
-    <Position X="12.25" Y="6.75" Width="1.5" />
+  <Enum Name="SMOz.Template.CategoryItemType">
+    <Position X="8.25" Y="9.5" Width="1.5" />
     <TypeIdentifier>
       <FileName>Template\CategoryItem.cs</FileName>
       <HashCode>AAAAAAAAAAgABAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Enum>
-  <Enum Name="vbAccelerator.Components.ImageList.SysImageListSize" Collapsed="true">
-    <Position X="15.75" Y="7.5" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\SysImageList.cs</FileName>
-      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAFAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Enum>
-  <Enum Name="vbAccelerator.Components.ImageList.ImageListDrawItemConstants" Collapsed="true">
-    <Position X="15.75" Y="6.75" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\SysImageList.cs</FileName>
-      <HashCode>AAAgAAAAAAAAAAAAACAAgAAgIAAABAAABQAgAAAQAAA=</HashCode>
-    </TypeIdentifier>
-  </Enum>
-  <Enum Name="vbAccelerator.Components.ImageList.ImageListDrawStateConstants" Collapsed="true">
-    <Position X="17.5" Y="6.75" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\SysImageList.cs</FileName>
-      <HashCode>gAAIAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAACAAAAAA=</HashCode>
-    </TypeIdentifier>
-  </Enum>
-  <Enum Name="vbAccelerator.Components.ImageList.ShellIconStateConstants" Collapsed="true">
-    <Position X="19.25" Y="6.75" Width="1.5" />
-    <TypeIdentifier>
-      <FileName>Utilities\SysImageList.cs</FileName>
-      <HashCode>AAAAAAAAAAAACAEAAAAgAAAEAAAAAACAAAAAAAAAAAA=</HashCode>
     </TypeIdentifier>
   </Enum>
 </ClassDiagram>
