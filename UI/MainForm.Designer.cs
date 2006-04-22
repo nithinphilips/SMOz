@@ -112,6 +112,7 @@ namespace SMOz.UI
 		  this._applyTemplateButton = new System.Windows.Forms.ToolStripButton();
 		  this._applyChangesButton = new System.Windows.Forms.ToolStripButton();
 		  this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+		  this._categoryTree = new SMOz.Utilities.TreeViewEx();
 		  this._itemList = new System.Windows.Forms.ListView();
 		  this._colName = new System.Windows.Forms.ColumnHeader();
 		  this._colLocation = new System.Windows.Forms.ColumnHeader();
@@ -129,7 +130,6 @@ namespace SMOz.UI
 		  this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 		  this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
 		  this.applyTemplateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-		  this._categoryTree = new SMOz.Utilities.TreeViewEx();
 		  this.menuStrip1.SuspendLayout();
 		  this._statusStrip.SuspendLayout();
 		  this.toolStrip1.SuspendLayout();
@@ -392,14 +392,14 @@ namespace SMOz.UI
 		  // 
 		  this.helpToolStripMenuItem1.Image = global::SMOz.Properties.Resources.Help_Help;
 		  this.helpToolStripMenuItem1.Name = "helpToolStripMenuItem1";
-		  this.helpToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+		  this.helpToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
 		  this.helpToolStripMenuItem1.Text = "Help";
 		  this.helpToolStripMenuItem1.Click += new System.EventHandler(this.helpToolStripMenuItem1_Click);
 		  // 
 		  // aboutToolStripMenuItem
 		  // 
 		  this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-		  this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+		  this.aboutToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
 		  this.aboutToolStripMenuItem.Text = "About";
 		  this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
 		  // 
@@ -410,7 +410,7 @@ namespace SMOz.UI
 		  this._statusStrip.Location = new System.Drawing.Point(0, 413);
 		  this._statusStrip.Name = "_statusStrip";
 		  this._statusStrip.Size = new System.Drawing.Size(685, 22);
-		  this._statusStrip.TabIndex = 1;
+		  this._statusStrip.TabIndex = 2;
 		  this._statusStrip.Text = "statusStrip1";
 		  // 
 		  // _statusLabel
@@ -441,7 +441,7 @@ namespace SMOz.UI
 		  this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 		  this.toolStrip1.Name = "toolStrip1";
 		  this.toolStrip1.Size = new System.Drawing.Size(685, 25);
-		  this.toolStrip1.TabIndex = 2;
+		  this.toolStrip1.TabIndex = 1;
 		  this.toolStrip1.Text = "toolStrip1";
 		  // 
 		  // _searchOptions
@@ -463,6 +463,7 @@ namespace SMOz.UI
             this.toolStripMenuItem5,
             this.regexToolStripMenuItem});
 		  this._searchOptionsContext.Name = "_searchOptionsContext";
+		  this._searchOptionsContext.OwnerItem = this._searchOptions;
 		  this._searchOptionsContext.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
 		  this._searchOptionsContext.Size = new System.Drawing.Size(175, 76);
 		  // 
@@ -672,6 +673,27 @@ namespace SMOz.UI
 		  this.splitContainer1.SplitterDistance = 187;
 		  this.splitContainer1.TabIndex = 3;
 		  // 
+		  // _categoryTree
+		  // 
+		  this._categoryTree.AllowDrop = true;
+		  this._categoryTree.Dock = System.Windows.Forms.DockStyle.Fill;
+		  this._categoryTree.FullRowSelect = true;
+		  this._categoryTree.HideSelection = false;
+		  this._categoryTree.LabelEdit = true;
+		  this._categoryTree.Location = new System.Drawing.Point(0, 0);
+		  this._categoryTree.Name = "_categoryTree";
+		  this._categoryTree.Size = new System.Drawing.Size(187, 364);
+		  this._categoryTree.TabIndex = 0;
+		  this._categoryTree.DragDrop += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragDrop);
+		  this._categoryTree.DragOver += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragOver);
+		  this._categoryTree.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._categoryTree_AfterLabelEdit);
+		  this._categoryTree.DragLeave += new System.EventHandler(this._categoryTree_DragLeave);
+		  this._categoryTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this._categoryTree_AfterSelect);
+		  this._categoryTree.DragEnter += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragEnter);
+		  this._categoryTree.BeforeLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._categoryTree_BeforeLabelEdit);
+		  this._categoryTree.KeyDown += new System.Windows.Forms.KeyEventHandler(this._categoryTree_KeyDown);
+		  this._categoryTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this._categoryTree_MouseDown);
+		  // 
 		  // _itemList
 		  // 
 		  this._itemList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -806,27 +828,6 @@ namespace SMOz.UI
 		  this.applyTemplateToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
 		  this.applyTemplateToolStripMenuItem.Text = "Apply Template";
 		  this.applyTemplateToolStripMenuItem.Click += new System.EventHandler(this.applyTemplateToolStripMenuItem_Click);
-		  // 
-		  // _categoryTree
-		  // 
-		  this._categoryTree.AllowDrop = true;
-		  this._categoryTree.Dock = System.Windows.Forms.DockStyle.Fill;
-		  this._categoryTree.FullRowSelect = true;
-		  this._categoryTree.HideSelection = false;
-		  this._categoryTree.LabelEdit = true;
-		  this._categoryTree.Location = new System.Drawing.Point(0, 0);
-		  this._categoryTree.Name = "_categoryTree";
-		  this._categoryTree.Size = new System.Drawing.Size(187, 364);
-		  this._categoryTree.TabIndex = 0;
-		  this._categoryTree.DragDrop += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragDrop);
-		  this._categoryTree.DragOver += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragOver);
-		  this._categoryTree.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._categoryTree_AfterLabelEdit);
-		  this._categoryTree.DragLeave += new System.EventHandler(this._categoryTree_DragLeave);
-		  this._categoryTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this._categoryTree_AfterSelect);
-		  this._categoryTree.DragEnter += new System.Windows.Forms.DragEventHandler(this._categoryTree_DragEnter);
-		  this._categoryTree.BeforeLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._categoryTree_BeforeLabelEdit);
-		  this._categoryTree.KeyDown += new System.Windows.Forms.KeyEventHandler(this._categoryTree_KeyDown);
-		  this._categoryTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this._categoryTree_MouseDown);
 		  // 
 		  // MainForm
 		  // 

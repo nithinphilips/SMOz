@@ -1,3 +1,5 @@
+// (c) Microsoft corporation
+// from Jfo's coding.com
 using System;
 using System.Collections.Generic;
 using System.Text;

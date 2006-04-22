@@ -64,22 +64,21 @@ namespace SMOz
 		  if (File.Exists(Utility.IGNORE_LIST_FILE_PATH)) {
 			 Category[] ignore = Template.TemplateHelper.BuildCategories(Utility.IGNORE_LIST_FILE_PATH);
 			 if ((ignore.Length != 1) || (ignore[0].Name != "Ignore List")) {
-				MakeIgnoreListDefault();
+				MakeDefaultIgnoreList();
 			 } else {
 				IgnoreList.Instance.From(ignore[0]);
 			 }
 		  } else {
 			 Directory.CreateDirectory(Path.GetDirectoryName(Utility.IGNORE_LIST_FILE_PATH));
-			 MakeIgnoreListDefault();
+			 MakeDefaultIgnoreList();
 		  }
 	   }
 
-	   private static void MakeIgnoreListDefault() {
+	   private static void MakeDefaultIgnoreList() {
 		  IgnoreList.Instance.Name = "Ignore List";
 		  IgnoreList.Instance.Add(new CategoryItem("desktop.ini", CategoryItemType.WildCard));
 		  IgnoreList.Instance.Add(new CategoryItem("Startup", CategoryItemType.String));
 	   }
-
 
 	   public static string GetVersionInfo() {
 		  return string.Format(Properties.Resources.VersionInfo, Application.ProductName, Application.ProductVersion);
@@ -92,6 +91,5 @@ namespace SMOz
 	   public static string GetLicenseInfo() {
 		  return Properties.Resources.LicenseInfo;
 	   }
-
     }
 }

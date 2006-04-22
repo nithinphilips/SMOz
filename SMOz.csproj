@@ -67,7 +67,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\AssociationBuilder.resx">
@@ -182,36 +181,36 @@
   <ItemGroup>
     <None Include="COPYING" />
     <None Include="README" />
-    <None Include="Resources\CODING GUIDE" />
-    <None Include="Resources\SMOz.cd" />
-    <None Include="Resources\Template.ini" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Installer\gpl.txt" />
-    <None Include="Resources\Start.Icon.png" />
+    <None Include="Resources\CODING GUIDE" />
+    <None Include="Resources\Template.ini" />
+    <None Include="Resources\SMOz.cd" />
+    <None Include="Resources\Images\Start.Icon.png" />
     <None Include="Installer\Installer.nsi" />
     <None Include="Resources\App.ico" />
-    <None Include="Resources\File_NewCategory.png" />
-    <None Include="Resources\Edit_View.png" />
-    <None Include="Resources\Tools_Organize.png" />
-    <None Include="Resources\Tool_GoUp.png" />
-    <None Include="Resources\Edit_Find_Binoc.png" />
-    <None Include="Resources\Edit_Rename.png" />
-    <None Include="Resources\Edit_Find_Big.png" />
-    <None Include="Resources\Help_Help.png" />
-    <None Include="Resources\Tools_Run.png" />
-    <None Include="Resources\Edit_Find.png" />
-    <None Include="Resources\File_Save.png" />
-    <None Include="Resources\File_Open.png" />
-    <None Include="Resources\Edit_Undo.png" />
-    <None Include="Resources\Edit_Redo.png" />
-    <None Include="Resources\Edit_Preferences.png" />
-    <None Include="Resources\Edit_Paste.png" />
-    <None Include="Resources\Edit_Delete.png" />
-    <None Include="Resources\Edit_Cut.png" />
-    <None Include="Resources\Edit_Copy.png" />
-    <None Include="Resources\Tools_Cleanup.png" />
-    <None Include="Resources\File_New.png" />
+    <None Include="Resources\Images\File_NewCategory.png" />
+    <None Include="Resources\Images\Edit_View.png" />
+    <None Include="Resources\Images\Tools_Organize.png" />
+    <None Include="Resources\Images\Tool_GoUp.png" />
+    <None Include="Resources\Images\Edit_Find_Binoc.png" />
+    <None Include="Resources\Images\Edit_Rename.png" />
+    <None Include="Resources\Images\Edit_Find_Big.png" />
+    <None Include="Resources\Images\Help_Help.png" />
+    <None Include="Resources\Images\Tools_Run.png" />
+    <None Include="Resources\Images\Edit_Find.png" />
+    <None Include="Resources\Images\File_Save.png" />
+    <None Include="Resources\Images\File_Open.png" />
+    <None Include="Resources\Images\Edit_Undo.png" />
+    <None Include="Resources\Images\Edit_Redo.png" />
+    <None Include="Resources\Images\Edit_Preferences.png" />
+    <None Include="Resources\Images\Edit_Paste.png" />
+    <None Include="Resources\Images\Edit_Delete.png" />
+    <None Include="Resources\Images\Edit_Cut.png" />
+    <None Include="Resources\Images\Edit_Copy.png" />
+    <None Include="Resources\Images\Tools_Cleanup.png" />
+    <None Include="Resources\Images\File_New.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="3rdParty\MagicLibrary\MagicLibrary.csproj">
