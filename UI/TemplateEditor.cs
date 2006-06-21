@@ -75,7 +75,8 @@ namespace SMOz.UI
 		  ComboBoxCellEditor patternEditor = new ComboBoxCellEditor();
 		  patternEditor.TextChanged += new EventHandler(patternEditor_TextChanged);
 		  patternEditor.DropDownStyle = DropDownStyle.DropDown;
-		  patternEditor.Items.AddRange(patterns);
+//		  patternEditor.Items.AddRange(patterns);
+		  patternEditor.AutCompleteAddItems(patterns, AutoCompleteMode.Suggest);
 		  patternCol.Editor = patternEditor;
 		  patternCol.Editable = true;
 		  this._templateTable.ColumnModel.Columns.Add(patternCol);
@@ -92,7 +93,8 @@ namespace SMOz.UI
 		  ComboBoxColumn categoryCol = new ComboBoxColumn("Category");
 		  ComboBoxCellEditor categoryEditor = new ComboBoxCellEditor();
 		  categoryEditor.DropDownStyle = DropDownStyle.DropDown;
-		  categoryEditor.Items.AddRange(categories);
+//		  categoryEditor.Items.AddRange(categories);
+		  categoryEditor.AutCompleteAddItems(categories, AutoCompleteMode.SuggestAppend);
 		  categoryCol.Editor = categoryEditor;
 		  categoryCol.Editable = true;
 		  this._templateTable.ColumnModel.Columns.Add(categoryCol);
@@ -462,6 +464,7 @@ namespace SMOz.UI
 	   void preview_FormClosed(object sender, FormClosedEventArgs e) {
 		  preview = null;
 		  _showPreview.Checked = false;
+		  _previewAutoHide.Show();
 	   }
 
 	   Row clickedItem;

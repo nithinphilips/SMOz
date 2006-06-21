@@ -446,6 +446,8 @@ namespace XPTable.Editors
 		}
 
 
+	    
+
 		/// <summary>
 		/// Gets or sets a value specifying the style of the drop down editor
 		/// </summary>

@@ -326,6 +326,13 @@ namespace XPTable.Editors
 		}
 
 
+	    public void AutCompleteAddItems(string[] items, AutoCompleteMode autoCompleteMode) {
+		   this.Items.AddRange(items);
+		   this.TextBox.AutoCompleteMode = autoCompleteMode;
+		   this.TextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+		   this.TextBox.AutoCompleteCustomSource.AddRange(items);
+	    }
+
 		/// <summary>
 		/// Gets an object representing the collection of the items contained 
 		/// in this ComboBoxCellEditor
@@ -337,6 +344,7 @@ namespace XPTable.Editors
 				return this.listbox.Items;
 			}
 		}
+
 
 
 		/// <summary>
