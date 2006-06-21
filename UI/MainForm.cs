@@ -407,9 +407,8 @@ namespace SMOz.UI
 	   }
 
 	   private ListViewItem StartItemToListItem(StartItem startItem) {
-
 		  ListViewItem listItem;
-		  int imageIndex = 4; // Folder Icon?
+		  int imageIndex = 0; // Folder Icon?
 
 		  string path = startItem.HasUser ?  path = startItem.UserPath : startItem.LocalPath;
 
@@ -424,6 +423,7 @@ namespace SMOz.UI
 				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
 			 }
 		  }
+
 		  listItem.SubItems[1].ForeColor = SystemColors.GrayText;
 		  listItem.SubItems[2].ForeColor = SystemColors.GrayText;
 

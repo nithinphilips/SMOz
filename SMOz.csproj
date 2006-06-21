@@ -24,9 +24,10 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -68,6 +69,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\AssociationBuilder.resx">
       <SubType>Designer</SubType>
@@ -177,6 +179,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utilities\Utility.cs" />
+    <Compile Include="Utilities\Win32.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="COPYING" />

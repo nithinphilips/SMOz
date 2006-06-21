@@ -42,11 +42,33 @@ namespace SMOz
 	   /// </summary>
 	   [STAThread]
 	   static void Main() {
-		  LoadRuntimeData();
+#if RELEASE
+		  try {
+#endif
+			 // The application should be run in full trust mode; but just in case!
+			 System.Security.Permissions.EnvironmentPermission envPermission = new System.Security.Permissions.EnvironmentPermission(System.Security.Permissions.PermissionState.Unrestricted);
+			 envPermission.Demand();
 
-		  Application.EnableVisualStyles();
-		  Application.SetCompatibleTextRenderingDefault(false);
-		  Application.Run(new MainForm());
+			 LoadRuntimeData();
+			 Application.EnableVisualStyles();
+			 Application.SetCompatibleTextRenderingDefault(false);
+			 Application.Run(new MainForm());
+#if RELEASE
+		  } catch (Exception ex) {
+			 System.Security.Permissions.FileIOPermission ioperm = new System.Security.Permissions.FileIOPermission(System.Security.Permissions.FileIOPermissionAccess.AllAccess, System.Security.AccessControl.AccessControlActions.Change, Utility.DEBUG_FILE_PATH);
+			 ioperm.Demand();
+			 using (FileStream fs = new FileStream(Utility.DEBUG_FILE_PATH, FileMode.Append, FileAccess.Write, FileShare.None)) {
+				string debugMessage = "-------------------------------------------" + Environment.NewLine;
+				debugMessage += DateTime.UtcNow.ToLongDateString() + " " + DateTime.UtcNow.ToLongTimeString() + " UTC" + Environment.NewLine + Environment.NewLine;
+				debugMessage += ex.Message + Environment.NewLine;
+				debugMessage += ex.StackTrace + Environment.NewLine + Environment.NewLine;
+				byte[] buffer = System.Text.UTF8Encoding.UTF8.GetBytes(debugMessage);
+				fs.Write(buffer, 0, buffer.Length);
+				fs.Flush();
+			 }
+			 MessageBox.Show("An unhandled error has occured in SMOz. SMOz cannot continue.\n\nMore information is available in the file '" + Utility.DEBUG_FILE_PATH + "'. Please include the contents of that file when requesting support. Sorry about the inconvenience.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+		  }
+#endif
 	   }
 
 	   public static void PersistRuntimeData() {

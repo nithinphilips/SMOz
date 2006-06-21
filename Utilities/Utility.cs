@@ -36,6 +36,16 @@ namespace SMOz.Utilities
 {
     public sealed class Utility
     {
+	   static Utility() {
+		  // Make sure that the paths ends with '\' or equivalent.
+		  if (USER_START_ROOT[USER_START_ROOT.Length -1] != Path.DirectorySeparatorChar) {
+			 USER_START_ROOT += Path.DirectorySeparatorChar;
+		  }
+		  if (LOCAL_START_ROOT[LOCAL_START_ROOT.Length - 1] != Path.DirectorySeparatorChar) {
+			 LOCAL_START_ROOT += Path.DirectorySeparatorChar;
+		  }
+	   }
+
 	   public const bool IGNORE_CASE = true;
 	   public const RegexOptions REGEX_OPTIONS = RegexOptions.IgnoreCase | RegexOptions.Singleline;
 
@@ -46,18 +56,26 @@ namespace SMOz.Utilities
 	   public static readonly string IGNORE_LIST_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\IgnoreList."
 	   + Application.ProductVersion + ".ini";
 
-	   public static readonly string USER_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\");
-	   public static readonly string LOCAL_START_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu), "Programs\\").Replace(Environment.UserName, "All Users");
+	   public static readonly string USER_START_ROOT = Win32.GetFolderPath(Win32.CSIDL.CSIDL_PROGRAMS);
+	   public static readonly string LOCAL_START_ROOT = Win32.GetFolderPath(Win32.CSIDL.CSIDL_COMMON_PROGRAMS);
 
 	   public static readonly string USER_TRASH_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SMOz\\Trash\\");
 	   public static readonly string LOCAL_TRASH_ROOT = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SMOz\\Trash\\");
 
+	   public static readonly string DEBUG_FILE_PATH = System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData) + "\\SMOz\\Debug."
+	   + Application.ProductVersion + ".txt";
+
+	   /// <summary>
+	   /// Splits a path to tree form. For example, C:\Folder1\Folder2, will be processed as {C:\, C:\Folder1\, C:\Folder1\Folder2}
+	   /// </summary>
+	   /// <param name="path"></param>
+	   /// <returns></returns>
 	   public static string[] PathToTree(string path) {
-		  string[] parts = path.Split("\\".Split(), StringSplitOptions.None);
+		  string[] parts = path.Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.None);
 		  string[] tree = new string[parts.Length];
 		  for (int j = 0; j < parts.Length; j++) {
 			 for (int k = 0; k <= j; k++) {
-				tree[j] += parts[k] + "\\";
+				tree[j] += parts[k] + Path.DirectorySeparatorChar;
 			 }
 			 tree[j] = tree[j].Substring(0, tree[j].Length - 1);
 		  }

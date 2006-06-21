@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "SMOz"
-!define PRODUCT_VERSION "0.6.5.0"
+!define PRODUCT_VERSION "0.6.5.2"
 !define PRODUCT_PUBLISHER "Nithin Philips"
 !define PRODUCT_WEB_SITE "http://smoz.sourceforge.net/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}.exe"
