@@ -34,12 +34,13 @@ namespace SMOz.Commands.IO
     /// </summary>
     public class RenameFileCommand : MoveFileCommand
     {
-	   public RenameFileCommand(string source, string target, StartItem startItem, string oldName, string newName) {
+	   public RenameFileCommand(string source, string target, StartItem startItem, string oldName, string newName, bool mayfail) {
 		  base.source = source;
 		  base.target = target;
 		  base.startItem = startItem;
 		  base.oldName = oldName;
 		  base.newName = newName;
+		  base.mayFail = mayFail;
 		  this.name = "Rename '" + this.source + "' to '" + this.target + "'";
 	   }
 

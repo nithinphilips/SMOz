@@ -50,6 +50,11 @@
     <Compile Include="Commands\CommandConverter.cs" />
     <Compile Include="Commands\UI\ConvertToCategoryCommand.cs" />
     <Compile Include="Commands\UI\RenameStartItemCommand.cs" />
+    <Compile Include="Resources\Localization\Language.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Language.resx</DependentUpon>
+    </Compile>
     <Compile Include="StartMenu\StartCategorizer.cs" />
     <Compile Include="Template\ICategoryProvider.cs" />
     <Compile Include="Commands\Command.cs">
@@ -71,9 +76,25 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Localization\Language.de-de.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Localization\Language.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Language.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\AssociationBuilder.resx">
       <SubType>Designer</SubType>
       <DependentUpon>AssociationBuilder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainForm.de.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainForm.ml-IN.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\MainForm.resx">
       <SubType>Designer</SubType>
@@ -122,6 +143,7 @@
     <Compile Include="UI\Preferences.Designer.cs">
       <DependentUpon>Preferences.cs</DependentUpon>
     </Compile>
+    <Compile Include="User\Settings.cs" />
     <Compile Include="Utilities\EXComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -187,6 +209,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Installer\gpl.txt" />
+    <None Include="Resources\list-remove.png" />
+    <None Include="Resources\list-add.png" />
     <None Include="Resources\CODING GUIDE" />
     <None Include="Resources\Template.ini" />
     <None Include="Resources\SMOz.cd" />

@@ -60,8 +60,9 @@ namespace SMOz.UI
 		  _list.Items.Add(item);
 	   }
 
-	   public void Add(string action, string source, string target) {
+	   public void Add(string action, string source, string target, bool warn) {
 		  ReviewListItem reviewItem = new ReviewListItem(action, source, target);
+		  if (warn) { reviewItem.BackColor = Color.Yellow; }
 		  reviewItem.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 		  this._table.Controls.Add(reviewItem);
 		  if (this._table.RowStyles.Count == 1) {

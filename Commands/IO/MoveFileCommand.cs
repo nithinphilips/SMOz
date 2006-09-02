@@ -37,12 +37,13 @@ namespace SMOz.Commands.IO
     {
 	   protected MoveFileCommand() { }
 
-	   public MoveFileCommand(string source, string target, StartItem startItem, string oldName, string newName) {
+	   public MoveFileCommand(string source, string target, StartItem startItem, string oldName, string newName, bool mayFail) {
 		  this.source = source;
 		  this.target = target;
 		  this.startItem = startItem;
 		  this.oldName = oldName;
 		  this.newName = newName;
+		  this.mayFail = mayFail;
 		  this.name = "Move '" + this.source + "' to '" + this.target + "'";
 	   }
 
@@ -52,6 +53,18 @@ namespace SMOz.Commands.IO
 	   protected string target;
 	   protected StartItem startItem;
 	   protected string name;
+	   protected bool mayFail = false;
+	   protected SMOz.Utilities.Utility.MoveFileMode moveFileMode = SMOz.Utilities.Utility.MoveFileMode.Overwrite;
+
+
+	   public SMOz.Utilities.Utility.MoveFileMode MoveFileMode {
+		  get { return moveFileMode; }
+		  set { moveFileMode = value; }
+	   }
+
+	   public bool MayFail {
+		  get { return mayFail; }
+	   }
 
 	   public StartItem StartItem {
 		  get { return startItem; }
@@ -103,12 +116,12 @@ namespace SMOz.Commands.IO
 	   private void MoveFile(string source, string target) {
 		  // create target dir
 		  Directory.CreateDirectory(Path.GetDirectoryName(target));
-		  File.Move(source, target);
+		  Utilities.Utility.MoveFile(source, target, moveFileMode);
 	   }
 
 	   private void MoveDirectory(string source, string target) {
-		  Directory.CreateDirectory(Path.GetDirectoryName(target));
-		  Directory.Move(source, target);
+		  Utilities.Utility.RecursiveMoveDirectory(source, target, moveFileMode);
+//		  Directory.Move(source, target);
 	   }
     }
 }

@@ -38,41 +38,50 @@ namespace SMOz.Commands
     public sealed class CommandConverter
     {
 	   public static MoveFileCommand[] ConvertMove(MoveStartItemCommand uiCommand) {
-		  string localSource = Path.Combine(Utility.LOCAL_START_ROOT, uiCommand.OldName);
-		  string userSource = Path.Combine(Utility.USER_START_ROOT, uiCommand.OldName);
-
-		  string localTarget = Path.Combine(Path.Combine(Utility.LOCAL_START_ROOT, uiCommand.NewCategory), Path.GetFileName(uiCommand.NewName));
-		  string userTarget = Path.Combine(Path.Combine(Utility.USER_START_ROOT, uiCommand.NewCategory), Path.GetFileName(uiCommand.NewName));
 
 		  List<MoveFileCommand> result = new List<MoveFileCommand>();
-		  if (uiCommand.StartItem.HasLocal) { result.Add(new MoveFileCommand(localSource, localTarget, uiCommand.StartItem, uiCommand.OldName, uiCommand.NewName)); }
-		  if (uiCommand.StartItem.HasUser) { result.Add(new MoveFileCommand(userSource, userTarget, uiCommand.StartItem, uiCommand.OldName, uiCommand.NewName)); }
+		  foreach (string root in Utility.GetAllRoots()) {
+			 string source = Path.Combine(root, uiCommand.OldName);
+			 string target = Path.Combine(Path.Combine(root, uiCommand.NewCategory), Path.GetFileName(uiCommand.NewName));
+
+			 if(uiCommand.StartItem.Exists(source)){
+				result.Add(new MoveFileCommand(source, target, uiCommand.StartItem, uiCommand.OldName, uiCommand.NewName, uiCommand.StartItem.Exists(target))); 
+			 }
+		  }
 		  return result.ToArray();
 	   }
 
 	   public static RenameFileCommand[] ConvertRename(RenameStartItemCommand uiCommand) {
-		  string localSource = Path.Combine(Utility.LOCAL_START_ROOT, uiCommand.OldName);
-		  string userSource = Path.Combine(Utility.USER_START_ROOT, uiCommand.OldName);
 
-		  string localTarget = Path.Combine(Path.Combine(Utility.LOCAL_START_ROOT, uiCommand.NewCategory), Path.GetFileName(uiCommand.NewName));
-		  string userTarget = Path.Combine(Path.Combine(Utility.USER_START_ROOT, uiCommand.NewCategory), Path.GetFileName(uiCommand.NewName));
+		  List<RenameFileCommand> result = new List<RenameFileCommand>();
+		  foreach (string root in Utility.GetAllRoots()) {
+			 string source = Path.Combine(root, uiCommand.OldName);
+			 string target = Path.Combine(Path.Combine(root, uiCommand.NewCategory), Path.GetFileName(uiCommand.NewName));
 
-		  List<RenameFileCommand> result = new List<RenameFileCommand>();	  
-		  if (uiCommand.StartItem.HasLocal) { result.Add(new RenameFileCommand(localSource, localTarget, uiCommand.StartItem, uiCommand.OldName, uiCommand.NewName)); }
-		  if (uiCommand.StartItem.HasUser) { result.Add(new RenameFileCommand(userSource, userTarget, uiCommand.StartItem, uiCommand.OldName, uiCommand.NewName)); }
+			 if (uiCommand.StartItem.Exists(source)) {
+				result.Add(new RenameFileCommand(source, target, uiCommand.StartItem, uiCommand.OldName, uiCommand.NewName, uiCommand.StartItem.Exists(target)));
+			 }
+		  }
 		  return result.ToArray();
 	   }
 
 	   public static DeleteFileCommand[] ConvertDelete(DeleteStartItemCommand uiCommand) {
-		  string localSource = uiCommand.StartItem.LocalPath;
-		  string userSource = uiCommand.StartItem.UserPath;
-
-		  string localTarget = Path.Combine(Utility.LOCAL_TRASH_ROOT, GetRandomString());
-		  string userTarget = Path.Combine(Utility.USER_TRASH_ROOT, GetRandomString());
 
 		  List<DeleteFileCommand> result = new List<DeleteFileCommand>();
-		  if (uiCommand.StartItem.HasLocal) { result.Add(new DeleteFileCommand(localSource, localTarget, uiCommand.StartItem, uiCommand.StartItem.Name, "")); }
-		  if (uiCommand.StartItem.HasUser) { result.Add(new DeleteFileCommand(userSource, userTarget, uiCommand.StartItem, uiCommand.StartItem.Name, "")); }
+		  foreach (string root in Utility.GetAllRoots()) {
+			 string source = Path.Combine(root, uiCommand.StartItem.RealName);
+			 string target = "";
+			 // All local item are in local trash, everything else is in user trash
+			 if(root == Utility.LOCAL_START_ROOT){
+				target = Path.Combine(Utility.LOCAL_TRASH_ROOT, GetRandomString());
+			 }else{
+				target = Path.Combine(Utility.USER_TRASH_ROOT, GetRandomString());
+			 }
+
+			 if (uiCommand.StartItem.Exists(source)) {
+				result.Add(new DeleteFileCommand(source, target, uiCommand.StartItem, uiCommand.StartItem.Name, ""));
+			 }
+		  }
 		  return result.ToArray();
 	   }
 

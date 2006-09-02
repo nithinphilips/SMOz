@@ -224,6 +224,20 @@ namespace SMOz.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap list_add {
+            get {
+                object obj = ResourceManager.GetObject("list_add", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap list_remove {
+            get {
+                object obj = ResourceManager.GetObject("list_remove", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap Tool_GoUp {
             get {
                 object obj = ResourceManager.GetObject("Tool_GoUp", resourceCulture);

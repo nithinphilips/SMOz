@@ -32,6 +32,7 @@ using SMOz.Template;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using System.Diagnostics;
+using SMOz.Resources.Localization;
 
 namespace SMOz
 {
@@ -45,6 +46,9 @@ namespace SMOz
 #if RELEASE
 		  try {
 #endif
+//		  System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("ml-IN");
+//		  System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("ml-IN");
+
 			 // The application should be run in full trust mode; but just in case!
 			 System.Security.Permissions.EnvironmentPermission envPermission = new System.Security.Permissions.EnvironmentPermission(System.Security.Permissions.PermissionState.Unrestricted);
 			 envPermission.Demand();
@@ -72,6 +76,7 @@ namespace SMOz
 	   }
 
 	   public static void PersistRuntimeData() {
+		  User.Settings.Save();
 		  Template.TemplateHelper.Save(new Category[] { IgnoreList.Instance }, Utility.IGNORE_LIST_FILE_PATH);
 		  Utility.Serialize<KnownCategories>(KnownCategories.Instance, Utility.KNOWN_CATEGORIES_FILE_PATH);
 	   }
@@ -102,12 +107,12 @@ namespace SMOz
 		  IgnoreList.Instance.Add(new CategoryItem("Startup", CategoryItemType.String));
 	   }
 
-	   public static string GetVersionInfo() {
-		  return string.Format(Properties.Resources.VersionInfo, Application.ProductName, Application.ProductVersion);
+	   public static string GetAboutVersion() {
+		  return string.Format(Language.AboutVersionFormat, Application.ProductName, Application.ProductVersion);
 	   }
 
-	   public static string GetContributionInfo() {
-		  return string.Format(Properties.Resources.ContributionInfo, Application.ProductName, Application.ProductVersion);
+	   public static string GetAboutContributors() {
+		  return string.Format(Language.AboutContributorsFormat, Application.ProductName, Application.ProductVersion);
 	   }
 
 	   public static string GetLicenseInfo() {

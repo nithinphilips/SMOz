@@ -32,7 +32,8 @@ namespace SMOz.Ini
     public class IniParser
     {
 	   public static IniSection[] Parse(string file) {
-		  return Parse(File.ReadAllLines(file));
+		  // http://www.devhood.com/tutorials/tutorial_details.aspx?tutorial_id=469
+		  return Parse(File.ReadAllLines(file, System.Text.Encoding.UTF8));
 	   }
 
 	   public static IniSection[] Parse(string[] lines) {

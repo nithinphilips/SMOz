@@ -383,7 +383,11 @@ namespace SMOz.UI
 
 	   private void ResetSearch() {
 		  this.Text = "Template Editor";
-		  AddToTable(_categoryTree.SelectedNode.Name);
+		  if (_categoryTree.SelectedNode != null) {
+			 AddToTable(_categoryTree.SelectedNode.Name);
+		  } else {
+			 AddToTable("");
+		  }
 		  _templateTable.NoItemsText = "Right Click to add a new pattern.";
 	   }
 

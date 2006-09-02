@@ -29,6 +29,7 @@ using SMOz.Utilities;
 using System.IO;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using SMOz.User;
 
 namespace SMOz.StartMenu
 {
@@ -61,11 +62,15 @@ namespace SMOz.StartMenu
 	   /// <summary>
 	   /// Item is located in the User's home directory.
 	   /// </summary>
-	   User = 2, 
+	   User = 2,
+	   /// <summary>
+	   /// Item is located somewhere else in a user defined location.
+	   /// </summary>
+	   Other = 4,
 	   /// <summary>
 	   /// Item is located in both Local and User's directories.
 	   /// </summary>
-	   All = Local | User 
+	   All = Local | User | Other,
     };
 
     /// <summary>
@@ -98,11 +103,6 @@ namespace SMOz.StartMenu
 	   StartItemType type;
 	   string category;
 
-	   // Dynamic Data:
-	   [NonSerialized] string localPath = string.Empty;
-	   [NonSerialized] string userPath = string.Empty;
-	   [NonSerialized] StartItemLocation location = StartItemLocation.None;
-
 	   /// <summary>
 	   /// Name of the object. Relative to the root folder.
 	   /// </summary>
@@ -120,7 +120,6 @@ namespace SMOz.StartMenu
 
 	   public void SetRealName(string value) {
 		 this.realName = value;
-		 InvalidateDynamicData();
 	   }
 
 	   public StartItemType Type {
@@ -141,52 +140,26 @@ namespace SMOz.StartMenu
 		  set { application = value; }
 	   }
 
-	   private void InvalidateDynamicData() {
-		  this.localPath = string.Empty;
-		  this.userPath = string.Empty;
-		  this.location = StartItemLocation.None;
-	   }
-
-	   /// <summary>
-	   /// Absolute location of the item in the local folder. The path referred may not exist.
-	   /// </summary>
-	   public string LocalPath {
-		  get {
-			 if (string.IsNullOrEmpty(localPath)) {
-				localPath = Path.Combine(Utility.LOCAL_START_ROOT, this.realName);
-			 }
-			 return localPath;
-		  }
-	   }
-
-	   /// <summary>
-	   /// Absolute location of the item in the user's folder. The path referred may not exist.
-	   /// </summary>
-	   public string UserPath {
-		  get {
-			 if (string.IsNullOrEmpty(userPath)) {
-				userPath = Path.Combine(Utility.USER_START_ROOT, this.realName);
-			 }
-			 return userPath;
-		  }
-	   }
 
 	   /// <summary>
 	   /// The location of the item.
 	   /// </summary>
 	   public StartItemLocation Location {
 		  get {
-			 if (location == StartItemLocation.None) {
-				StartItemLocation _newLocation = StartItemLocation.None;
-				if (this.Type == StartItemType.File) {
-				    if (File.Exists(this.UserPath)) { _newLocation |= StartItemLocation.User; }
-				    if (File.Exists(this.LocalPath)) { _newLocation |= StartItemLocation.Local; }
+			 string localPath = Path.Combine(Utility.LOCAL_START_ROOT, this.realName);
+			 string userPath = Path.Combine(Utility.USER_START_ROOT, this.realName);
+			 StartItemLocation location = StartItemLocation.None;
+
+			 foreach (string validPath in GetValidPaths()) {
+				if (validPath == localPath) {
+				    location |= StartItemLocation.Local;
+				} else if (validPath == userPath) {
+				    location |= StartItemLocation.User;
 				} else {
-				    if (Directory.Exists(this.UserPath)) { _newLocation |= StartItemLocation.User; }
-				    if (Directory.Exists(this.LocalPath)) { _newLocation |= StartItemLocation.Local; }
+				    location |= StartItemLocation.Other;
 				}
-				location = _newLocation;
 			 }
+
 			 return location;
 		  }
 	   }
@@ -200,6 +173,37 @@ namespace SMOz.StartMenu
 	   public bool HasUser {
 		  get {
 			 return ((Location & StartItemLocation.User) == StartItemLocation.User);
+		  }
+	   }
+
+	   /// <summary>
+	   /// Retrieves all locations of this item.
+	   /// </summary>
+	   /// <returns>An array of all valid paths.</returns>
+	   public string[] GetValidPaths() {
+		  List<string> validPaths = new List<string>();
+
+		  string localFull = Path.Combine(Utility.LOCAL_START_ROOT, this.realName);
+		  string userFull = Path.Combine(Utility.USER_START_ROOT, this.realName);
+
+		  if (Settings.Instance.ScanLocalPath && Exists(localFull)) { validPaths.Add(localFull); }
+		  if (Settings.Instance.ScanUserPath && Exists(userFull)) { validPaths.Add(userFull); }
+
+		  foreach (string addt in Settings.Instance.AdditionalPaths) {
+			 string addtFull = Path.Combine(addt, this.realName);
+			 if (Exists(addtFull)) {
+				validPaths.Add(addtFull);
+			 }
+		  }
+
+		  return validPaths.ToArray();
+	   }
+
+	   public bool Exists(string path) {
+		  if (this.Type == StartItemType.File) {
+			 return File.Exists(path);
+		  } else {
+			 return Directory.Exists(path);
 		  }
 	   }
 

@@ -40,6 +40,8 @@ using SMOz.Commands.UI;
 using System.Text.RegularExpressions;
 using SMOz.Commands.IO;
 using Nithin.Philips.Utilities.AboutBox;
+using SMOz.Resources.Localization;
+using SMOz.User;
 
 namespace SMOz.UI
 {
@@ -49,8 +51,24 @@ namespace SMOz.UI
 		  InitializeComponent();
 		  this.Icon = SMOz.Properties.Resources.Application;
 
-		  startManager = new StartManager();
+		  Reload();
 		  
+
+		  SysImageListHelper.SetTreeViewImageList(_categoryTree, treeIconList, false);
+
+		  SetView(View.Tile);
+		  openToolStripMenuItem.Font = new Font(openToolStripMenuItem.Font, FontStyle.Bold);
+//		  SetupFileSystemWatchers();
+	   }
+
+	   private void Reload() {
+		  this.startManager = new StartManager();
+		  this.undoQueue.Clear();
+		  this.redoQueue.Clear();
+		  this.categoryCache.Invalidate();
+		  this._categoryTree.Nodes.Clear();
+		  this._itemList.Items.Clear();
+
 		  if (File.Exists("Template.ini")) {
 			 OpenTemplate("Template.ini");
 		  } else {
@@ -64,22 +82,26 @@ namespace SMOz.UI
 				AddToManager(str);
 			 }
 		  }
+
+		  _categoryTree.Sort();
+		  if (_categoryTree.Nodes.Count > 0) {
+			 _categoryTree.SelectedNode = _categoryTree.Nodes[0];
+		  }
+
+		  
 		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 
-		  SysImageListHelper.SetTreeViewImageList(_categoryTree, treeIconList, false);
-
 		  UpdateUndoRedo();
-		  SetView(View.Tile);
-		  openToolStripMenuItem.Font = new Font(openToolStripMenuItem.Font, FontStyle.Bold);
-		  SetupFileSystemWatchers();
 	   }
+
 
 	   private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
 		  startManager.SaveAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
 		  Program.PersistRuntimeData();
+		  
 
-		  if ((undoQueue.Count > 0) && (undoQueue.Peek().Name != "Apply Changes")) {
-			 if (MessageBox.Show("It appears that you have unsaved changes. Do you still want to quit?", "Changes Not Saved - " + Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+		  if ((undoQueue.Count > 0) && (undoQueue.Peek().Name != Language.ApplyChanges)) {
+			 if (MessageBox.Show(Language.UnsavedChangesMessage, Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
 				e.Cancel = true;
 			 }
 		  }
@@ -91,8 +113,12 @@ namespace SMOz.UI
 
 	   // TODO: Only warn user if the changed file system object has been modified by the user,
 	   //       Otherwise, simply reflect the changes in the UI.
-
+	   //
 	   private void SetupFileSystemWatchers() {
+		  // TODO: This method needs to be changed to support the new
+		  //		 'additional paths' feature. 
+		  //    also edit applyChangesToolStripMenuItem_Click()
+
 		  localWatcher = new FileSystemWatcher(Utility.LOCAL_START_ROOT);
 		  userWatcher = new FileSystemWatcher(Utility.USER_START_ROOT);
 
@@ -117,11 +143,11 @@ namespace SMOz.UI
 		  this.Invoke((MethodInvoker)delegate {
 			 if (review == null) {
 				review = new ReviewChanges(true);
-				review.Message = "Some items in the start menu was modified by an another application. Applying changes made in SMOz may result in unpredictable state.";
+				review.Message = Language.StartMenuModifiedMessage;
 				review.FormClosing += new FormClosingEventHandler(review_FormClosing);
-				review._ok.Text = "Close";
+				review._ok.Text = Language.Close;
 			 }
-			 review.Add("Deleted", e.FullPath);
+			 review.Add(Language.Deleted, e.FullPath);
 			 review.Show(this);
 		  });
 	   }
@@ -134,11 +160,11 @@ namespace SMOz.UI
 		  this.Invoke((MethodInvoker)delegate {
 			 if (review == null) {
 				review = new ReviewChanges(true);
-				review.Message = "Some items in the start menu was modified by an another application. Applying changes made in SMOz may result in unpredictable state.";
+				review.Message = Language.StartMenuModifiedMessage;
 				review.FormClosing += new FormClosingEventHandler(review_FormClosing);
-				review._ok.Text = "Close";
+				review._ok.Text = Language.Close;
 			 }
-			 review.Add("Renamed", e.FullPath);
+			 review.Add(Language.Renamed, e.FullPath);
 			 review.Show(this);
 		  });
 	   } 
@@ -200,7 +226,7 @@ namespace SMOz.UI
 
 	   private TreeNode CreateTreeNode(string name, int iconIndex) {
 		  TreeNode node = new TreeNode(name.Substring(name.LastIndexOf(Path.DirectorySeparatorChar) + 1));
-		  if (name == "") { node.Text = "(empty)"; }
+		  if (name == "") { node.Text = Language.UnCategorizedNodeName; }
 		  node.ImageIndex = iconIndex;
 		  node.SelectedImageIndex = iconIndex;
 		  node.ContextMenuStrip = _categoryTreeContext;
@@ -210,15 +236,34 @@ namespace SMOz.UI
 	   }
 
 	   private void AddToManager(string category) {
+
 		  string localFull = Path.Combine(Utility.LOCAL_START_ROOT, category);
 		  string userFull = Path.Combine(Utility.USER_START_ROOT, category);
 
-		  if (Directory.Exists(localFull)) { AddToManager(localFull, category, Utility.LOCAL_START_ROOT.Length); }
-		  if (Directory.Exists(userFull)) { AddToManager(userFull, category, Utility.USER_START_ROOT.Length); }
+
+		  if (Settings.Instance.ScanLocalPath && Directory.Exists(localFull)) { AddToManager(localFull, category, Utility.LOCAL_START_ROOT.Length); }
+		  if (Settings.Instance.ScanUserPath && Directory.Exists(userFull)) { AddToManager(userFull, category, Utility.USER_START_ROOT.Length); }
+
+		  for (int i = 0; i < Settings.Instance.AdditionalPaths.Length; i++) {
+			 string addt = Settings.Instance.AdditionalPaths[i];
+			 if (!addt.EndsWith(Path.DirectorySeparatorChar.ToString())) { addt += Path.DirectorySeparatorChar; }
+
+			 string addtFull = Path.Combine(addt, category);
+			 if (Directory.Exists(addtFull)) {
+				AddToManager(addtFull, category, addt.Length);
+			 }
+
+		  }
 	   }
 
-
+	   /// <summary>
+	   /// NOTE: root MUST end with a '\', otherwise bad things will happen. ye be warned!
+	   /// </summary>
+	   /// <param name="root"></param>
+	   /// <param name="category"></param>
+	   /// <param name="trimCount"></param>
 	   private void AddToManager(string root, string category, int trimCount) {
+		  Debug.WriteLine("Adding directory: " + "root = " + root + ", category = " + category);
 		  string[] dirs = Directory.GetDirectories(root);
 		  for (int i = 0; i < dirs.Length; i++) {
 			 string dir = dirs[i].Remove(0, trimCount);
@@ -278,8 +323,8 @@ namespace SMOz.UI
 
 	   private void Undo() {
 		  // This is just in case any real changes are made
-		  localWatcher.EnableRaisingEvents = false;
-		  userWatcher.EnableRaisingEvents = false;
+//		  localWatcher.EnableRaisingEvents = false;
+//		  userWatcher.EnableRaisingEvents = false;
 
 		  Debug.Assert(undoQueue.Count != 0);
 		  Command cmd = undoQueue.Pop();
@@ -288,14 +333,14 @@ namespace SMOz.UI
 
 		  UpdateItemListAfterUndoRedo(cmd, true);
 
-		  localWatcher.EnableRaisingEvents = true;
-		  userWatcher.EnableRaisingEvents = true;
+//		  localWatcher.EnableRaisingEvents = true;
+//		  userWatcher.EnableRaisingEvents = true;
 	   }
 
 	   private void Redo() {
 		  // This is just in case any real changes are made
-		  localWatcher.EnableRaisingEvents = false;
-		  userWatcher.EnableRaisingEvents = false;
+//		  localWatcher.EnableRaisingEvents = false;
+//		  userWatcher.EnableRaisingEvents = false;
 
 		  Debug.Assert(redoQueue.Count != 0);
 		  Command cmd = redoQueue.Pop();
@@ -304,8 +349,8 @@ namespace SMOz.UI
 
 		  UpdateItemListAfterUndoRedo(cmd, false);
 
-		  localWatcher.EnableRaisingEvents = true;
-		  userWatcher.EnableRaisingEvents = true;
+//		  localWatcher.EnableRaisingEvents = true;
+//		  userWatcher.EnableRaisingEvents = true;
 	   }
 
 	   private void UpdateItemListAfterUndoRedo(Command cmd, bool isUndo) {
@@ -318,9 +363,12 @@ namespace SMOz.UI
 
 			 if (renameCmd.OldCategory == _categoryTree.SelectedNode.Name) {
 				// If the item belongs to selected tree node, restore UI changes
-				ListViewItem[] items = _itemList.Items.Find(renameCmd.OldName, false);
+				foreach (ListViewItem item in _itemList.Items) {
+				    Console.WriteLine(item.Name);
+				}
+//				ListViewItem[] items = _itemList.Items.Find(renameCmd.OldName, false);
+				ListViewItem[] items = _itemList.Items.Find(renameCmd.StartItem.RealName, false);
 				Debug.Assert(items.Length == 1);
-
 				if (renameCmd.StartItem.Type == StartItemType.File) {
 				    items[0].SubItems[0].Text = Path.GetFileNameWithoutExtension(renameCmd.StartItem.Name);
 				} else {
@@ -410,7 +458,8 @@ namespace SMOz.UI
 		  ListViewItem listItem;
 		  int imageIndex = 0; // Folder Icon?
 
-		  string path = startItem.HasUser ?  path = startItem.UserPath : startItem.LocalPath;
+		  string[] validPaths = startItem.GetValidPaths();
+		  string path = (validPaths.Length >= 1) ? validPaths[0] : "";
 
 		  if (startItem.Type == StartItemType.File) {
 			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
@@ -459,7 +508,7 @@ namespace SMOz.UI
 	   }
 
 	   private void _categoryTree_AfterSelect(object sender, TreeViewEventArgs e) {
-		  if ((e.Node.Name == "<Search Results>") || (allToolStripMenuItem.Checked)) {
+		  if ((e.Node.Name == Language.SearchResultsNodeName) || (allToolStripMenuItem.Checked)) {
 			 UpdateItemList(e.Node.Name);
 			 this._statusLabel.Text = "Search <" + _searchText.Text + ">. Found " + _itemList.Items.Count.ToString() + " Items";
 		  } else if (!string.IsNullOrEmpty(_searchText.Text)) {
@@ -470,7 +519,7 @@ namespace SMOz.UI
 			 if (e.Node.Name != "") {
 				this._statusLabel.Text = e.Node.Name + ". " + _itemList.Items.Count.ToString() + " Items";
 			 } else {
-				this._statusLabel.Text =  "(empty). " + _itemList.Items.Count.ToString() + " Items";
+				this._statusLabel.Text =  Language.UnCategorizedNodeName + ". " + _itemList.Items.Count.ToString() + " Items";
 			 }
 		  }
 	   }
@@ -525,12 +574,32 @@ namespace SMOz.UI
 
 				if (target != null) {
 				    target.BackColor = SystemColors.Window;
-				    CommandGroup group = new CommandGroup("Move " + draggedItems.Count.ToString() + " items");
+				    CommandGroup group = new CommandGroup(string.Format(Language.MoveItemsFormat, draggedItems.Count));
 
 				    foreach (ListViewItem listItem in draggedItems) {
 					   StartItem item = (StartItem)listItem.Tag;
+					   // TODO: Check if target exists. 
+					   //   Give options: 'Overwrite' or 'Don't Move'
+					   // Overwrite:
+					   //	 Delete Target, Move File
+					   StartItem[] existingItems = startManager.GetByCategory(target.Name);
 					   if (target.Name != item.Category) {
 						  MoveStartItemCommand cmd = new MoveStartItemCommand(item, target.Name);
+						  DeleteStartItemCommand cmdDelete = null;
+						  bool cancel = false;
+						  
+						  foreach (StartItem existing in existingItems) {
+							 if ((existing.Name == cmd.NewName) && (existing.Type == item.Type)) {
+								if (MessageBox.Show("An item named '" + existing.Name + "' already exists. Do still want to move?", Application.ProductName, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) {
+								    cancel = true;
+								} else {
+								    cmdDelete = new DeleteStartItemCommand(existing, startManager);
+								}
+								break;
+							 }
+						  }
+						  if (cancel) { continue; } // go to next one
+						  if (cmdDelete != null) group.Commands.Add(cmdDelete);
 						  group.Commands.Add(cmd);
 						  _itemList.Items.Remove(listItem);
 					   }
@@ -558,19 +627,31 @@ namespace SMOz.UI
 	   #endregion
 
 	   private void _itemList_AfterLabelEdit(object sender, LabelEditEventArgs e) {
+		  StartItem startItem = (StartItem)_itemList.Items[e.Item].Tag;
+
 		  if (!string.IsNullOrEmpty(e.Label)) {
 			 if (Utility.IsValidFileName(e.Label)) {
-				StartItem startItem = (StartItem)_itemList.Items[e.Item].Tag;
-				RenameStartItemCommand renameCmd = new RenameStartItemCommand(startItem, e.Label);
-				renameCmd.Execute();
-				AddUndoCommand(renameCmd);
+				string newName = e.Label;
+				if (startItem.Type == StartItemType.File) newName += Path.GetExtension(startItem.Name);
+
+				RenameStartItemCommand renameCmd = new RenameStartItemCommand(startItem, newName);
+				if (renameCmd.OldName != renameCmd.NewName) {
+				    StartItem[] matches = startManager.GetByName(renameCmd.NewName, startItem.Category);
+				    if ((matches.Length > 0) && (matches[0].Type == startItem.Type)) {
+					   e.CancelEdit = true;
+					   _statusLabel.Text = "A folder by this name already exists";
+				    } else {
+					   renameCmd.Execute();
+					   AddUndoCommand(renameCmd);
+				    }
+				}
 			 } else {
 				e.CancelEdit = true;
-				_statusLabel.Text = "Entered Name Is Not Valid";
+				_statusLabel.Text = Language.EnteredNameIsNotValid;
 			 }
 		  } else {
 			 e.CancelEdit = true;
-			 _statusLabel.Text = "Entered Name Is Not Valid";
+			 _statusLabel.Text = Language.EnteredNameIsNotValid;
 		  }
 	   }
 
@@ -584,7 +665,7 @@ namespace SMOz.UI
 	   private void deleteToolStripMenuItem_Click(object sender, EventArgs e) {
 		  if ((_itemList.SelectedItems != null) && (_itemList.SelectedItems.Count > 0)) {
 
-			 CommandGroup group = new CommandGroup("Delete " + _itemList.SelectedItems.Count.ToString() + " items");
+			 CommandGroup group = new CommandGroup(string.Format(Language.DeleteItemsFormat, _itemList.SelectedItems.Count));
 			 foreach (ListViewItem listItem in _itemList.SelectedItems) {
 				StartItem item = (StartItem)listItem.Tag;
 				DeleteStartItemCommand cmd = new DeleteStartItemCommand(item, this.startManager);
@@ -650,7 +731,7 @@ namespace SMOz.UI
 				}
 
 				if (commands.Count > 0) {
-				    CommandGroup group = new CommandGroup("Move " + commands.Count.ToString() + " items", commands);
+				    CommandGroup group = new CommandGroup(string.Format(Language.MoveItemsFormat, commands.Count), commands);
 
 				    group.Execute();
 
@@ -683,7 +764,7 @@ namespace SMOz.UI
 
 	   private void applyChangesToolStripMenuItem_Click(object sender, EventArgs e) {
 
-		  if ((redoQueue.Count > 0) && (redoQueue.Peek().Name == "Apply Changes")) {
+		  if ((redoQueue.Count > 0) && (redoQueue.Peek().Name == Language.ApplyChanges)) {
 			 // ...
 			 Redo();
 		  }
@@ -692,7 +773,7 @@ namespace SMOz.UI
 		  foreach (Command command in undoQueue) {
 			 if (command.Type == SMOz.Commands.CommandType.Group) {
 				CommandGroup group = command as CommandGroup;
-				if (group.Name == "Apply Changes") {
+				if (group.Name == Language.ApplyChanges) {
 				    // Stop when the last Apply Changes is found
 				    break;
 				}
@@ -700,7 +781,7 @@ namespace SMOz.UI
 			 ConvertCommands(result, command);
 		  }
 		  if (result.Count <= 0) {
-			 MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			 MessageBox.Show(Language.NothingToDoMessage, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			 return;
 		  }
 
@@ -711,24 +792,25 @@ namespace SMOz.UI
 			    if (cmd.Type == SMOz.Commands.CommandType.IODelete) {
 				   review.Add(Command.TypeToString(cmdMove.Type),
 					 cmdMove.Source.Replace("Documents and Settings", "...")
-					 .Replace("Start Menu\\Programs", "..."), "Trash");
+					 .Replace("Start Menu\\Programs", "..."), "Trash", cmdMove.MayFail);
 			    } else {
 				   review.Add(Command.TypeToString(cmdMove.Type),
 					 cmdMove.Source.Replace("Documents and Settings", "...")
 					 .Replace("Start Menu\\Programs", "..."),
 					 "to " + cmdMove.Target.Replace("Documents and Settings", "...")
-					 .Replace("Start Menu\\Programs", "..."));
+					 .Replace("Start Menu\\Programs", "..."), cmdMove.MayFail);
 			    }
 			 }
 			 if (review.ShowDialog(this) == DialogResult.OK) {
-				localWatcher.EnableRaisingEvents = false;
-				userWatcher.EnableRaisingEvents = false;
+//				localWatcher.EnableRaisingEvents = false;
+//				userWatcher.EnableRaisingEvents = false;
 				if (ApplyRealChanges(result)) {
-				    CommandGroup group = new CommandGroup("Apply Changes", result);
+				    CommandGroup group = new CommandGroup(Language.ApplyChanges, result);
 				    AddUndoCommand(group);
+				    _statusLabel.Text = "Changes successfully applied";
 				}
-				localWatcher.EnableRaisingEvents = true;
-				userWatcher.EnableRaisingEvents = true;
+//				localWatcher.EnableRaisingEvents = true;
+//				userWatcher.EnableRaisingEvents = true;
 			 }
 		  }
 	   }
@@ -736,8 +818,9 @@ namespace SMOz.UI
 	   private bool ApplyRealChanges(List<Command> commands) {
 		  bool revert = false;
 		  int revertBegin = 0;
+		  Exception ex = null;
 		  for (int i = 0; i < commands.Count; i++) {
-			 if (!ApplyRealChange(commands[i])) {
+			 if (!ApplyRealChange(commands[i], out ex)) {
 				revertBegin = i;
 				revert = true;
 				break;
@@ -745,21 +828,24 @@ namespace SMOz.UI
 		  }
 
 		  if (revert) {
-			 MessageBox.Show("One of the operation (" + commands[revertBegin].Name + ") failed. Changes will be restored.");
+			 MessageBox.Show(string.Format(Language.OperationFailedMessageFormat, commands[revertBegin].Name, ex.Message), Application.ProductName, MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
 			 for (int i = revertBegin - 1; i >= 0; i--) {
 				commands[i].UnExecute();
 			 }
 		  }
 
+		  categoryCache.Invalidate();
 		  return !revert;
 	   }
 
-	   private bool ApplyRealChange(Command command) {
+	   private bool ApplyRealChange(Command command, out Exception exception) {
 		  try {
 			 command.Execute();
-		  } catch {
+		  } catch (Exception ex){
+			 exception = ex;
 			 return false;
 		  }
+		  exception = null;
 		  return true;
 	   }
 
@@ -800,7 +886,7 @@ namespace SMOz.UI
 	   }
 
 	   private void ResetSearch() {
-		  if (_categoryTree.SelectedNode.Name == "<Search Results>") {
+		  if (_categoryTree.SelectedNode.Name == Language.SearchResultsNodeName) {
 			 if (_categoryTree.SelectedNode.NextNode != null) {
 				UpdateItemList(_categoryTree.SelectedNode.NextNode.Name);
 			 } else if (_categoryTree.SelectedNode.PrevNode != null) {
@@ -812,15 +898,15 @@ namespace SMOz.UI
 		  } else {
 			 UpdateItemList(_categoryTree.SelectedNode.Name);
 		  }
-		  _categoryTree.Nodes.RemoveByKey("<Search Results>");
+		  _categoryTree.Nodes.RemoveByKey(Language.SearchResultsNodeName);
 	   }
 
 	   private void CreateSearchResultsNode() {
-		  if (!_categoryTree.Nodes.ContainsKey("<Search Results>")) {
-			 TreeNode node = new TreeNode("<Search Results>");
+		  if (!_categoryTree.Nodes.ContainsKey(Language.SearchResultsNodeName)) {
+			 TreeNode node = new TreeNode(Language.SearchResultsNodeName);
 			 node.ImageIndex = 4;
 			 node.SelectedImageIndex = 4;
-			 node.Name = "<Search Results>";
+			 node.Name = Language.SearchResultsNodeName;
 			 _categoryTree.Nodes.Insert(-1, node);
 		  }
 	   }
@@ -842,7 +928,7 @@ namespace SMOz.UI
 				    CreateSearchResultsNode();
 				    result = startManager.GetByPattern(pattern);
 				} else {
-				    _categoryTree.Nodes.RemoveByKey("<Search Results>");
+				    _categoryTree.Nodes.RemoveByKey(Language.SearchResultsNodeName);
 				    result = startManager.GetByPattern(pattern, _categoryTree.SelectedNode.Name);
 				}
 			 } catch (Exception) {
@@ -856,9 +942,9 @@ namespace SMOz.UI
 			 ListViewItem[] listItems = StartItemsToListItems(result);
 			 _itemList.Items.AddRange(listItems);
 			 if (allToolStripMenuItem.Checked) {
-				categoryCache.Invalidate("<Search Results>");
-				categoryCache.AddResults("<Search Results>", listItems);
-				_categoryTree.SelectedNode = _categoryTree.Nodes.Find("<Search Results>", false)[0];
+				categoryCache.Invalidate(Language.SearchResultsNodeName);
+				categoryCache.AddResults(Language.SearchResultsNodeName, listItems);
+				_categoryTree.SelectedNode = _categoryTree.Nodes.Find(Language.SearchResultsNodeName, false)[0];
 			 }
 		  }
 		  _itemList.EndUpdate();
@@ -905,7 +991,7 @@ namespace SMOz.UI
 
 	   void ApplyTemplate(MoveStartItemCommand[] commands, string name) {
 		  if ((commands == null) || (commands.Length <= 0)) {
-			 MessageBox.Show("Sorry, But there is nothing to do!", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			 MessageBox.Show(Language.NothingToDoMessage, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			 return;
 		  }
 
@@ -919,7 +1005,7 @@ namespace SMOz.UI
 			 }
 
 			 if (review.ShowDialog(this) == DialogResult.OK) {
-				CommandGroup group = new CommandGroup("Apply Template", commands);
+				CommandGroup group = new CommandGroup(Language.ApplyTemplate, commands);
 				AddUndoCommand(group, true);
 				categoryCache.Invalidate();
 				UpdateItemList();
@@ -953,6 +1039,10 @@ namespace SMOz.UI
 				convertToCategoryToolStripMenuItem.Enabled = false;
 			 } else {
 				convertToCategoryToolStripMenuItem.Enabled = true;
+			 }
+			 moveToToolStripMenuItem.DropDownItems.Clear();
+			 foreach (string category in KnownCategories.Instance) {
+				moveToToolStripMenuItem.DropDownItems.Add(category);
 			 }
 		  }
 	   }
@@ -1030,11 +1120,11 @@ namespace SMOz.UI
 				
 			 } else {
 				e.CancelEdit = true;
-				_statusLabel.Text = "Entered Name Is Not Valid";
+				_statusLabel.Text = Language.EnteredNameIsNotValid;
 			 }
 		  } else {
 			 e.CancelEdit = true;
-			 _statusLabel.Text = "Entered Name Is Not Valid";
+			 _statusLabel.Text = Language.EnteredNameIsNotValid;
 		  }
 	   }
 
@@ -1106,7 +1196,7 @@ namespace SMOz.UI
 				_statusLabel.Text = _itemList.SelectedItems.Count + " Items Selected";
 			 }
 		  } else {
-			 _statusLabel.Text = "Nothing Selected";
+			 _statusLabel.Text = Language.NothingSelected;
 		  }
 	   }
 
@@ -1260,11 +1350,9 @@ namespace SMOz.UI
 	   }
 
 	   private void LocateOnDisk(StartItem item) {
-		  if (item.HasLocal) {
-			 LocateOnDisk(item.LocalPath);
-		  }
-		  if (item.HasUser) {
-			 LocateOnDisk(item.UserPath);
+		  string[] validPaths = item.GetValidPaths();
+		  for (int i = 0; i < validPaths.Length; i++) {
+			 LocateOnDisk(validPaths[i]);
 		  }
 	   }
 
@@ -1299,7 +1387,10 @@ namespace SMOz.UI
 
 	   private void preferencesToolStripMenuItem_Click(object sender, EventArgs e) {
 		  using (Preferences prefs = new Preferences()) {
-			 prefs.ShowDialog();
+			 prefs.ShowDialog(this);
+			 if (prefs.NeedReScanning) {
+				Reload();
+			 }
 		  }
 	   }
 
@@ -1391,9 +1482,9 @@ namespace SMOz.UI
 	   private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
 		  using (AboutBox about = new AboutBox()) {
 			 List<InformationPage> ipages = new List<InformationPage>(3);
-			 ipages.Add(new InformationPage("Version", Program.GetVersionInfo()));
-			 ipages.Add(new InformationPage("License", Program.GetLicenseInfo()));
-			 ipages.Add(new InformationPage("Contributors", Program.GetContributionInfo()));
+			 ipages.Add(new InformationPage(Language.Version, Program.GetAboutVersion()));
+			 ipages.Add(new InformationPage(Language.License, Language.AboutLicense));
+			 ipages.Add(new InformationPage(Language.Contributors, Program.GetAboutContributors()));
 			 about.PageCollection = ipages;
 
 			 about.ProductName = "Start Menu Organizer";
