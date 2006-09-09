@@ -33,6 +33,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using System.Diagnostics;
 using SMOz.Resources.Localization;
+using SMOz.StartMenu;
 
 namespace SMOz
 {
@@ -43,6 +44,7 @@ namespace SMOz
 	   /// </summary>
 	   [STAThread]
 	   static void Main() {
+
 #if RELEASE
 		  try {
 #endif

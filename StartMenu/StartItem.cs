@@ -74,7 +74,7 @@ namespace SMOz.StartMenu
     };
 
     /// <summary>
-    /// A file or directory located at two different places to once!
+    /// A file or directory located at one or more places
     /// </summary>
     [Serializable]
     public class StartItem : IComparable<StartItem>

@@ -42,6 +42,7 @@ using SMOz.Commands.IO;
 using Nithin.Philips.Utilities.AboutBox;
 using SMOz.Resources.Localization;
 using SMOz.User;
+using System.Threading;
 
 namespace SMOz.UI
 {
@@ -50,14 +51,11 @@ namespace SMOz.UI
 	   public MainForm() {
 		  InitializeComponent();
 		  this.Icon = SMOz.Properties.Resources.Application;
-
-		  Reload();
-		  
-
-		  SysImageListHelper.SetTreeViewImageList(_categoryTree, treeIconList, false);
-
 		  SetView(View.Tile);
 		  openToolStripMenuItem.Font = new Font(openToolStripMenuItem.Font, FontStyle.Bold);
+		  SysImageListHelper.SetTreeViewImageList(_categoryTree, treeIconList, false);
+
+		  Reload();
 //		  SetupFileSystemWatchers();
 	   }
 
@@ -65,7 +63,6 @@ namespace SMOz.UI
 		  this.startManager = new StartManager();
 		  this.undoQueue.Clear();
 		  this.redoQueue.Clear();
-		  this.categoryCache.Invalidate();
 		  this._categoryTree.Nodes.Clear();
 		  this._itemList.Items.Clear();
 
@@ -240,7 +237,6 @@ namespace SMOz.UI
 		  string localFull = Path.Combine(Utility.LOCAL_START_ROOT, category);
 		  string userFull = Path.Combine(Utility.USER_START_ROOT, category);
 
-
 		  if (Settings.Instance.ScanLocalPath && Directory.Exists(localFull)) { AddToManager(localFull, category, Utility.LOCAL_START_ROOT.Length); }
 		  if (Settings.Instance.ScanUserPath && Directory.Exists(userFull)) { AddToManager(userFull, category, Utility.USER_START_ROOT.Length); }
 
@@ -322,38 +318,43 @@ namespace SMOz.UI
 	   }
 
 	   private void Undo() {
-		  // This is just in case any real changes are made
-//		  localWatcher.EnableRaisingEvents = false;
-//		  userWatcher.EnableRaisingEvents = false;
-
 		  Debug.Assert(undoQueue.Count != 0);
 		  Command cmd = undoQueue.Pop();
 		  cmd.UnExecute();
 		  redoQueue.Push(cmd);
 
 		  UpdateItemListAfterUndoRedo(cmd, true);
-
-//		  localWatcher.EnableRaisingEvents = true;
-//		  userWatcher.EnableRaisingEvents = true;
 	   }
 
 	   private void Redo() {
-		  // This is just in case any real changes are made
-//		  localWatcher.EnableRaisingEvents = false;
-//		  userWatcher.EnableRaisingEvents = false;
-
 		  Debug.Assert(redoQueue.Count != 0);
 		  Command cmd = redoQueue.Pop();
 		  cmd.Execute();
 		  undoQueue.Push(cmd);
 
 		  UpdateItemListAfterUndoRedo(cmd, false);
-
-//		  localWatcher.EnableRaisingEvents = true;
-//		  userWatcher.EnableRaisingEvents = true;
 	   }
 
 	   private void UpdateItemListAfterUndoRedo(Command cmd, bool isUndo) {
+		  UpdateItemList(_categoryTree.SelectedNode.Name);
+		  DeleteStartItemCommand cmdDelete = cmd as DeleteStartItemCommand;
+		  MoveStartItemCommand cmdMove = cmd as MoveStartItemCommand;
+		  RenameStartItemCommand cmdRename = cmd as RenameStartItemCommand;
+		  ListViewItem item = null;
+		  if (cmdDelete != null) {
+			 item = FindItem(cmdDelete.StartItem);
+		  } else if (cmdMove != null) {
+			 item = FindItem(cmdMove.StartItem);
+		  } else if (cmdRename != null) {
+			 item = FindItem(cmdRename.StartItem);
+		  }
+
+		  if (item != null) {
+			 item.Selected = true;
+		  }
+	   }
+
+/*	   private void UpdateItemListAfterUndoRedo(Command cmd, bool isUndo) {
 		  RenameStartItemCommand renameCmd = cmd as RenameStartItemCommand;
 		  MoveStartItemCommand moveCmd = cmd as MoveStartItemCommand;
 		  DeleteStartItemCommand deleteCmd = cmd as DeleteStartItemCommand;
@@ -416,6 +417,7 @@ namespace SMOz.UI
 			 categoryCache.Invalidate();
 		  }
 	   }
+ */
 
 	   private void undoToolStripMenuItem_Click(object sender, EventArgs e) {
 		 Undo();
@@ -429,17 +431,6 @@ namespace SMOz.UI
 
 	   #endregion
 
-	   SearchCacheProvider<string, ListViewItem[]> categoryCache = new SearchCacheProvider<string, ListViewItem[]>(10);
-	   private ListViewItem[] GetListItemsCached(string category) {
-		  if (categoryCache.HasCache(category)) {
-			 return categoryCache.GetCachedResults(category);
-		  } else {
-			 ListViewItem[] result = GetListItems(category);
-			 categoryCache.AddResults(category, result);
-			 return result;
-		  }
-	   }
-
 	   private ListViewItem[] GetListItems(string category) {
 		  return StartItemsToListItems(startManager.GetByCategory(category));
 	   }
@@ -448,39 +439,78 @@ namespace SMOz.UI
 		  ListViewItem[] listItems = new ListViewItem[startItems.Length];
 
 		  for (int i = 0; i < startItems.Length; i++) {
-			 listItems[i] = StartItemToListItem(startItems[i]);
+			 listItems[i] = StartItemToListItem(startItems[i], false);
 		  }
 
+		  BeginSetIcons();
+		  
 		  return listItems;
 	   }
 
-	   private ListViewItem StartItemToListItem(StartItem startItem) {
+	   Dictionary<ListViewItem, string> iconInfo = new Dictionary<ListViewItem, string>();
+	   object iconInfoLock = new object();
+
+	   private void BeginSetIcons() {
+		  MethodInvoker setIcons = SetIcons;
+		  setIcons.BeginInvoke(null, null);
+	   }
+
+	   private void SetIcons() {
+		  lock (iconInfoLock) {
+			 SetIconDelegate setIconDlg = SetIcon;
+			 foreach (KeyValuePair<ListViewItem, string> pair in iconInfo) {
+				if (pair.Key != null) {
+				    int imageIndex = largeListIconList.IconIndex(pair.Value, true, ShellIconStateConstants.ShellIconStateNormal);
+				    this.BeginInvoke(setIconDlg, new object[] { pair.Key, imageIndex });
+				} else {
+				    Console.WriteLine("Empty: " + pair.Value);
+				}
+			 }
+			 iconInfo.Clear();
+		  }
+	   }
+
+	   private delegate void SetIconDelegate(ListViewItem item, int index);
+	   private void SetIcon(ListViewItem item, int index) {
+		  item.ImageIndex = index;
+	   }
+
+	   private ListViewItem StartItemToListItem(StartItem startItem, bool setIcon) {
 		  ListViewItem listItem;
-		  int imageIndex = 0; // Folder Icon?
 
 		  string[] validPaths = startItem.GetValidPaths();
 		  string path = (validPaths.Length >= 1) ? validPaths[0] : "";
 
 		  if (startItem.Type == StartItemType.File) {
 			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
-			 if (File.Exists(path)) {
-				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
-			 }
 		  } else {
 			 listItem = new ListViewItem(new string[] { Path.GetFileNameWithoutExtension(startItem.Name), startItem.Location.ToString(), startItem.Application });
-			 if (Directory.Exists(path)) {
-				imageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
-			 }
 		  }
 
 		  listItem.SubItems[1].ForeColor = SystemColors.GrayText;
 		  listItem.SubItems[2].ForeColor = SystemColors.GrayText;
 
-		  listItem.ImageIndex = imageIndex;
 		  listItem.Tag = startItem;
 		  listItem.Name = startItem.Name;
 
+		  if (setIcon) {
+			 listItem.ImageIndex = largeListIconList.IconIndex(path, true, ShellIconStateConstants.ShellIconStateNormal);
+		  } else {
+			 lock (iconInfoLock) {
+				iconInfo.Add(listItem, path);
+			 }
+		  }
+
 		  return listItem;
+	   }
+
+	   private ListViewItem FindItem(StartItem tag) {
+		  for (int i = 0; i < _itemList.Items.Count; i++) {
+			 if (_itemList.Items[i].Tag == tag) {
+				return _itemList.Items[i];
+			 }
+		  }
+		  return null;
 	   }
 
 	   private void UpdateItemList() {
@@ -490,7 +520,7 @@ namespace SMOz.UI
 	   private void UpdateItemList(string category) {
 		 _itemList.BeginUpdate();
 		 _itemList.Items.Clear();
-		 _itemList.Items.AddRange(GetListItemsCached(category));
+		 _itemList.Items.AddRange(GetListItems(category));
 		 ResizeListHeaders();
 		 _itemList.EndUpdate();
 	   }
@@ -606,7 +636,7 @@ namespace SMOz.UI
 				    }
 
 				    group.Execute();
-				    categoryCache.Invalidate();
+				    
 
 				    if (group.Commands.Count == 1) {
 					   this.AddUndoCommand(group.Commands[0]);
@@ -674,7 +704,7 @@ namespace SMOz.UI
 			 }
 
 			 group.Execute();
-			 categoryCache.Invalidate();
+
 
 			 if (group.Commands.Count == 1) {
 				this.AddUndoCommand(group.Commands[0]);
@@ -726,7 +756,7 @@ namespace SMOz.UI
 					   MoveStartItemCommand cmd = new MoveStartItemCommand(item, _categoryTree.SelectedNode.Name);
 					   commands.Add(cmd);
 				    }
-				    _itemList.Items.Add(StartItemToListItem(item));
+				    _itemList.Items.Add(StartItemToListItem(item, true));
 				    startManager.AddItem(item);
 				}
 
@@ -741,7 +771,7 @@ namespace SMOz.UI
 					   this.AddUndoCommand(group);
 				    }
 				}
-				categoryCache.Invalidate();
+
 			 }
 		  }
 	   } 
@@ -834,7 +864,7 @@ namespace SMOz.UI
 			 }
 		  }
 
-		  categoryCache.Invalidate();
+
 		  return !revert;
 	   }
 
@@ -942,8 +972,6 @@ namespace SMOz.UI
 			 ListViewItem[] listItems = StartItemsToListItems(result);
 			 _itemList.Items.AddRange(listItems);
 			 if (allToolStripMenuItem.Checked) {
-				categoryCache.Invalidate(Language.SearchResultsNodeName);
-				categoryCache.AddResults(Language.SearchResultsNodeName, listItems);
 				_categoryTree.SelectedNode = _categoryTree.Nodes.Find(Language.SearchResultsNodeName, false)[0];
 			 }
 		  }
@@ -1007,7 +1035,6 @@ namespace SMOz.UI
 			 if (review.ShowDialog(this) == DialogResult.OK) {
 				CommandGroup group = new CommandGroup(Language.ApplyTemplate, commands);
 				AddUndoCommand(group, true);
-				categoryCache.Invalidate();
 				UpdateItemList();
 			 }
 		  }
@@ -1145,7 +1172,6 @@ namespace SMOz.UI
 			 AddToManager(str);
 		  }
 		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
-		  categoryCache.Invalidate();
 		  _categoryTree.SelectedNode = _categoryTree.Nodes.Find(startItem.Name, true)[0];
 	   }
 
@@ -1157,7 +1183,6 @@ namespace SMOz.UI
 			 AddToManager(str);
 		  }
 		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH); // Update
-		  categoryCache.Invalidate();
 		  _categoryTree.SelectedNode = _categoryTree.Nodes.Find(name, true)[0];
 	   }
 
@@ -1229,7 +1254,6 @@ namespace SMOz.UI
 		  StartItem item = new StartItem(parent.Name, StartItemType.Directory, grandParent);
 		  if (item.HasLocal || item.HasUser) {
 			 startManager.AddItem(item);
-			 categoryCache.Invalidate(grandParent);
 			 UpdateItemList(grandParent);
 			 _itemList.Items[parent.Name].Focused = true;
 			 _itemList.Focus();
@@ -1451,7 +1475,6 @@ namespace SMOz.UI
 			 }
 		  }
 		  startManager.LoadAssociationList(Utility.ASSOCIATION_LIST_FILE_PATH);
-		  categoryCache.Invalidate();
 	   } 
 
 	   private void MergeTemplate() {
