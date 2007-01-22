@@ -43,6 +43,7 @@ using Nithin.Philips.Utilities.AboutBox;
 using SMOz.Resources.Localization;
 using SMOz.User;
 using System.Threading;
+using System.Xml;
 
 namespace SMOz.UI
 {
@@ -1339,15 +1340,19 @@ namespace SMOz.UI
 
 	   private void SaveConfiguration() {
 		  using (SaveFileDialog dlgSave = new SaveFileDialog()) {
-			 dlgSave.FileName = "Start Menu.ini";
-			 dlgSave.Filter = "Configuration Files (*.ini)|*.ini|All Files (*.*)|*.*";
+			 dlgSave.FileName = "Start Menu";
+			 dlgSave.Filter = "Configuration File (*.ini)|*.ini|XML File (*.xml)|*.xml";
 			 if (dlgSave.ShowDialog(this) == DialogResult.OK) {
-				SaveConfiguration(dlgSave.FileName);
+				if (dlgSave.FilterIndex == 1) {
+				    SaveIniConfiguration(dlgSave.FileName);
+				} else if (dlgSave.FilterIndex == 2) {
+				    SaveXmlConfiguration(dlgSave.FileName);
+				}
 			 }
 		  }
 	   }
 
-	   private void SaveConfiguration(string fileName) {
+	   private void SaveIniConfiguration(string fileName) {
 		  Ini.IniWriter writer = new SMOz.Ini.IniWriter();
 		  foreach (StartItem item in startManager.StartItems) {
 			 if (!string.IsNullOrEmpty(item.Category)) {
@@ -1355,7 +1360,35 @@ namespace SMOz.UI
 			 }
 		  }
 		  writer.Save(fileName);
-	   } 
+	   }
+	   private void SaveXmlConfiguration(string fileName) {
+		  Stream stream = File.OpenWrite(fileName);
+		  XmlTextWriter writer = new XmlTextWriter(stream, Encoding.UTF8);
+	 
+		  writer.Formatting = Formatting.Indented;
+		  writer.WriteStartDocument(true);
+
+		  writer.WriteStartElement("Smoz");
+		  Dictionary<string, List<string>> groups = new Dictionary<string, List<string>>();
+		  foreach (StartItem item in startManager.StartItems) {
+			 if (!groups.ContainsKey(item.Category)) {
+				groups.Add(item.Category, new List<string>());
+			 }
+			 groups[item.Category].Add(Path.GetFileName(item.Name));
+		  }
+
+		  foreach (KeyValuePair<string, List<string>> pair in groups) {
+			 writer.WriteStartElement("Category");
+			 writer.WriteAttributeString("name", pair.Key);
+			 foreach (string item in pair.Value) {
+				writer.WriteElementString("Item", item);
+			 }
+			 writer.WriteEndElement();
+		  }
+		  writer.WriteEndElement();
+		  writer.WriteEndDocument();
+		  writer.Close();
+	   }
 
 	   #endregion
 
