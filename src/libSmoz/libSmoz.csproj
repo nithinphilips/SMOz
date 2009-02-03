@@ -8,7 +8,7 @@
     <ProjectGuid>{18FE98B5-02BA-4738-ADC2-8E7C4BC7A580}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>libSmoz</RootNamespace>
+    <RootNamespace>LibSmoz</RootNamespace>
     <AssemblyName>libSmoz</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -45,7 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\ProgramCategory.cs" />
+    <Compile Include="Model\ProgramItem.cs" />
+    <Compile Include="Model\ProgramsMenu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Transformation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
