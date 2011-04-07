@@ -2,6 +2,7 @@
 *.user
 *.vsmdi
 *.vssscc
+*.vspscc
 *.testsettings
 *.trx
 bin/
