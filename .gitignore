@@ -1,0 +1,8 @@
+*.suo
+*.user
+*.vsmdi
+*.vssscc
+*.testsettings
+*.trx
+bin/
+obj/
