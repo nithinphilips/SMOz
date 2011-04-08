@@ -19,5 +19,3 @@ So, what does Afterthought do?  Quite simply, it allows you to:
 5. Amend constructors by either adding new constructors or modifying the logic of existing constructors
 6. Implement interfaces directly on a type leveraging existing properties/methods, adding new properties/methods, and allowing Afterthought to automatically implement everything else
 7. Configure your project to call Afterthought as a post-build step to apply the changes
-
-[[vc3os-sm.png]]
