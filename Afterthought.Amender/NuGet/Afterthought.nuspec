@@ -7,7 +7,7 @@
 	<description>An open source .NET compile-time code amender.</description>
 	<summary>Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added to the original source or is not convenient/efficient to do so.</summary>
 	<projectUrl>https://github.com/vc3/Afterthought</projectUrl>
-	<licenseUrl></licenseUrl>
+	<licenseUrl>https://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
   </metadata>
   <files>
 	<file src="..\bin\Debug\Afterthought.dll" target="lib"/>
