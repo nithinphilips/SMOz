@@ -5,23 +5,25 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{08156C78-403A-4112-AD81-8646AC51CD2F}</ProjectGuid>
+    <ProjectGuid>{319E151C-8F33-49E7-81C9-30F02F9BA90A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Cci</RootNamespace>
-    <AssemblyName>Microsoft.Cci.ILGenerator</AssemblyName>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <RootNamespace>Microsoft.Cci.MutableMetadataModel</RootNamespace>
+    <AssemblyName>Microsoft.Cci.MutableMetadataModel</AssemblyName>
+    <StartupObject>
+    </StartupObject>
     <SignAssembly>true</SignAssembly>
+    <CodeAnalysisRules>-Microsoft.Design#CA1051;-Microsoft.Design#CA1033;-Microsoft.Design#CA1014;-Microsoft.Design#CA1060;-Microsoft.Design#CA1024;-Microsoft.Design#CA1062;-Microsoft.Maintainability#CA1500;-Microsoft.Naming#CA1718;-Microsoft.Naming#CA1720;-Microsoft.Naming#CA1708;-Microsoft.Naming#CA1711;-Microsoft.Naming#CA1716;-Microsoft.Naming#CA1719;-Microsoft.Performance#CA1805;-Microsoft.Performance#CA1814;-Microsoft.Security#CA2105;-Microsoft.Security#CA2104</CodeAnalysisRules>
+    <DocumentationFile>bin\$(Configuration)\Microsoft.Cci.MutableMetadataModel.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -46,9 +48,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AssemblyOriginatorKeyFile>..\Common\InterimKey.snk</AssemblyOriginatorKeyFile>
-    <DocumentationFile>bin\Debug\Microsoft.Cci.ILGenerator.XML</DocumentationFile>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <NoWarn>
+    </NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -58,28 +62,59 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AssemblyOriginatorKeyFile>..\Common\InterimKey.snk</AssemblyOriginatorKeyFile>
-    <DocumentationFile>bin\Release\Microsoft.Cci.ILGenerator.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Microsoft.Cci.MutableMetadataModel.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NightlyDebug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\NightlyDebug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <AssemblyOriginatorKeyFile>..\Common\ToolsPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NightlyRelease|AnyCPU' ">
+    <OutputPath>bin\NightlyRelease\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <AssemblyOriginatorKeyFile>..\Common\ToolsPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'CompilerOnly|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\CompilerOnly\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>bin\Debug\Microsoft.Cci.ILGenerator.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Microsoft.Cci.MutableMetadataModel.XML</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\common\include\version.cs">
       <Link>Build\version.cs</Link>
     </Compile>
-    <Compile Include="ILGenerator.cs" />
-    <Compile Include="MethodBody.cs" />
+    <Compile Include="Copier.cs" />
+    <Compile Include="Expressions.cs" />
+    <Compile Include="Members.cs" />
+    <Compile Include="Miscellaneous.cs" />
+    <Compile Include="Mutator.cs" />
+    <Compile Include="Namespaces.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types.cs" />
+    <Compile Include="Units.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MetadataHelper\MetadataHelper.csproj">
@@ -94,10 +129,9 @@
       <Project>{B114E5FF-F2A2-4BE7-8AF1-936FC87030F0}</Project>
       <Name>Microsoft.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SourceModel\SourceModel.csproj">
-      <Project>{4B0054FD-124A-4037-9965-BDB55E6BF389}</Project>
-      <Name>SourceModel</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -105,29 +139,16 @@
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
+      <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

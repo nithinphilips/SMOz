@@ -14,10 +14,6 @@
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -62,39 +58,39 @@
       <Project>{0857EBD2-0AE9-4FE2-B9D9-E3D5F924F0F0}</Project>
       <Name>Afterthought</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ILGenerator\ILGenerator.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\ILGenerator\ILGenerator.csproj">
       <Project>{08156C78-403A-4112-AD81-8646AC51CD2F}</Project>
       <Name>ILGenerator</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MetadataHelper\MetadataHelper.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\MetadataHelper\MetadataHelper.csproj">
       <Project>{4A34A3C5-6176-49D7-A4C5-B2B671247F8F}</Project>
       <Name>MetadataHelper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MetadataModel\MetadataModel.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\MetadataModel\MetadataModel.csproj">
       <Project>{33CAB640-0D03-43DF-81BD-22CDC6C0A597}</Project>
       <Name>MetadataModel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MutableMetadataModel\MutableMetadataModel.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\MutableMetadataModel\MutableMetadataModel.csproj">
       <Project>{319E151C-8F33-49E7-81C9-30F02F9BA90A}</Project>
       <Name>MutableMetadataModel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PdbReader\PdbReader.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\PdbReader\PdbReader.csproj">
       <Project>{A6A31B03-7C3D-4DE6-AA73-BE88116BC40A}</Project>
       <Name>PdbReader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PdbWriter\PdbWriter.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\PdbWriter\PdbWriter.csproj">
       <Project>{6D83F687-ABB5-40B3-915E-CA53DA0EB7F3}</Project>
       <Name>PdbWriter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeReader\PeReader.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\PeReader\PeReader.csproj">
       <Project>{34B9A0CE-DF18-4CBC-8F7A-90C2B74338D5}</Project>
       <Name>PeReader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeWriter\PeWriter.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\PeWriter\PeWriter.csproj">
       <Project>{304A8B0B-851B-4AA6-A17D-5F87F39C5E5C}</Project>
       <Name>PeWriter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SourceModel\SourceModel.csproj">
+    <ProjectReference Include="..\Microsoft.CCI\SourceModel\SourceModel.csproj">
       <Project>{4B0054FD-124A-4037-9965-BDB55E6BF389}</Project>
       <Name>SourceModel</Name>
     </ProjectReference>

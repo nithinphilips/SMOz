@@ -1,26 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B114E5FF-F2A2-4BE7-8AF1-936FC87030F0}</ProjectGuid>
+    <ProjectGuid>{34B9A0CE-DF18-4CBC-8F7A-90C2B74338D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Contracts</RootNamespace>
-    <AssemblyName>Microsoft.Contracts</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <StartupObject>
-    </StartupObject>
+    <RootNamespace>Microsoft.Cci</RootNamespace>
+    <AssemblyName>Microsoft.Cci.PeReader</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>InterimKey.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -36,65 +34,37 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LITTLEENDIAN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
-    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
-    <CodeContractsRuntimeThrowOnFailure>False</CodeContractsRuntimeThrowOnFailure>
-    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
-    <CodeContractsBoundsObligations>False</CodeContractsBoundsObligations>
-    <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
-    <CodeContractsPointerObligations>False</CodeContractsPointerObligations>
-    <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
-    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
-    <CodeContractsShowSquigglies>False</CodeContractsShowSquigglies>
-    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
-    <CodeContractsCustomRewriterAssembly>
-    </CodeContractsCustomRewriterAssembly>
-    <CodeContractsCustomRewriterClass>
-    </CodeContractsCustomRewriterClass>
-    <CodeContractsLibPaths>
-    </CodeContractsLibPaths>
-    <CodeContractsPlatformPath>
-    </CodeContractsPlatformPath>
-    <CodeContractsExtraAnalysisOptions>
-    </CodeContractsExtraAnalysisOptions>
-    <CodeContractsBaseLineFile>
-    </CodeContractsBaseLineFile>
-    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>DoNotBuild</CodeContractsReferenceAssembly>
+    <AssemblyOriginatorKeyFile>..\Common\InterimKey.snk</AssemblyOriginatorKeyFile>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <DocumentationFile>bin\Debug\Microsoft.Cci.PeReader.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;LITTLEENDIAN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyOriginatorKeyFile>..\Common\InterimKey.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>bin\Release\Microsoft.Cci.PeReader.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'FastpathSim|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'CompilerOnly|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\FastpathSim\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin\CompilerOnly\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;LITTLEENDIAN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\Microsoft.Cci.PeReader.xml</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
@@ -103,16 +73,45 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Contracts.cs" />
-    <Compile Include="ContractsEx.cs" />
+    <Compile Include="..\common\include\version.cs">
+      <Link>Build\version.cs</Link>
+    </Compile>
+    <Compile Include="Attributes.cs" />
+    <Compile Include="BinaryObjectModel.cs" />
+    <Compile Include="ILReader.cs" />
+    <Compile Include="Errors.cs" />
+    <Compile Include="ModuleReadWriteFactory.cs" />
+    <Compile Include="CoreTypes.cs" />
+    <Compile Include="Types.cs" />
+    <Compile Include="UnmanagedReadWrite.cs" />
+    <Compile Include="PEFileStructures.cs" />
+    <Compile Include="PEFileToObjectModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RuntimeContracts.cs" />
+    <Compile Include="PEFileReader.cs" />
+    <Compile Include="UtilityDataStructures.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MetadataHelper\MetadataHelper.csproj">
+      <Project>{4A34A3C5-6176-49D7-A4C5-B2B671247F8F}</Project>
+      <Name>MetadataHelper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MetadataModel\MetadataModel.csproj">
+      <Project>{33CAB640-0D03-43DF-81BD-22CDC6C0A597}</Project>
+      <Name>MetadataModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Contracts\Microsoft.Contracts.csproj">
+      <Project>{B114E5FF-F2A2-4BE7-8AF1-936FC87030F0}</Project>
+      <Name>Microsoft.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="InterimKey.snk" />
+    <EmbeddedResource Include="PeReaderErrorMessages.resx">
+      <SubType>Designer</SubType>
+      <LastGenOutput>ErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -131,7 +130,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

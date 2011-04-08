@@ -1,24 +1,24 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILGenerator", "ILGenerator\ILGenerator.csproj", "{08156C78-403A-4112-AD81-8646AC51CD2F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILGenerator", "Microsoft.CCI\ILGenerator\ILGenerator.csproj", "{08156C78-403A-4112-AD81-8646AC51CD2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataHelper", "MetadataHelper\MetadataHelper.csproj", "{4A34A3C5-6176-49D7-A4C5-B2B671247F8F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataHelper", "Microsoft.CCI\MetadataHelper\MetadataHelper.csproj", "{4A34A3C5-6176-49D7-A4C5-B2B671247F8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataModel", "MetadataModel\MetadataModel.csproj", "{33CAB640-0D03-43DF-81BD-22CDC6C0A597}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataModel", "Microsoft.CCI\MetadataModel\MetadataModel.csproj", "{33CAB640-0D03-43DF-81BD-22CDC6C0A597}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Contracts", "Microsoft.Contracts\Microsoft.Contracts.csproj", "{B114E5FF-F2A2-4BE7-8AF1-936FC87030F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Contracts", "Microsoft.CCI\Microsoft.Contracts\Microsoft.Contracts.csproj", "{B114E5FF-F2A2-4BE7-8AF1-936FC87030F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MutableMetadataModel", "MutableMetadataModel\MutableMetadataModel.csproj", "{319E151C-8F33-49E7-81C9-30F02F9BA90A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MutableMetadataModel", "Microsoft.CCI\MutableMetadataModel\MutableMetadataModel.csproj", "{319E151C-8F33-49E7-81C9-30F02F9BA90A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdbReader", "PdbReader\PdbReader.csproj", "{A6A31B03-7C3D-4DE6-AA73-BE88116BC40A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdbReader", "Microsoft.CCI\PdbReader\PdbReader.csproj", "{A6A31B03-7C3D-4DE6-AA73-BE88116BC40A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdbWriter", "PdbWriter\PdbWriter.csproj", "{6D83F687-ABB5-40B3-915E-CA53DA0EB7F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdbWriter", "Microsoft.CCI\PdbWriter\PdbWriter.csproj", "{6D83F687-ABB5-40B3-915E-CA53DA0EB7F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeReader", "PeReader\PeReader.csproj", "{34B9A0CE-DF18-4CBC-8F7A-90C2B74338D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeReader", "Microsoft.CCI\PeReader\PeReader.csproj", "{34B9A0CE-DF18-4CBC-8F7A-90C2B74338D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeWriter", "PeWriter\PeWriter.csproj", "{304A8B0B-851B-4AA6-A17D-5F87F39C5E5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeWriter", "Microsoft.CCI\PeWriter\PeWriter.csproj", "{304A8B0B-851B-4AA6-A17D-5F87F39C5E5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceModel", "SourceModel\SourceModel.csproj", "{4B0054FD-124A-4037-9965-BDB55E6BF389}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceModel", "Microsoft.CCI\SourceModel\SourceModel.csproj", "{4B0054FD-124A-4037-9965-BDB55E6BF389}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Afterthought", "Afterthought\Afterthought.csproj", "{0857EBD2-0AE9-4FE2-B9D9-E3D5F924F0F0}"
 EndProject
@@ -26,11 +26,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Afterthought.UnitTest", "Af
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{117576C5-77C6-4851-B271-5B0AAB147E7F}"
 	ProjectSection(SolutionItems) = preProject
-		Afterthought.vsmdi = Afterthought.vsmdi
 		License.txt = License.txt
 		Local.testsettings = Local.testsettings
 		README.md = README.md
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 		vc3os-sm.png = vc3os-sm.png
 	EndProjectSection
 EndProject
@@ -38,58 +36,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Afterthought.UnitTest.Targe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Afterthought.Amender", "Afterthought.Amender\Afterthought.Amender.csproj", "{FF39EADC-9D3C-40EB-A0EA-60C76C560D54}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.CCI", "Microsoft.CCI", "{0CDA2B39-B891-49AE-B67F-59E70534EE2B}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 15
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://vc3-cae-tfs-01.vc3.com:8080/tfs/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Afterthought\\Afterthought.csproj
-		SccProjectName1 = Afterthought
-		SccLocalPath1 = Afterthought
-		SccProjectUniqueName2 = ILGenerator\\ILGenerator.csproj
-		SccProjectName2 = ILGenerator
-		SccLocalPath2 = ILGenerator
-		SccProjectUniqueName3 = MetadataHelper\\MetadataHelper.csproj
-		SccProjectName3 = MetadataHelper
-		SccLocalPath3 = MetadataHelper
-		SccProjectUniqueName4 = MetadataModel\\MetadataModel.csproj
-		SccProjectName4 = MetadataModel
-		SccLocalPath4 = MetadataModel
-		SccProjectUniqueName5 = Microsoft.Contracts\\Microsoft.Contracts.csproj
-		SccProjectName5 = Microsoft.Contracts
-		SccLocalPath5 = Microsoft.Contracts
-		SccProjectUniqueName6 = MutableMetadataModel\\MutableMetadataModel.csproj
-		SccProjectName6 = MutableMetadataModel
-		SccLocalPath6 = MutableMetadataModel
-		SccProjectUniqueName7 = PdbReader\\PdbReader.csproj
-		SccProjectName7 = PdbReader
-		SccLocalPath7 = PdbReader
-		SccProjectUniqueName8 = PdbWriter\\PdbWriter.csproj
-		SccProjectName8 = PdbWriter
-		SccLocalPath8 = PdbWriter
-		SccProjectUniqueName9 = PeReader\\PeReader.csproj
-		SccProjectName9 = PeReader
-		SccLocalPath9 = PeReader
-		SccProjectUniqueName10 = PeWriter\\PeWriter.csproj
-		SccProjectName10 = PeWriter
-		SccLocalPath10 = PeWriter
-		SccProjectUniqueName11 = SourceModel\\SourceModel.csproj
-		SccProjectName11 = SourceModel
-		SccLocalPath11 = SourceModel
-		SccProjectUniqueName12 = Afterthought.UnitTest\\Afterthought.UnitTest.csproj
-		SccProjectName12 = Afterthought.UnitTest
-		SccLocalPath12 = Afterthought.UnitTest
-		SccProjectUniqueName13 = Afterthought.UnitTest.Target\\Afterthought.UnitTest.Target.csproj
-		SccProjectName13 = Afterthought.UnitTest.Target
-		SccLocalPath13 = Afterthought.UnitTest.Target
-		SccProjectUniqueName14 = Afterthought.Amender\\Afterthought.Amender.csproj
-		SccProjectName14 = Afterthought.Amender
-		SccLocalPath14 = Afterthought.Amender
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Afterthought.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CompilerOnly|Any CPU = CompilerOnly|Any CPU
 		CompilerOnly|Mixed Platforms = CompilerOnly|Mixed Platforms
@@ -624,5 +573,17 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4A34A3C5-6176-49D7-A4C5-B2B671247F8F} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{33CAB640-0D03-43DF-81BD-22CDC6C0A597} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{B114E5FF-F2A2-4BE7-8AF1-936FC87030F0} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{319E151C-8F33-49E7-81C9-30F02F9BA90A} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{A6A31B03-7C3D-4DE6-AA73-BE88116BC40A} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{6D83F687-ABB5-40B3-915E-CA53DA0EB7F3} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{34B9A0CE-DF18-4CBC-8F7A-90C2B74338D5} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{304A8B0B-851B-4AA6-A17D-5F87F39C5E5C} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{4B0054FD-124A-4037-9965-BDB55E6BF389} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
+		{08156C78-403A-4112-AD81-8646AC51CD2F} = {0CDA2B39-B891-49AE-B67F-59E70534EE2B}
 	EndGlobalSection
 EndGlobal
