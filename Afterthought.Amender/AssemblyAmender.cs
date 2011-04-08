@@ -428,6 +428,10 @@ namespace Afterthought.Amender
 				IPropertyDefinition propertyDef = GetCurrentType().Properties
 					.Where(p => p.Name.Value == interfaceName + methodName.Substring(4))
 					.FirstOrDefault();
+
+				// Ignore methods that are generated to implement properties defined on base types
+				if (propertyDef == null && interfaceName != "")
+					return methodBody;
 	
 				// Get the property Amendment
 				IPropertyAmendment propertyAmendment;

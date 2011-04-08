@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package>
+  <metadata>
+	<id>Afterthought</id>
+	<version>1.0.0</version>
+	<authors>Jamie Thomas</authors>
+	<description>An open source .NET compile-time code amender.</description>
+	<summary>Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added to the original source or is not convenient/efficient to do so.</summary>
+	<projectUrl>https://github.com/vc3/Afterthought</projectUrl>
+	<licenseUrl></licenseUrl>
+  </metadata>
+  <files>
+	<file src="..\bin\Debug\Afterthought.dll" target="lib"/>
+	<file src="..\bin\Debug\Afterthought.Amender.exe" />
+	<file src="..\bin\Debug\Microsoft.Cci.ILGenerator.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.MetadataHelper.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.MetadataModel.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.MutableMetadataModel.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.PdbReader.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.PdbWriter.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.PeReader.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.PeWriter.dll" />
+	<file src="..\bin\Debug\Microsoft.Contracts.dll" />
+	<file src="..\bin\Debug\Microsoft.Cci.SourceModel.dll" />
+  </files>
+</package>

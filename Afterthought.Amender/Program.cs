@@ -16,25 +16,31 @@ namespace Afterthought.Amender
 	{
 		static int Main(string[] args)
 		{
+			Amend(args);
+			return 0;
+		} 
+
+		internal static void Amend(params string[] targets)
+		{
 			// Ensure that at least one target assembly was specified
-			if (args == null || args.Length == 0)
+			if (targets == null || targets.Length == 0)
 				throw new ArgumentException("At least one target assembly must be specified.");
 
 			// Ensure that the target assemblies exist
-			foreach (var path in args)
+			foreach (var path in targets)
 			{
 				if (!File.Exists(path))
 					throw new ArgumentException("The specified target assembly, " + path + ", does not exist.");
 			}
 
 			// Determine the set of target directories and backup locations
-			var directories = args
+			var directories = targets
 				.Select(path => Path.GetDirectoryName(path).ToLower())
 				.Distinct()
 				.Select(directory => new { SourcePath = directory, BackupPath = Directory.CreateDirectory(Path.Combine(directory, "Backup")).FullName });
 
 			// Determine the set of dlls, pdbs, and backup files
-			var assemblies = args
+			var assemblies = targets
 				.Select(dllPath => new
 				{
 					DllPath = dllPath,
@@ -74,6 +80,10 @@ namespace Afterthought.Amender
 
 			// Get the set of amendments to apply from all of the specified assemblies
 			var amendments = assemblies.SelectMany(a => AmendmentAttribute.GetAmendments(System.Reflection.Assembly.LoadFrom(a.DllBackupPath))).ToList();
+
+			// Exit immediately if there are not amendments in the target assemblies
+			if (amendments.Count == 0)
+				return;
 
 			// Process each target assembly individually
 			foreach (var assembly in assemblies)
@@ -121,9 +131,6 @@ namespace Afterthought.Amender
 				}
 				Console.WriteLine(" (" + DateTime.Now.Subtract(start).TotalSeconds.ToString("0.000") + " seconds)");
 			}
-
-			// Exit successfully
-			return 0;
 		}
 	}
 }
