@@ -54,7 +54,7 @@ namespace Afterthought.Amender
 			{
 				foreach (var file in Directory.GetFiles(directory.SourcePath))
 				{
-					if (file.ToLower().EndsWith("dll") || file.ToLower().EndsWith("pdb"))
+					if (file.ToLower().EndsWith("exe") || file.ToLower().EndsWith("dll") || file.ToLower().EndsWith("pdb"))
 						File.Copy(file, Path.Combine(directory.BackupPath, Path.GetFileName(file)), true);
 				}
 			}
@@ -81,7 +81,7 @@ namespace Afterthought.Amender
 			// Get the set of amendments to apply from all of the specified assemblies
 			var amendments = assemblies.SelectMany(a => AmendmentAttribute.GetAmendments(System.Reflection.Assembly.LoadFrom(a.DllBackupPath))).ToList();
 
-			// Exit immediately if there are not amendments in the target assemblies
+			// Exit immediately if there are no amendments in the target assemblies
 			if (amendments.Count == 0)
 				return;
 
