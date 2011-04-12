@@ -63,5 +63,17 @@ namespace Afterthought.UnitTest
 			// Verify that the second parameter is always converted to 1
 			Assert.AreEqual(expected, Calculator.Divide(expected, 0));
 		}
+
+		/// <summary>
+		/// Tests modifying an existing method to completely replace the implementation.
+		/// </summary>
+		[TestMethod]
+		public void ImplementMethod()
+		{
+			var expected = 4 * 4;
+
+			// Verify that the implementation has been corrected by the amendment
+			Assert.AreEqual(expected, Calculator.Square(4));
+		}
 	}
 }

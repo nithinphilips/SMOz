@@ -214,47 +214,47 @@ namespace Afterthought
 
 			public delegate void ImplementMethodAction<P>(TAmended instance, string method, P parameters);
 
-			public void Implement(string name, ImplementMethodAction implementation)
+			public void Implement(ImplementMethodAction implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1>(string name, ImplementMethodAction<Parameter<P1>> implementation)
+			public void Implement<P1>(ImplementMethodAction<Parameter<P1>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2>(string name, ImplementMethodAction<Parameter<P1, P2>> implementation)
+			public void Implement<P1, P2>(ImplementMethodAction<Parameter<P1, P2>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3>(string name, ImplementMethodAction<Parameter<P1, P2, P3>> implementation)
+			public void Implement<P1, P2, P3>(ImplementMethodAction<Parameter<P1, P2, P3>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4>> implementation)
+			public void Implement<P1, P2, P3, P4>(ImplementMethodAction<Parameter<P1, P2, P3, P4>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5>> implementation)
+			public void Implement<P1, P2, P3, P4, P5>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6>> implementation)
+			public void Implement<P1, P2, P3, P4, P5, P6>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7>> implementation)
+			public void Implement<P1, P2, P3, P4, P5, P6, P7>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> implementation)
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
@@ -267,47 +267,47 @@ namespace Afterthought
 
 			public delegate R ImplementMethodFunc<P, R>(TAmended instance, string method, P parameters);
 
-			public void Implement<TResult>(string name, ImplementMethodFunc<TResult> implementation)
+			public void Implement<TResult>(ImplementMethodFunc<TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, TResult>(string name, ImplementMethodFunc<Parameter<P1>, TResult> implementation)
+			public void Implement<P1, TResult>(ImplementMethodFunc<Parameter<P1>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2>, TResult> implementation)
+			public void Implement<P1, P2, TResult>(ImplementMethodFunc<Parameter<P1, P2>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3>, TResult> implementation)
+			public void Implement<P1, P2, P3, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4>, TResult> implementation)
+			public void Implement<P1, P2, P3, P4, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> implementation)
+			public void Implement<P1, P2, P3, P4, P5, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> implementation)
+			public void Implement<P1, P2, P3, P4, P5, P6, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7>, TResult> implementation)
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> implementation)
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}

@@ -155,6 +155,11 @@ namespace Afterthought.UnitTest.Target
 				        return parameters;
 				    });
 				    break;
+
+				// Replace implementation of Square to correct coding error
+				case "Square":
+					method.Implement<int, int>((instance, methodName, parameters) => parameters.Param1 * parameters.Param1);
+					break;
 			}
 		}
 	}
