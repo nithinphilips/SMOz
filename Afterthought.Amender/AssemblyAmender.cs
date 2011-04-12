@@ -33,12 +33,14 @@ namespace Afterthought.Amender
 
 		Dictionary<string, ITypeAmendment> typeAmendments;
 		ITypeDefinition iTypeAmendment;
+		ITypeDefinition iAmendmentAttribute;
 
 		internal AssemblyAmender(IMetadataHost host, PdbReader pdbReader, IEnumerable<ITypeAmendment> typeAmendments)
 			: base(host, true)
 		{
 			this.typeAmendments = typeAmendments.ToDictionary(w => w.Type.FullName);
 			iTypeAmendment = ResolveType(typeof(ITypeAmendment));
+			iAmendmentAttribute = ResolveType(typeof(IAmendmentAttribute));
 		}
 
 		internal string TargetRuntimeVersion { get; set; }
@@ -80,6 +82,9 @@ namespace Afterthought.Amender
 		/// <returns>True if the type is amended, otherwise false</returns>
 		bool AmendType(TypeDefinition type)
 		{
+			// Remove all attributes implementing IAmendmentAttribute
+			type.Attributes.RemoveAll(attr => TypeHelper.Type1ImplementsType2(attr.Type.ResolvedType, iAmendmentAttribute));
+
 			// Get the Amendment for the current type definition
 			ITypeAmendment typeAmendment;
 			typeAmendments.TryGetValue(type.ToString(), out typeAmendment);
@@ -862,7 +867,11 @@ namespace Afterthought.Amender
 
 			// Implementation
 			if (methodAmendment.Implementation != null)
+			{
+				// Clear the original method body
+				il.Operations.Clear();
 				CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il);
+			}
 
 			// Emit the original method operations if the method implementation was not overriden
 			if (methodAmendment.MethodInfo != null && methodAmendment.Implementation == null)
@@ -873,7 +882,7 @@ namespace Afterthought.Amender
 				CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il);
 
 			// Or emit a return for new/overriden methods
-			else
+			if (methodAmendment.Implementation != null)
 				il.Emit(OperationCode.Ret);
 
 			// Update the method body
