@@ -93,5 +93,15 @@ namespace Afterthought.UnitTest.Target
 				return 1.61803398874m;
 			}
 		}
+
+		public int Multiply(int x, int y)
+		{
+			return x*y;
+		}
+
+		public int Divide(int x, int y)
+		{
+			return x/y;
+		}
 	}
 }

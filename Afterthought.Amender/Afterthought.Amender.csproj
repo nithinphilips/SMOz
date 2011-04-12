@@ -97,7 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="NuGet\Afterthought.nuspec" />
+    <None Include="NuGet\Afterthought.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NuGet\lib\" />

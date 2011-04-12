@@ -79,7 +79,7 @@ namespace Afterthought
 	public partial class Amendment<TType, TAmended> : Amendment
 	{
 		/// <summary>
-		/// Represents a method on a type with a return value of <see cref="M"/>.
+		/// Represents an amendment for a new or existing method on a type.
 		/// </summary>
 		public new class Method : Amendment.Method
 		{
@@ -193,6 +193,112 @@ namespace Afterthought
 			public static Method Create<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> create)
 			{
 				return new Method(name) { ImplementationMethod = create.Method };
+			}
+
+			#endregion
+
+			#region Implement (Action)
+
+			public delegate void ImplementMethodAction(TAmended instance, string method);
+
+			public delegate void ImplementMethodAction<P>(TAmended instance, string method, P parameters);
+
+			public void Implement(string name, ImplementMethodAction implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1>(string name, ImplementMethodAction<Parameter<P1>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2>(string name, ImplementMethodAction<Parameter<P1, P2>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3>(string name, ImplementMethodAction<Parameter<P1, P2, P3>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(string name, ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			#endregion
+
+			#region Implement (Func)
+
+			public delegate R ImplementMethodFunc<R>(TAmended instance, string method);
+
+			public delegate R ImplementMethodFunc<P, R>(TAmended instance, string method, P parameters);
+
+			public void Implement<TResult>(string name, ImplementMethodFunc<TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, TResult>(string name, ImplementMethodFunc<Parameter<P1>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(string name, ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> implementation)
+			{
+				ImplementationMethod = implementation.Method;
 			}
 
 			#endregion
@@ -363,9 +469,9 @@ namespace Afterthought
 
 			#region After (Func)
 
-			public delegate R AfterMethodFunc<R>(TAmended instance, string method);
+			public delegate R AfterMethodFunc<R>(TAmended instance, string method, R returnValue);
 
-			public delegate R AfterMethodFunc<P, R>(TAmended instance, string method, P parameters);
+			public delegate R AfterMethodFunc<P, R>(TAmended instance, string method, P parameters, R returnValue);
 
 			public void After<TResult>(AfterMethodFunc<TResult> after)
 			{

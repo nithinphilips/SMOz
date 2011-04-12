@@ -19,8 +19,7 @@ namespace Afterthought.UnitTest
 		}
 
 		/// <summary>
-		/// Tests explicitly implementing an interface property by specifying
-		/// a new property to add that implements the interface.
+		/// Tests adding a new public method to a type.
 		/// </summary>
 		[TestMethod]
 		public void AddMethod()
@@ -28,6 +27,30 @@ namespace Afterthought.UnitTest
 			var expected = 16 - 5;
 
 			Assert.AreEqual(expected, ((IMath)Calculator).Subtract(16, 5));
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code before the original method
+		/// implementation without affecting the values of the specified parameters.
+		/// </summary>
+		[TestMethod]
+		public void BeforeMethodWithoutChanges()
+		{
+			// Verify that the Multiply method also copies the output to the Result property
+			Assert.AreEqual(Calculator.Multiply(3, 4), Calculator.Result);
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code before the original method
+		/// implementation without affecting the values of the specified parameters.
+		/// </summary>
+		[TestMethod]
+		public void BeforeMethodWithChanges()
+		{
+			var expected = 18;
+
+			// Verify that the second parameter is always converted to 1
+			Assert.AreEqual(expected, Calculator.Divide(expected, 0));
 		}
 	}
 }

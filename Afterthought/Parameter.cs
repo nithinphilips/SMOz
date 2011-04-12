@@ -11,7 +11,7 @@ namespace Afterthought
 	/// </summary>
 	/// <remarks>
 	/// This class was created due to a desire to support .NET 3.5, which does not
-	/// include the <see cref="Parameter"/> class providing similar capabilities
+	/// include the <see cref="Tuple"/> class providing similar capabilities.
 	/// </remarks>
 	public abstract class Parameter
 	{}

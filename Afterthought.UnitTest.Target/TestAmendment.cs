@@ -46,7 +46,7 @@ namespace Afterthought.UnitTest.Target
 			ImplementInterface<IMath>(
 
 				// Pi
-			    new Property<decimal>("Pi") { Getter = (instance, property) => 3.14159m },
+				new Property<decimal>("Pi") { Getter = (instance, property) => 3.14159m },
 
 				// Subtract()
 				Method.Create<decimal, decimal, decimal>("Subtract", (instance, method, parameters) => parameters.Param1 - parameters.Param2)
@@ -63,47 +63,88 @@ namespace Afterthought.UnitTest.Target
 			
 		}
 
+		/// <summary>
+		/// Apply amendments to existing properties to implement the behavior being tested.
+		/// </summary>
+		/// <typeparam name="P"></typeparam>
+		/// <param name="property"></param>
 		public override void Amend<P>(Property<P> property)
 		{
-			// Modify Random1 getter set value of Random1 to GetRandom(1) before returning the underlying property value
-			if (property.Name == "Random1")
-				property.BeforeGet = (instance, propertyName) => instance.Random1 = instance.GetRandom(1);
-
-			// Modify Random2 to calculate a random number based on an assigned seed value
-			else if (property.Name == "Random2")
-				property.OfType<int>().AfterGet = (instance, propertyName, result) => instance.GetRandom(result);
-
-			// Modify ILog.e property
-			else if (property.Name == "Afterthought.UnitTest.Target.ILog.e")
-				property.OfType<decimal>().Getter = (instance, propertyName) => 2.71828m;
-
-			// Modify Random5 to be just a simple getter/setter using Result property as the backing store
-			else if (property.Name == "Random5")
+			switch (property.Name)
 			{
-				property.OfType<int>().Getter = (instance, propertyName) => instance.Result;
-				property.OfType<int>().Setter = (instance, propertyName, value) => instance.Result = value;
+				// Modify Random1 getter set value of Random1 to GetRandom(1) before returning the underlying property value
+				case "Random1":
+					property.BeforeGet = (instance, propertyName) => instance.Random1 = instance.GetRandom(1);
+					break;
+
+				// Modify Random2 to calculate a random number based on an assigned seed value
+				case "Random2":
+					property.OfType<int>().AfterGet = (instance, propertyName, result) => instance.GetRandom(result);
+					break;
+
+				// Modify ILog.e property
+				case "Afterthought.UnitTest.Target.ILog.e":
+					property.OfType<decimal>().Getter = (instance, propertyName) => 2.71828m;
+					break;
+
+				// Modify Random5 to be just a simple getter/setter using Result property as the backing store
+				case "Random5":
+					property.OfType<int>().Getter = (instance, propertyName) => instance.Result;
+					property.OfType<int>().Setter = (instance, propertyName, value) => instance.Result = value;
+					break;
+
+				// Update Result to equal the value assigned to CopyToResult
+				case "CopyToResult":
+					property.OfType<int>().BeforeSet = (instance, propertyName, oldValue, value) => { instance.Result = value; return value; };
+					break;
+
+				// Modify Add to add the old value to the value being assigned
+				case "Add":
+					property.OfType<int>().BeforeSet = (instance, propertyName, oldValue, value) => oldValue + value;
+					break;
+
+				// Initialize InitiallyThirteen to 13
+				case "InitiallyThirteen":
+					property.OfType<int>().Initializer = (instance, propertyName) => 13;
+					break;
+
+				// Initialize ExistingLazyRandomName
+				case "ExistingLazyRandomName":
+					property.OfType<string>().LazyInitializer = (instance, propertyName) => "r" + new Random().Next();
+					break;
 			}
-
-			// Update Result to equal the value assigned to CopyToResult
-			else if (property.Name == "CopyToResult")
-				property.OfType<int>().BeforeSet = (instance, propertyName, oldValue, value) => { instance.Result = value; return value; };
-
-			// Modify Add to add the old value to the value being assigned
-			else if (property.Name == "Add")
-				property.OfType<int>().BeforeSet = (instance, propertyName, oldValue, value) => oldValue + value;
-
-			// Initialize InitiallyThirteen to 13
-			else if (property.Name == "InitiallyThirteen")
-				property.OfType<int>().Initializer = (instance, propertyName) => 13;
-
-			// Initialize ExistingLazyRandomName
-			else if (property.Name == "ExistingLazyRandomName")
-				property.OfType<string>().LazyInitializer = (instance, propertyName) => "r" + new Random().Next();
 		}
-
+			
+		/// <summary>
+		/// Apply amendments to existing methods to implement the behavior being tested.
+		/// </summary>
+		/// <param name="method"></param>
 		public override void Amend(Method method)
 		{
-			
+			switch (method.Name)
+			{
+				// Modify Multiply to also set the Result property to the resulting value
+				case "Multiply" :
+				    method.Before<int, int>((instance, methodName, parameters) =>
+				    {
+				        instance.Result = parameters.Param1 * parameters.Param2;
+
+				        // Return null to indicate that the original parameters should not be modified
+				        return null;
+				    });
+				    break;
+
+				// Modify Divide to change the second parameter value to 1 every time
+				case "Divide":
+				    method.Before<int, int>((instance, methodName, parameters) =>
+				    {
+				        parameters.Param2 = 1;
+
+				        // Return the updated parameters to cause the new values to be used by the original implementation
+				        return parameters;
+				    });
+				    break;
+			}
 		}
 	}
 }

@@ -382,8 +382,12 @@ namespace Afterthought.Amender
 		public override MethodDefinition Mutate(MethodDefinition methodDef)
 		{
 			// Automatically make all private static methods have internal scope
-			if (TypeHelper.Type1ImplementsType2(GetCurrentType(), iTypeAmendment) && methodDef.IsStatic && methodDef.Visibility == TypeMemberVisibility.Private)
-				methodDef.Visibility = TypeMemberVisibility.Assembly;
+			if (TypeHelper.Type1ImplementsType2(GetCurrentType(), iTypeAmendment))
+			{
+				if (methodDef.IsStatic && methodDef.Visibility == TypeMemberVisibility.Private)
+					methodDef.Visibility = TypeMemberVisibility.Assembly;
+				return methodDef;
+			}
 
 			return base.Mutate(methodDef);
 		}
@@ -849,15 +853,15 @@ namespace Afterthought.Amender
 			if (methodAmendment.Implementation != null)
 				CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il);
 
+			// Emit the original method operations if the method implementation was not overriden
+			if (methodAmendment.MethodInfo != null && methodAmendment.Implementation == null)
+				il.EmitUntilReturn();
+
 			// After Method
 			if (methodAmendment.After != null)
 				CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il);
 
-			// Emit the original method operations
-			if (methodAmendment.MethodInfo != null)
-				il.EmitUntilReturn();
-
-			// Or emit a return for new methods
+			// Or emit a return for new/overriden methods
 			else
 				il.Emit(OperationCode.Ret);
 
@@ -998,7 +1002,7 @@ namespace Afterthought.Amender
 							il.Emit(OperationCode.Ldloc, args);
 
 							// Get the argument value
-							il.Emit(OperationCode.Call, argTypeDef.Properties.Where(p => p.Name.Value == "Item" + parameter.Index).First().Getter);
+							il.Emit(OperationCode.Call, GetProperty(argTypeDef, "Param" + (parameter.Index + 1)).Getter);
 
 							// Update the actual argument
 							il.Emit(OperationCode.Starg, parameter);
@@ -1013,6 +1017,20 @@ namespace Afterthought.Amender
 			// Otherwise, just call the target method
 			else
 				il.Emit(OperationCode.Call, methodDef);
+		}
+
+		/// <summary>
+		/// Get the property with the specified name on the current type or base types.
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="property"></param>
+		/// <returns></returns>
+		IPropertyDefinition GetProperty(ITypeDefinition type, string property)
+		{
+			var propertyDef = type.Properties.Where(p => p.Name.Value == property).FirstOrDefault();
+			if (propertyDef == null && type.BaseClasses.Any())
+				return GetProperty(type.BaseClasses.Select(t => t.ResolvedType).FirstOrDefault(), property);
+			return propertyDef;
 		}
 	
 		/// <summary>
