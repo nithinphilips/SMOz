@@ -49,7 +49,11 @@ namespace Afterthought
 			foreach (var type in assembly.GetTypes())
 			{
 				foreach (var amendment in type.GetCustomAttributes(true).OfType<IAmendmentAttribute>().SelectMany(attr => attr.GetAmendments(type)))
+				{
+					if (amendment is Amendment)
+						((Amendment)amendment).Initialize();
 					yield return amendment;
+				}
 			}
 		}
 	}

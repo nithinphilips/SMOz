@@ -19,11 +19,6 @@ namespace Afterthought.UnitTest.Target
 	public class TestAmendment<T> : Amendment<T,T>
 		where T : Calculator
 	{
-		public TestAmendment()
-		{
-			Build();
-		}
-
 		public override void Amend()
 		{
 			// public int Count { get; set; }

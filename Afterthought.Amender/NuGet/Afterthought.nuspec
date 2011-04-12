@@ -2,13 +2,17 @@
 <package>
   <metadata>
 	<id>Afterthought</id>
-	<version>1.0.1</version>
-	<authors>Jamie Thomas</authors>
+	<title>Afterthought</title>
+	<version>1.0.2</version>
+	<authors>Jamie Thomas, VC3</authors>
 	<summary>An open source .NET compile-time code amender.</summary>
-	<description>Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added to the original source or is not convenient/efficient to do so.</description>
+	<description>
+	  Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added to the original source or is not convenient/efficient to do so.
+	  The current version of Afterthought only supports .NET 4.0 assemblies due to a problem with Microsoft.CCI libraries.  A new version to fix this is on the way.
+	</description>
 	<projectUrl>https://github.com/vc3/Afterthought</projectUrl>
 	<licenseUrl>https://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
-	<copyright>Copyright 2011 VC3</copyright>
+	<tags>aop, aspect, postsharp, assembly, il, postcompile, injection, weaving, interception</tags>
   </metadata>
   <files>
 	<file src="..\bin\Debug\Afterthought.dll" target="lib"/>

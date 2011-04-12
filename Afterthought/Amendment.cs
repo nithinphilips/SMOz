@@ -27,6 +27,7 @@ namespace Afterthought
 	{
 		#region Fields
 
+		bool initialized;
 		internal List<Type> interfaces = new List<Type>();
 		internal List<Field> fields = new List<Field>();
 		internal List<Constructor> constructors = new List<Constructor>();
@@ -95,8 +96,13 @@ namespace Afterthought
 
 		#region Methods
 
-		protected void Build()
+		internal void Initialize()
 		{
+			// Exit if the amendment has already been initialized
+			if (initialized)
+				return;
+			initialized = true;
+
 			Type amendmentType = typeof(Amendment<,>).MakeGenericType(Type, AmendedType);
 
 			// Allow the amendment to perform type-level changes
