@@ -45,7 +45,7 @@ namespace Afterthought.UnitTest
 		/// implementation without affecting the values of the specified parameters.
 		/// </summary>
 		[TestMethod]
-		public void BeforeMethodWithoutChanges()
+		public void BeforeMethodWithoutChangesGeneric()
 		{
 			// Verify that the Multiply method also copies the output to the Result property
 			Assert.AreEqual(Calculator.Multiply(3, 4), Calculator.Result);
@@ -56,12 +56,36 @@ namespace Afterthought.UnitTest
 		/// implementation without affecting the values of the specified parameters.
 		/// </summary>
 		[TestMethod]
-		public void BeforeMethodWithChanges()
+		public void BeforeMethodWithoutChangesArray()
+		{
+			// Verify that the Multiply method also copies the output to the Result property
+			Assert.AreEqual(Calculator.Multiply2(3, 4), Calculator.Result);
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code before the original method
+		/// implementation without affecting the values of the specified parameters.
+		/// </summary>
+		[TestMethod]
+		public void BeforeMethodWithChangesGeneric()
 		{
 			var expected = 18;
 
 			// Verify that the second parameter is always converted to 1
 			Assert.AreEqual(expected, Calculator.Divide(expected, 0));
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code before the original method
+		/// implementation without affecting the values of the specified parameters.
+		/// </summary>
+		[TestMethod]
+		public void BeforeMethodWithChangesArray()
+		{
+			var expected = 18;
+
+			// Verify that the second parameter is always converted to 1
+			Assert.AreEqual(expected, Calculator.Divide2(expected, 0));
 		}
 
 		/// <summary>

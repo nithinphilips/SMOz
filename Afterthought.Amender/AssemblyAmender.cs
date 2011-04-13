@@ -932,7 +932,7 @@ namespace Afterthought.Amender
 						il.Emit(OperationCode.Ldloc, args);
 
 						// Add argument index to the stack
-						il.Emit(OperationCode.Ldc_I4, parameter.Index - 1);
+						il.Emit(OperationCode.Ldc_I4, parameter.Index);
 
 						// Load the argument
 						il.Emit(OperationCode.Ldarg, parameter);
@@ -971,14 +971,14 @@ namespace Afterthought.Amender
 							il.Emit(OperationCode.Ldloc, args);
 
 							// Load the index of the argument value
-							il.Emit(OperationCode.Ldc_I4, parameter.Index - 1);
+							il.Emit(OperationCode.Ldc_I4, parameter.Index);
 
 							// Get the argument value from the array
 							il.Emit(OperationCode.Ldelem_Ref);
 
 							// Unbox value types
 							if (parameter.Type.IsValueType)
-								il.Emit(OperationCode.Unbox, parameter.Type);
+								il.Emit(OperationCode.Unbox_Any, parameter.Type);
 
 							// Update the actual argument
 							il.Emit(OperationCode.Starg, parameter);

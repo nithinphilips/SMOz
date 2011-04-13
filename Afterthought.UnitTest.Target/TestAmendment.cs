@@ -140,6 +140,17 @@ namespace Afterthought.UnitTest.Target
 				    });
 				    break;
 
+				// Modify Multiply2 to also set the Result property to the resulting value
+				case "Multiply2":
+					method.Before((instance, methodName, parameters) =>
+					{
+						instance.Result = (int)parameters[0] * (int)parameters[1];
+
+						// Return null to indicate that the original parameters should not be modified
+						return null;
+					});
+					break;
+
 				// Modify Divide to change the second parameter value to 1 every time
 				case "Divide":
 				    method.Before<int, int>((instance, methodName, parameters) =>
@@ -150,6 +161,17 @@ namespace Afterthought.UnitTest.Target
 				        return parameters;
 				    });
 				    break;
+
+				// Modify Divide2 to change the second parameter value to 1 every time
+				case "Divide2":
+					method.Before((instance, methodName, parameters) =>
+					{
+						parameters[1] = 1;
+
+						// Return the updated parameters to cause the new values to be used by the original implementation
+						return parameters;
+					});
+					break;
 
 				// Replace implementation of Square to correct coding error
 				case "Square":
