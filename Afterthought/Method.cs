@@ -496,7 +496,7 @@ namespace Afterthought
 
 			public void After<P1, TResult>(AfterMethodFunc<Parameter<P1>, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 7)
+				if (MethodInfo.GetParameters().Length != 1)
 					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
@@ -504,7 +504,7 @@ namespace Afterthought
 
 			public void After<P1, P2, TResult>(AfterMethodFunc<Parameter<P1, P2>, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 8)
+				if (MethodInfo.GetParameters().Length != 2)
 					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
@@ -512,7 +512,7 @@ namespace Afterthought
 
 			public void After<P1, P2, P3, TResult>(AfterMethodFunc<Parameter<P1, P2, P3>, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 7)
+				if (MethodInfo.GetParameters().Length != 3)
 					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
@@ -520,7 +520,7 @@ namespace Afterthought
 
 			public void After<P1, P2, P3, P4, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4>, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 8)
+				if (MethodInfo.GetParameters().Length != 4)
 					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
@@ -528,7 +528,7 @@ namespace Afterthought
 
 			public void After<P1, P2, P3, P4, P5, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 7)
+				if (MethodInfo.GetParameters().Length != 5)
 					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
@@ -536,7 +536,7 @@ namespace Afterthought
 
 			public void After<P1, P2, P3, P4, P5, P6, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 8)
+				if (MethodInfo.GetParameters().Length != 6)
 					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
