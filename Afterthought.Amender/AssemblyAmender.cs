@@ -880,11 +880,16 @@ namespace Afterthought.Amender
 					il.EmitUntilReturn();
 			};
 
+			// Implement
+			if (methodAmendment.After == null || methodAmendment.After.ReturnType == typeof(void))
+			{
+				implement();
+				implement = null;
+			}
+
 			// After Method
 			if (methodAmendment.After != null)
 				CallMethodDelegate(methodBody, methodAmendment.After, false, il, implement);
-			else
-				implement();
 
 			// Or emit a return for new/overriden methods
 			if (methodAmendment.Implementation != null)

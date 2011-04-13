@@ -137,6 +137,19 @@ namespace Afterthought.UnitTest
 		}
 
 		/// <summary>
+		/// Tests modifying an existing method to run code after the original method
+		/// implementation that returns a value.
+		/// </summary>
+		[TestMethod]
+		public void AfterMethodFuncAsActionArray()
+		{
+			var expected = 15;
+			var inputs = new int[] { 1, 2, 3, 4, 5 };
+			Calculator.Sum3(inputs);
+			Assert.AreEqual(expected, inputs[4]);
+		}
+
+		/// <summary>
 		/// Tests modifying an existing method to completely replace the implementation.
 		/// </summary>
 		[TestMethod]

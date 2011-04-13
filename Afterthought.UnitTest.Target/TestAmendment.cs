@@ -212,6 +212,15 @@ namespace Afterthought.UnitTest.Target
 						return ((int[])parameters[0]).Sum();
 					});
 					break;
+
+				// Modify the input values but ignore the return value
+				case "Sum3":
+					method.After((instance, methodName, parameters) =>
+					{
+						for (int i = 1; i < ((int[])parameters[0]).Length; i++)
+							((int[])parameters[0])[i] = ((int[])parameters[0])[i - 1] + ((int[])parameters[0])[i];
+					});
+					break;
 			}
 		}
 	}

@@ -164,5 +164,15 @@ namespace Afterthought.UnitTest.Target
 		{
 			return 0;
 		}
+
+		/// <summary>
+		/// Will be amended to modify the input values and pass through the return value
+		/// </summary>
+		/// <param name="values"></param>
+		/// <returns></returns>
+		public long Sum3(int[] values)
+		{
+			return 0;
+		}
 	}
 }
