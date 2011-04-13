@@ -1249,7 +1249,8 @@ namespace Afterthought.Amender
 			return new GenericMethod()
 			{
 				Operations = genericType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault().Body.Operations,
-				Instance = new GenericMethodInstance(genericMethod, new ITypeReference[] { propertyDef.Type }, host.InternFactory)
+				Instance = genericMethod.GenericParameterCount == 0 ? genericMethod : new GenericMethodInstance(genericMethod, new ITypeReference[] { propertyDef.Type }, host.InternFactory)
+					
 			};
 		}
 
@@ -1280,7 +1281,7 @@ namespace Afterthought.Amender
 	internal class GenericMethod
 	{
 		public IEnumerable<IOperation> Operations { get; set; }
-		public GenericMethodInstance Instance { get; set; }
+		public IMethodReference Instance { get; set; }
 	}
 
 	internal static class MethodHelper
