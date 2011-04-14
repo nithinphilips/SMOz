@@ -33,6 +33,7 @@ namespace Afterthought
 		internal List<Constructor> constructors = new List<Constructor>();
 		internal List<Property> properties = new List<Property>();
 		internal List<Method> methods = new List<Method>();
+		internal List<Attribute> attributes = new List<Attribute>();
 
 		#endregion
 
@@ -52,11 +53,21 @@ namespace Afterthought
 
 		public abstract Type AmendedType { get; }
 
+		string IMemberAmendment.Name { get { return Type.FullName; } }
+
 		IEnumerable<Type> ITypeAmendment.Interfaces
 		{
 			get
 			{
 				return interfaces;
+			}
+		}
+
+		IEnumerable<IAttributeAmendment> IMemberAmendment.Attributes
+		{
+			get
+			{
+				return attributes.Cast<IAttributeAmendment>();
 			}
 		}
 
@@ -240,6 +251,15 @@ namespace Afterthought
 		/// <param name="method"></param>
 		public virtual void Amend(Method method)
 		{
+		}
+
+		/// <summary>
+		/// Allows subclasses to add new attributes to the types being woven
+		/// </summary>
+		/// <param name="attribute"></param>
+		public void AddAttribute(Attribute attribute)
+		{
+			attributes.Add(attribute);
 		}
 
 		/// <summary>

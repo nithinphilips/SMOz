@@ -17,10 +17,8 @@ using System.Reflection;
 
 namespace Afterthought
 {
-	public interface IPropertyAmendment
+	public interface IPropertyAmendment : IMemberAmendment
 	{
-		string Name { get; }
-
 		Type Type { get; }
 
 		PropertyInfo PropertyInfo { get; }

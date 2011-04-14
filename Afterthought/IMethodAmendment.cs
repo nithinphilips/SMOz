@@ -17,10 +17,8 @@ using System.Reflection;
 
 namespace Afterthought
 {
-	public interface IMethodAmendment
+	public interface IMethodAmendment : IMemberAmendment
 	{
-		string Name { get; }
-
 		Type ReturnType { get; }
 
 		MethodInfo MethodInfo { get; }

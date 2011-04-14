@@ -18,6 +18,7 @@ using Microsoft.Cci;
 using System.Runtime.Serialization;
 using System.IO;
 using Afterthought;
+using System.Collections;
 
 namespace Afterthought.Amender
 {
@@ -42,6 +43,8 @@ namespace Afterthought.Amender
 			iTypeAmendment = ResolveType(typeof(ITypeAmendment));
 			iAmendmentAttribute = ResolveType(typeof(IAmendmentAttribute));
 		}
+
+		private bool IsAmending { get; set; }
 
 		internal string TargetRuntimeVersion { get; set; }
 
@@ -82,6 +85,8 @@ namespace Afterthought.Amender
 		/// <returns>True if the type is amended, otherwise false</returns>
 		bool AmendType(TypeDefinition type)
 		{
+			IsAmending = false;
+
 			// Remove all attributes implementing IAmendmentAttribute
 			type.Attributes.RemoveAll(attr => TypeHelper.Type1ImplementsType2(attr.Type.ResolvedType, iAmendmentAttribute));
 
@@ -101,16 +106,26 @@ namespace Afterthought.Amender
 					return false;
 			}
 
+			IsAmending = true;
+
+			// Attributes
+			type = AddAttributes(type, typeAmendment);
+
 			// Add new fields
 			Fields = new Dictionary<IFieldDefinition, IFieldAmendment>();
-			foreach (var field in typeAmendment.Fields.Where(f => f.FieldInfo == null))
+			foreach (var field in typeAmendment.Fields)
 			{
-				type.Fields.Add(new FieldDefinition()
+				if (field.FieldInfo == null)
 				{
-					Name = host.NameTable.GetNameFor(field.Name),
-					Type = ResolveType(field.Type),
-					InternFactory = host.InternFactory,
-				});
+					type.Fields.Add(new FieldDefinition()
+					{
+						Name = host.NameTable.GetNameFor(field.Name),
+						Type = ResolveType(field.Type),
+						InternFactory = host.InternFactory,
+					});
+				}
+				else
+					Fields.Add(ResolveField(type, field.FieldInfo), field);
 			}
 
 			// Constructors
@@ -391,6 +406,133 @@ namespace Afterthought.Amender
 		}
 
 		/// <summary>
+		/// Generates <see cref="IMetadataExpression"/> information that encapsulates a given type and value
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		private IMetadataExpression GetMetadataExpression(Type type, object value)
+		{
+			var typeDef = ResolveType(type);
+
+			if (value == null)
+				return new MetadataConstant { Type = typeDef, Value = null };
+
+			if (typeof(Type).IsAssignableFrom(type))
+				return new MetadataTypeOf { Type = typeDef, TypeToGet = ResolveType((Type) value) };
+
+			if (type.IsArray)
+			{
+				// Recursively generate initial state for each element of the array
+				var initializers = (from e in ((IEnumerable) value).Cast<object>()
+										  select GetMetadataExpression(e.GetType(), e)).ToList();
+
+				return new MetadataCreateArray { Type = typeDef, ElementType = ResolveType(type.GetElementType()), Initializers = initializers };
+			}
+
+			return new MetadataConstant { Type = typeDef, Value = value };
+		}
+
+		/// <summary>
+		/// Adds attributes to a type definition
+		/// </summary>
+		/// <param name="typeDef"></param>
+		/// <param name="member"></param>
+		/// <returns></returns>
+		private TypeDefinition AddAttributes(TypeDefinition typeDef, IMemberAmendment member)
+		{
+			foreach (var attribute in member.Attributes)
+			{
+				// Get the constructor for the attribute
+				IMethodReference ctor = TypeHelper.GetMethod(
+					ResolveType(attribute.Type),
+					host.NameTable.GetNameFor(".ctor"),
+					attribute.Constructor.GetParameters().Select(p => ResolveType(p.ParameterType)).ToArray()
+				);
+
+				// Create an IMetadataExpression list for all attributes being passed to the constructor
+				List<IMetadataExpression> args = (from a in attribute.Arguments
+															 select GetMetadataExpression(a.GetType(), a)).ToList();
+
+				typeDef.Attributes.Add(new CustomAttribute
+				{
+					Constructor = ctor,
+					Arguments = args
+				});
+			}
+
+			return typeDef;
+		}
+
+		/// <summary>
+		/// Adds attributes to member definition from amendments
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="typeDefMember"></param>
+		/// <param name="member"></param>
+		/// <returns></returns>
+		private T AddAttributes<T>(T typeDefMember, IMemberAmendment member)
+			where T : TypeDefinitionMember
+		{
+			foreach (var attribute in member.Attributes)
+			{
+				// Get the constructor for the attribute
+				IMethodReference ctor = TypeHelper.GetMethod(
+					ResolveType(attribute.Type),
+					host.NameTable.GetNameFor(".ctor"),
+					attribute.Constructor.GetParameters().Select(p => ResolveType(p.ParameterType)).ToArray()
+				);
+
+				// Create an IMetadataExpression list for all attributes being passed to the constructor
+				List<IMetadataExpression> args = (from a in attribute.Arguments
+															 select GetMetadataExpression(a.GetType(), a)).ToList();
+
+				typeDefMember.Attributes.Add(new CustomAttribute
+				{
+					Constructor = ctor,
+					Arguments = args
+				});
+			}
+
+			return typeDefMember;
+		}
+
+		/// <summary>
+		/// Appends any additional attributes
+		/// </summary>
+		/// <param name="propertyDefinition"></param>
+		/// <returns></returns>
+		public override PropertyDefinition Mutate(PropertyDefinition propertyDefinition)
+		{
+			if (!IsAmending)
+				return propertyDefinition;
+
+			IPropertyAmendment propertyAdmendment;
+
+			if (!Properties.TryGetValue(propertyDefinition, out propertyAdmendment))
+				return propertyDefinition;
+
+			propertyDefinition = AddAttributes<PropertyDefinition>(propertyDefinition, propertyAdmendment);
+
+			return base.Mutate(propertyDefinition);
+		}
+
+		/// <summary>
+		/// Append any additional attributes
+		/// </summary>
+		/// <param name="fieldDefinition"></param>
+		/// <returns></returns>
+		public override FieldDefinition Mutate(FieldDefinition fieldDefinition)
+		{
+			// Add attributes
+			IFieldAmendment fieldAmendment;
+			if (Fields.TryGetValue(fieldDefinition, out fieldAmendment))
+				AddAttributes<FieldDefinition>(fieldDefinition, fieldAmendment);
+
+			return base.Mutate(fieldDefinition);
+		}
+
+		/// <summary>
 		/// Changes visibility on static methods of Amendments to make them callable.
 		/// </summary>
 		/// <param name="methodDef"></param>
@@ -398,18 +540,37 @@ namespace Afterthought.Amender
 		public override MethodDefinition Mutate(MethodDefinition methodDef)
 		{
 			// Automatically make all private static methods have internal scope
-			if (TypeHelper.Type1ImplementsType2(GetCurrentType(), iTypeAmendment))
+			if (TypeHelper.Type1ImplementsType2(GetCurrentType(), iTypeAmendment) && methodDef.IsStatic && methodDef.Visibility == TypeMemberVisibility.Private)
+				methodDef.Visibility = TypeMemberVisibility.Assembly;
+
+			if (IsAmending)
 			{
-				if (methodDef.IsStatic && methodDef.Visibility == TypeMemberVisibility.Private)
-					methodDef.Visibility = TypeMemberVisibility.Assembly;
-				return methodDef;
+				IMethodAmendment methodAmendment;
+
+				if (methodDef.IsConstructor)
+				{
+					IConstructorAmendment ctorAmendment;
+					if (!Constructors.TryGetValue(methodDef, out ctorAmendment))
+						return base.Mutate(methodDef);
+
+					methodDef = AddAttributes<MethodDefinition>(methodDef, ctorAmendment);
+				}
+				else
+				{
+					if (!Methods.TryGetValue(methodDef, out methodAmendment))
+						return base.Mutate(methodDef);
+
+					methodDef = AddAttributes<MethodDefinition>(methodDef, methodAmendment);
+				}
+
+				return base.Mutate(methodDef);
 			}
 
-			return base.Mutate(methodDef);
+			return methodDef;
 		}
 
 		/// <summary>
-		/// Initialize __graphInstance backing field with a new <see cref="GraphInstance"/>.
+		/// Performs mutation on method bodies to amend the IL as requested for properties, methods and constructors.
 		/// </summary>
 		/// <param name="methodBody"></param>
 		/// <returns></returns>
@@ -1263,22 +1424,30 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		internal bool AreEquivalent(IMethodDefinition methodDef, System.Reflection.MethodBase method)
 		{
-			return
-				
+			bool genericTest = true;
+			bool generalTest = true;
+
+			generalTest = 
 				// Ensure method names match
 				methodDef.Name.Value == method.Name && 
 
 				// Ensure parameter counts match
 				methodDef.ParameterCount == method.GetParameters().Length &&
 
-				// Ensure generic type parameter counts match
-				methodDef.GenericParameterCount == method.GetGenericArguments().Length &&
-
 				// Ensure parameter types match
-				method.GetParameters().Select(p => ResolveType(p.ParameterType)).Cast<ITypeDefinition>().SequenceEqual(methodDef.Parameters.Select(p => p.Type.ResolvedType)) &&
+				method.GetParameters().Select(p => ResolveType(p.ParameterType)).Cast<ITypeDefinition>().SequenceEqual(methodDef.Parameters.Select(p => p.Type.ResolvedType));
+		
+			if (!(method is System.Reflection.ConstructorInfo))
+			{
+				genericTest = 
+					// Ensure generic parameter types match
+					method.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeDefinition>().SequenceEqual(methodDef.GenericParameters.Cast<IGenericParameterReference>().Select(p => p.ResolvedType)) &&
+	
+					// Ensure generic type parameter counts match
+					methodDef.GenericParameterCount == method.GetGenericArguments().Length;
+			}
 
-				// Ensure generic parameter types match
-				method.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeDefinition>().SequenceEqual(methodDef.GenericParameters.Cast<IGenericParameterReference>().Select(p => p.ResolvedType));
+			return generalTest && genericTest;
 		}
 
 		/// <summary>

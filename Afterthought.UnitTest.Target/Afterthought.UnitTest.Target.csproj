@@ -52,7 +52,6 @@
     <Compile Include="IMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Calculator.cs" />
-    <Compile Include="Test.cs" />
     <Compile Include="TestAmendment.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -65,7 +64,6 @@
   <PropertyGroup>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)Afterthought.Amender/bin/debug/Afterthought.Amender.exe "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

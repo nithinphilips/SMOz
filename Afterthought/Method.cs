@@ -46,7 +46,7 @@ namespace Afterthought
 			{
 				get
 				{
-					return ImplementationMethod != null || BeforeMethod != null || AfterMethod != null;
+					return base.IsAmended || ImplementationMethod != null || BeforeMethod != null || AfterMethod != null;
 				}
 			}
 
@@ -101,12 +101,6 @@ namespace Afterthought
 			internal Method(MethodInfo method)
 				: base(method)
 			{ }
-
-			public void Context<T>(Action<Method, T> context)
-				where T : new()
-			{
-				context(this, new T());
-			}
 
 			#region Create (Action)
 

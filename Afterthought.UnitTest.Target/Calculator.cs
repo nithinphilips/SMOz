@@ -175,10 +175,5 @@ namespace Afterthought.UnitTest.Target
 		{
 			return 0;
 		}
-
-		public void LogMe()
-		{
-			Thread.Sleep(100);
-		}
 	}
 }
