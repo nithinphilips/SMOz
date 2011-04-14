@@ -45,7 +45,7 @@ namespace Afterthought
 			{
 				get
 				{
-					return InitializerMethod != null;
+					return base.IsAmended || InitializerMethod != null;
 				}
 			}
 

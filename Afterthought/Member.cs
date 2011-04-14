@@ -25,11 +25,12 @@ namespace Afterthought
 	/// </summary>
 	public abstract partial class Amendment
 	{
-		public abstract class Member 
+		public abstract class Member : IMemberAmendment
 		{
 			internal Member(string name)
 			{
 				this.Name = name;
+				this.Attributes = new List<IAttributeAmendment>();
 			}
 
 			public string Name { get; protected set; }
@@ -39,7 +40,20 @@ namespace Afterthought
 				return Name;
 			}
 
-			public abstract bool IsAmended { get; }
+			public virtual bool IsAmended { get { return Attributes.Any(); } }
+
+			IEnumerable<IAttributeAmendment> IMemberAmendment.Attributes { get { return Attributes; } }
+
+			internal List<IAttributeAmendment> Attributes { get; set; }
+
+			/// <summary>
+			/// Add an Attribute to the collection of Attributes
+			/// </summary>
+			/// <param name="attribute"></param>
+			public void AddAttribute(Attribute attribute)
+			{
+					Attributes.Add(attribute);
+			}
 		}
 	}
 

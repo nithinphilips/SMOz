@@ -13,6 +13,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel;
 
 namespace Afterthought.UnitTest.Target
 {
@@ -57,16 +58,34 @@ namespace Afterthought.UnitTest.Target
 				// Subtract()
 				Method.Create<decimal, decimal, decimal>("Subtract", (instance, method, parameters) => parameters.Param1 - parameters.Param2)
 			);
+
+			// Add attributes
+			AddAttribute(Attribute<TestAttribute>.Create(new object()));
+			AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+			AddAttribute(Attribute<TestAttribute>.Create());
+			AddAttribute(Attribute<TestAttribute>.Create(5));
+			AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
 		}
 
 		public override void Amend<F>(Field<F> field)
 		{
-			
+			switch (field.Name)
+			{
+				case "holding1":
+					field.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+					field.AddAttribute(Attribute<TestAttribute>.Create());
+					field.AddAttribute(Attribute<TestAttribute>.Create(5));
+					field.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
+					break;
+			}
 		}
 
 		public override void Amend(Constructor constructor)
 		{
-			
+			constructor.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+			constructor.AddAttribute(Attribute<TestAttribute>.Create());
+			constructor.AddAttribute(Attribute<TestAttribute>.Create(5));
+			constructor.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
 		}
 
 		/// <summary>
@@ -81,6 +100,10 @@ namespace Afterthought.UnitTest.Target
 				// Modify Random1 getter set value of Random1 to GetRandom(1) before returning the underlying property value
 				case "Random1":
 					property.BeforeGet = (instance, propertyName) => instance.Random1 = instance.GetRandom(1);
+					property.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+					property.AddAttribute(Attribute<TestAttribute>.Create());
+					property.AddAttribute(Attribute<TestAttribute>.Create(5));
+					property.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
 					break;
 
 				// Modify Random2 to calculate a random number based on an assigned seed value
@@ -131,14 +154,19 @@ namespace Afterthought.UnitTest.Target
 			{
 				// Modify Multiply to also set the Result property to the resulting value
 				case "Multiply" :
-				    method.Before<int, int>((instance, methodName, parameters) =>
-				    {
-				        instance.Result = parameters.Param1 * parameters.Param2;
+					method.Before<int, int>((instance, methodName, parameters) =>
+					{
+						instance.Result = parameters.Param1 * parameters.Param2;
 
-				        // Return null to indicate that the original parameters should not be modified
-				        return null;
-				    });
-				    break;
+						// Return null to indicate that the original parameters should not be modified
+						return null;
+					});
+
+					method.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+					method.AddAttribute(Attribute<TestAttribute>.Create());
+					method.AddAttribute(Attribute<TestAttribute>.Create(5));
+					method.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
+					break;
 
 				// Modify Multiply2 to also set the Result property to the resulting value
 				case "Multiply2":
@@ -179,5 +207,23 @@ namespace Afterthought.UnitTest.Target
 					break;
 			}
 		}
+	}
+
+	public class TestAttribute : System.Attribute
+	{
+		public TestAttribute()
+		{ }
+
+		public TestAttribute(int number)
+		{ }
+
+		public TestAttribute(Type type)
+		{ }
+
+		public TestAttribute(string[] values)
+		{ }
+
+		public TestAttribute(object values)
+		{ }
 	}
 }

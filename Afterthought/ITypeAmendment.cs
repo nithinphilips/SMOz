@@ -16,7 +16,7 @@ using System.Text;
 
 namespace Afterthought
 {
-	public interface ITypeAmendment
+	public interface ITypeAmendment : IMemberAmendment
 	{
 		Type Type { get; }
 

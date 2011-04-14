@@ -46,7 +46,7 @@ namespace Afterthought
 			{
 				get
 				{
-					return ImplementationMethod != null || BeforeMethod != null || AfterMethod != null;
+					return base.IsAmended || ImplementationMethod != null || BeforeMethod != null || AfterMethod != null;
 				}
 			}
 

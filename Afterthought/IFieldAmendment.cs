@@ -17,11 +17,9 @@ using System.Reflection;
 
 namespace Afterthought
 {
-	public interface IFieldAmendment
+	public interface IFieldAmendment : IMemberAmendment
 	{
 		FieldInfo FieldInfo { get; }
-
-		string Name { get; }
 
 		Type Type { get; }
 

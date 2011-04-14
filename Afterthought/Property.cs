@@ -45,7 +45,7 @@ namespace Afterthought
 			{
 				get
 				{
-					return LazyInitializerMethod != null || InitializerMethod != null || GetterMethod != null || SetterMethod != null ||
+					return base.IsAmended || LazyInitializerMethod != null || InitializerMethod != null || GetterMethod != null || SetterMethod != null ||
 						BeforeGetMethod != null || AfterGetMethod != null || BeforeSetMethod != null || AfterSetMethod != null;
 				}
 			}
