@@ -60,8 +60,8 @@ namespace Afterthought.UnitTest.Target
 			);
 
 			// Add attributes
-			AddAttribute(Attribute<TestAttribute>.Create(new object()));
 			AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+			AddAttribute(Attribute<TestAttribute>.Create(new object()));
 			AddAttribute(Attribute<TestAttribute>.Create());
 			AddAttribute(Attribute<TestAttribute>.Create(5));
 			AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
