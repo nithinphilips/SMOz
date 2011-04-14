@@ -13,14 +13,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Afterthought.UnitTest.Target
 {
 	[Amendment(typeof(TestAmendment<>))]
 	public class Calculator : ILog
 	{
-		public int holding1;
-
 		public int Result { get; set; }
 
 		public int CopyToResult { get; set; }

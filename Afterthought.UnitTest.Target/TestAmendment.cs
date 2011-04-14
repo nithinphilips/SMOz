@@ -253,6 +253,11 @@ namespace Afterthought.UnitTest.Target
 		}
 	}
 
+	public class LogTracker
+	{
+		public DateTime Split { get; set; }
+	}
+
 	public class TestAttribute : System.Attribute
 	{
 		public TestAttribute()
