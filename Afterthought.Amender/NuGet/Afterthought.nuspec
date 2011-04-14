@@ -3,12 +3,12 @@
   <metadata>
 	<id>Afterthought</id>
 	<title>Afterthought</title>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<authors>Jamie Thomas, VC3</authors>
 	<summary>An open source .NET compile-time code amender.</summary>
 	<description>
 	  Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added to the original source or is not convenient/efficient to do so.
-	  The current version of Afterthought only supports .NET 4.0 assemblies due to a problem with Microsoft.CCI libraries.  A new version to fix this is on the way.
+	  The current version of Afterthought only supports .NET 4.0 assemblies due to a problem with Microsoft.CCI libraries that has been reported.
 	</description>
 	<projectUrl>https://github.com/vc3/Afterthought</projectUrl>
 	<licenseUrl>https://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
