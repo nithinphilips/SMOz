@@ -89,6 +89,67 @@ namespace Afterthought.UnitTest
 		}
 
 		/// <summary>
+		/// Tests modifying an existing method to run code after the original method
+		/// implementation that does not return a value.
+		/// </summary>
+		[TestMethod]
+		public void AfterMethodActionGeneric()
+		{
+			var expected = 18;
+			var inputs = new int[] { 9 };
+			Calculator.Double(inputs);
+			Assert.AreEqual(expected, inputs[0]);
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code after the original method
+		/// implementation that does not return a value.
+		/// </summary>
+		[TestMethod]
+		public void AfterMethodActionArray()
+		{
+			var expected = 18;
+			var inputs = new int[] { 9 };
+			Calculator.Double2(inputs);
+			Assert.AreEqual(expected, inputs[0]);
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code after the original method
+		/// implementation that returns a value.
+		/// </summary>
+		[TestMethod]
+		public void AfterMethodFuncGeneric()
+		{
+			var expected = 15L;
+			Assert.AreEqual(expected, Calculator.Sum(new int[] { 1, 2, 3, 4, 5 }));
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code after the original method
+		/// implementation that returns a value.
+		/// </summary>
+		[TestMethod]
+		public void AfterMethodFuncArray()
+		{
+			var expected = 15L;
+			Assert.AreEqual(expected, Calculator.Sum2(new int[] { 1, 2, 3, 4, 5 }));
+		}
+
+		/// <summary>
+		/// Tests modifying an existing method to run code after the original method
+		/// implementation that returns a value.
+		/// </summary>
+		[TestMethod]
+		public void AfterMethodFuncAsActionArray()
+		{
+			var expected = 15;
+			var inputs = new int[] { 1, 2, 3, 4, 5 };
+			Calculator.Sum3(inputs);
+			Assert.AreEqual(expected, inputs[4]);
+		}
+
+		/// <summary>
 		/// Tests modifying an existing method to completely replace the implementation.
 		/// </summary>
 		[TestMethod]

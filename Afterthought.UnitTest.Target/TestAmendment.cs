@@ -205,6 +205,50 @@ namespace Afterthought.UnitTest.Target
 				case "Square":
 					method.Implement<int, int>((instance, methodName, parameters) => parameters.Param1 * parameters.Param1);
 					break;
+
+				// Modify Double to double each of the input values
+				case "Double":
+					method.After<int[]>((instance, methodName, parameters) =>
+					{
+						for (int i = 0; i < parameters.Param1.Length; i++)
+							parameters.Param1[i] = parameters.Param1[i] * 2;
+					});
+					break;
+
+				// Modify Double to double each of the input values
+				case "Double2":
+					method.After((instance, methodName, parameters) =>
+					{
+						for (int i = 0; i < ((int[])parameters[0]).Length; i++)
+							((int[])parameters[0])[i] = ((int[])parameters[0])[i] * 2;
+					});
+					break;
+
+				// Modify Sum to return the sum of the input values
+				case "Sum":
+					method.After<int[], long>((instance, methodName, parameters, returnValue) =>
+					{
+						return parameters.Param1.Sum();
+					});
+					break;
+
+
+				// Modify Sum to return the sum of the input values
+				case "Sum2":
+					method.After<long>((instance, methodName, parameters, returnValue) =>
+					{
+						return ((int[])parameters[0]).Sum();
+					});
+					break;
+
+				// Modify the input values but ignore the return value
+				case "Sum3":
+					method.After((instance, methodName, parameters) =>
+					{
+						for (int i = 1; i < ((int[])parameters[0]).Length; i++)
+							((int[])parameters[0])[i] = ((int[])parameters[0])[i - 1] + ((int[])parameters[0])[i];
+					});
+					break;
 			}
 		}
 	}

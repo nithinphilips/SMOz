@@ -1029,23 +1029,33 @@ namespace Afterthought.Amender
 
 			// Before Method
 			if (methodAmendment.Before != null)
-				CallMethodDelegate(methodBody, methodAmendment.Before, true, il);
+				CallMethodDelegate(methodBody, methodAmendment.Before, true, il, null);
 
 			// Implementation
-			if (methodAmendment.Implementation != null)
+			Action implement = () =>
 			{
-				// Clear the original method body
-				il.Operations.Clear();
-				CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il);
-			}
+				if (methodAmendment.Implementation != null)
+				{
+					// Clear the original method body
+					il.Operations.Clear();
+					CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il, null);
+				}
 
-			// Emit the original method operations if the method implementation was not overriden
-			if (methodAmendment.MethodInfo != null && methodAmendment.Implementation == null)
-				il.EmitUntilReturn();
+				// Emit the original method operations if the method implementation was not overriden
+				if (methodAmendment.MethodInfo != null && methodAmendment.Implementation == null)
+					il.EmitUntilReturn();
+			};
+
+			// Implement
+			if (methodAmendment.After == null || methodAmendment.After.ReturnType == typeof(void))
+			{
+				implement();
+				implement = null;
+			}
 
 			// After Method
 			if (methodAmendment.After != null)
-				CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il);
+				CallMethodDelegate(methodBody, methodAmendment.After, false, il, implement);
 
 			// Or emit a return for new/overriden methods
 			if (methodAmendment.Implementation != null)
@@ -1055,7 +1065,15 @@ namespace Afterthought.Amender
 			il.UpdateMethodBody(6);
 		}
 
-		void CallMethodDelegate(MethodBody methodBody, System.Reflection.MethodInfo method, bool updateArguments, ILAmender il)
+		/// <summary>
+		/// Calls the specified method delegate.
+		/// </summary>
+		/// <param name="methodBody"></param>
+		/// <param name="method"></param>
+		/// <param name="updateArguments"></param>
+		/// <param name="il"></param>
+		/// <param name="implement"></param>
+		void CallMethodDelegate(MethodBody methodBody, System.Reflection.MethodInfo method, bool updateArguments, ILAmender il, Action implement)
 		{
 			// Get the corresponding before method definition
 			var methodDef = methodBody.MethodDefinition;
@@ -1069,10 +1087,11 @@ namespace Afterthought.Amender
 			// Load method name onto stack
 			il.Emit(OperationCode.Ldstr, methodBody.MethodDefinition.Name.Value);
 
-			// Conditionally handle arguments
-			if (method.GetParameters().Length == 3)
+			// Conditionally handle parameters
+			var parameters = method.GetParameters();
+			if (parameters.Length >= 3 && (typeof(Parameter).IsAssignableFrom(parameters[2].ParameterType) || parameters[2].ParameterType == typeof(object[])))
 			{
-				Type argType = method.GetParameters()[2].ParameterType;
+				Type argType = parameters[2].ParameterType;
 				ITypeDefinition argTypeDef = targetMethodDef.Parameters.Skip(2).First().Type.ResolvedType;
 
 				// Add local variable to store the return value before delegate
@@ -1083,7 +1102,7 @@ namespace Afterthought.Amender
 				if (argType == typeof(object[]))
 				{
 					// Load the number of arguments onto the stack
-					il.Emit(OperationCode.Ldc_I4, method.GetParameters().Length - 1);
+					il.Emit(OperationCode.Ldc_I4, methodDef.Parameters.Count());
 
 					// Create an object array
 					il.Emit(OperationCode.Newarr, argTypeDef);
@@ -1113,6 +1132,10 @@ namespace Afterthought.Amender
 
 					// Load the argument array
 					il.Emit(OperationCode.Ldloc, args);
+
+					// Emit the method implementation here if specified
+					if (implement != null)
+						implement();
 
 					// Call the target method
 					il.Emit(OperationCode.Call, targetMethodDef);
@@ -1164,6 +1187,10 @@ namespace Afterthought.Amender
 
 					// Create the parameter argument
 					il.Emit(OperationCode.Newobj, argTypeDef.Methods.Where(m => m.IsConstructor).First());
+
+					// Emit the method implementation here if specified
+					if (implement != null)
+						implement();
 
 					// Call the target method
 					il.Emit(OperationCode.Call, targetMethodDef);
@@ -1317,7 +1344,8 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		IMethodDefinition ResolveMethod(ITypeDefinition declaringType, System.Reflection.MethodInfo method)
 		{
-			return declaringType.Methods.Where(m => AreEquivalent(m, method)).FirstOrDefault();
+			return TypeHelper.GetMethod(declaringType, host.NameTable.GetNameFor(method.Name), method.GetParameters().Select(p => ResolveType(p.ParameterType)).ToArray());
+//			return declaringType.Methods.Where(m => AreEquivalent(m, method)).FirstOrDefault();
 		}
 
 		/// <summary>

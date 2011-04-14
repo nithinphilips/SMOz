@@ -132,5 +132,49 @@ namespace Afterthought.UnitTest.Target
 			// Intentionally wrong
 			return x;
 		}
+
+		/// <summary>
+		/// Will be amended to double the values provided as inputs.
+		/// </summary>
+		/// <param name="values"></param>
+		public void Double(int[] values)
+		{ }
+
+		/// <summary>
+		/// Will be amended to double the values provided as inputs.
+		/// </summary>
+		/// <param name="values"></param>
+		public void Double2(int[] values)
+		{ }
+
+		/// <summary>
+		/// Will be amended to return the sum of the values.
+		/// </summary>
+		/// <param name="values"></param>
+		/// <returns></returns>
+		public long Sum(int[] values)
+		{
+			return 0;
+		}
+
+		/// <summary>
+		/// Will be amended to return the sum of the values.
+		/// </summary>
+		/// <param name="values"></param>
+		/// <returns></returns>
+		public long Sum2(int[] values)
+		{
+			return 0;
+		}
+
+		/// <summary>
+		/// Will be amended to modify the input values and pass through the return value
+		/// </summary>
+		/// <param name="values"></param>
+		/// <returns></returns>
+		public long Sum3(int[] values)
+		{
+			return 0;
+		}
 	}
 }
