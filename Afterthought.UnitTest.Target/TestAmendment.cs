@@ -221,7 +221,22 @@ namespace Afterthought.UnitTest.Target
 							((int[])parameters[0])[i] = ((int[])parameters[0])[i - 1] + ((int[])parameters[0])[i];
 					});
 					break;
+
+				case "LogMe":
+
+					method.Context<LogTracker>((m, t) =>
+					{
+						m.Before((instance, methodName) => t.Split = DateTime.Now);
+						m.After((instance, methodName) => Console.WriteLine(DateTime.Now.Subtract(t.Split)));
+					});
+
+					break;
 			}
 		}
+	}
+
+	public class LogTracker
+	{
+		public DateTime Split { get; set; }
 	}
 }

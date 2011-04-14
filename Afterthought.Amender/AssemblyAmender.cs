@@ -491,8 +491,35 @@ namespace Afterthought.Amender
 			// Create an IL generator to amend the operations
 			var il = new ILAmender(host, methodBody);
 
-			// Emit the original method operations
-			il.EmitUntilReturn();
+			// Determine if the constructor is being specifically amended or if there are just property initializers
+			if (constructorAmendment != null)
+			{
+				// Before 
+				if (constructorAmendment.Before != null)
+					CallMethodDelegate(methodBody, constructorAmendment.Before, true, il, null);
+
+				// Implementation
+				if (constructorAmendment.Implementation != null)
+				{
+					// Clear the original method body
+					il.Operations.Clear();
+					CallMethodDelegate(methodBody, constructorAmendment.Implementation, false, il, null);
+				}
+
+				// Emit the original method operations if the method implementation was not overriden
+				if (constructorAmendment.ConstructorInfo != null && constructorAmendment.Implementation == null)
+					il.EmitUntilReturn();
+
+				// After 
+				if (constructorAmendment.After != null)
+					CallMethodDelegate(methodBody, constructorAmendment.After, false, il, null);
+
+				// Or emit a return for new/overriden methods
+				if (constructorAmendment.Implementation != null)
+					il.Emit(OperationCode.Ret);
+			}
+			else
+				il.EmitUntilReturn();
 
 			// Emit property initializers if the current constructor calls a base constructor or inherits from System.Object
 			if (GetCurrentType().BaseClasses.Any(b => TypeHelper.TypesAreEquivalent(b, host.PlatformType.SystemObject)) ||
@@ -1191,7 +1218,22 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		internal static bool AreEquivalent(INamedTypeDefinition typeDef, Type type)
 		{
-			return typeDef.ToString() + (typeDef.MangleName ? "`" + typeDef.GenericParameterCount : "") == type.FullName;
+
+			return GetTypeName(typeDef) == type.FullName;
+		}
+
+		/// <summary>
+		/// Gets the name of the specified <see cref="INamedTypeDefinition"/> consistent with the naming
+		/// conventions used by the System.Reflection namespace.
+		/// </summary>
+		/// <param name="typeDef"></param>
+		/// <returns></returns>
+		static string GetTypeName(INamedTypeDefinition typeDef)
+		{
+			if (typeDef is INestedTypeDefinition)
+				return GetTypeName((INamedTypeDefinition)((INestedTypeDefinition)typeDef).ContainingTypeDefinition) + "+" + typeDef.Name.Value + (typeDef.MangleName ? "`" + typeDef.GenericParameterCount : "");
+			else
+				return typeDef.ToString() + (typeDef.MangleName ? "`" + typeDef.GenericParameterCount : "");
 		}
 
 		/// <summary>
@@ -1284,13 +1326,14 @@ namespace Afterthought.Amender
 
 		IMethodDefinition ResolveMethodDelegate(ITypeReference instanceType, System.Reflection.MethodInfo method)
 		{
-			var genericType = ResolveType(method.DeclaringType.GetGenericTypeDefinition());
+			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
 
 			// Create a concrete type instance
-			var concreteType = GenericTypeInstance.GetGenericTypeInstance(genericType, new ITypeReference[] { instanceType }, host.InternFactory);
+			if (declaringType.IsGeneric)
+				declaringType = GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { instanceType }, host.InternFactory);
 
 			// Then get the Amendment method
-			return concreteType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
+			return declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
 		}
 
 

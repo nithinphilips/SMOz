@@ -27,7 +27,7 @@ namespace Afterthought
 	{
 		public abstract class Constructor : Member, IConstructorAmendment
 		{
-			public Constructor(string name, Delegate implementation)
+			public Constructor(string name)
 				: base(name)
 			{ }
 
@@ -49,7 +49,7 @@ namespace Afterthought
 
 			MethodInfo IConstructorAmendment.Implementation { get { return ImplementationMethod; } }
 
-			MethodInfo IConstructorAmendment.Before { get {	return BeforeMethod; } }
+			MethodInfo IConstructorAmendment.Before { get { return BeforeMethod; } }
 
 			MethodInfo IConstructorAmendment.After { get { return AfterMethod; } }
 
@@ -72,19 +72,125 @@ namespace Afterthought
 		/// </summary>
 		public new class Constructor : Amendment.Constructor
 		{
-			public Constructor(string name, Delegate implementation)
-				: base(name, implementation)
+			Constructor(string name)
+				: base(name)
 			{ }
 
 			internal Constructor(ConstructorInfo constructor)
 				: base(constructor)
 			{ }
 
+			#region Create
+
+			public delegate void CreateConstructor(TAmended instance, string method);
+
+			public delegate void CreateConstructor<P>(TAmended instance, string method, P parameters);
+
+			public static Constructor Create(string name, CreateConstructor create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1>(string name, CreateConstructor<Parameter<P1>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2>(string name, CreateConstructor<Parameter<P1, P2>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2, P3>(string name, CreateConstructor<Parameter<P1, P2, P3>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2, P3, P4>(string name, CreateConstructor<Parameter<P1, P2, P3, P4>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2, P3, P4, P5>(string name, CreateConstructor<Parameter<P1, P2, P3, P4, P5>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2, P3, P4, P5, P6>(string name, CreateConstructor<Parameter<P1, P2, P3, P4, P5, P6>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2, P3, P4, P5, P6, P7>(string name, CreateConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			public static Constructor Create<P1, P2, P3, P4, P5, P6, P7, P8>(string name, CreateConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> create)
+			{
+				return new Constructor(name) { ImplementationMethod = create.Method };
+			}
+
+			#endregion
+
+			#region Implement
+
+			public delegate void ImplementConstructor(TAmended instance, string method);
+
+			public delegate void ImplementConstructor<P>(TAmended instance, string method, P parameters);
+
+			public void Implement(ImplementConstructor implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1>(ImplementConstructor<Parameter<P1>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2>(ImplementConstructor<Parameter<P1, P2>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3>(ImplementConstructor<Parameter<P1, P2, P3>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4>(ImplementConstructor<Parameter<P1, P2, P3, P4>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5>(ImplementConstructor<Parameter<P1, P2, P3, P4, P5>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6>(ImplementConstructor<Parameter<P1, P2, P3, P4, P5, P6>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7>(ImplementConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(ImplementConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> implementation)
+			{
+				ImplementationMethod = implementation.Method;
+			}
+
+			#endregion
+
 			#region Before
 
-			public delegate void BeforeConstructor(TAmended instance, string constructor);
+			public new delegate void BeforeConstructor(TAmended instance, string method);
 
-			public delegate A BeforeConstructor<A>(TAmended instance, string constructor, A arguments);
+			public delegate P BeforeConstructor<P>(TAmended instance, string method, P parameters);
 
 			public void Before(BeforeConstructor before)
 			{
@@ -96,66 +202,66 @@ namespace Afterthought
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1>(BeforeConstructor<Parameter<A1>> before)
+			public void Before<P1>(BeforeConstructor<Parameter<P1>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 1)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2>(BeforeConstructor<Parameter<A1, A2>> before)
+			public void Before<P1, P2>(BeforeConstructor<Parameter<P1, P2>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 2)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2, A3>(BeforeConstructor<Parameter<A1, A2, A3>> before)
+			public void Before<P1, P2, P3>(BeforeConstructor<Parameter<P1, P2, P3>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 3)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2, A3, A4>(BeforeConstructor<Parameter<A1, A2, A3, A4>> before)
+			public void Before<P1, P2, P3, P4>(BeforeConstructor<Parameter<P1, P2, P3, P4>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 4)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2, A3, A4, A5>(BeforeConstructor<Parameter<A1, A2, A3, A4, A5>> before)
+			public void Before<P1, P2, P3, P4, P5>(BeforeConstructor<Parameter<P1, P2, P3, P4, P5>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 5)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2, A3, A4, A5, A6>(BeforeConstructor<Parameter<A1, A2, A3, A4, A5, A6>> before)
+			public void Before<P1, P2, P3, P4, P5, P6>(BeforeConstructor<Parameter<P1, P2, P3, P4, P5, P6>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 6)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2, A3, A4, A5, A6, A7>(BeforeConstructor<Parameter<A1, A2, A3, A4, A5, A6, A7>> before)
+			public void Before<P1, P2, P3, P4, P5, P6, P7>(BeforeConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 7)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<A1, A2, A3, A4, A5, A6, A7, A8>(BeforeConstructor<Parameter<A1, A2, A3, A4, A5, A6, A7, A8>> before)
+			public void Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> before)
 			{
 				if (ConstructorInfo.GetParameters().Length != 8)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				base.BeforeMethod = before.Method;
 			}
@@ -164,9 +270,9 @@ namespace Afterthought
 
 			#region After
 
-			public delegate void AfterConstructor(TAmended instance, string constructor);
+			public delegate void AfterConstructor(TAmended instance, string method);
 
-			public delegate void AfterConstructor<A>(TAmended instance, string constructor, A arguments);
+			public delegate void AfterConstructor<P>(TAmended instance, string method, P parameters);
 
 			public void After(AfterConstructor after)
 			{
@@ -178,66 +284,66 @@ namespace Afterthought
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1>(AfterConstructor<Parameter<A1>> after)
+			public void After<P1>(AfterConstructor<Parameter<P1>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 1)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2>(AfterConstructor<Parameter<A1, A2>> after)
+			public void After<P1, P2>(AfterConstructor<Parameter<P1, P2>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 2)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2, A3>(AfterConstructor<Parameter<A1, A2, A3>> after)
+			public void After<P1, P2, P3>(AfterConstructor<Parameter<P1, P2, P3>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 3)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2, A3, A4>(AfterConstructor<Parameter<A1, A2, A3, A4>> after)
+			public void After<P1, P2, P3, P4>(AfterConstructor<Parameter<P1, P2, P3, P4>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 4)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2, A3, A4, A5>(AfterConstructor<Parameter<A1, A2, A3, A4, A5>> after)
+			public void After<P1, P2, P3, P4, P5>(AfterConstructor<Parameter<P1, P2, P3, P4, P5>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 5)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2, A3, A4, A5, A6>(AfterConstructor<Parameter<A1, A2, A3, A4, A5, A6>> after)
+			public void After<P1, P2, P3, P4, P5, P6>(AfterConstructor<Parameter<P1, P2, P3, P4, P5, P6>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 6)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2, A3, A4, A5, A6, A7>(AfterConstructor<Parameter<A1, A2, A3, A4, A5, A6, A7>> after)
+			public void After<P1, P2, P3, P4, P5, P6, P7>(AfterConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 7)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}
 
-			public void After<A1, A2, A3, A4, A5, A6, A7, A8>(AfterConstructor<Parameter<A1, A2, A3, A4, A5, A6, A7, A8>> after)
+			public void After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterConstructor<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> after)
 			{
 				if (ConstructorInfo.GetParameters().Length != 8)
-					throw new ArgumentException("The number of parameters must match the constructor signature.");
+					throw new ArgumentException("The number of parameters must match the method signature.");
 
 				AfterMethod = after.Method;
 			}

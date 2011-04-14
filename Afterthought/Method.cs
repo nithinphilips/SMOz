@@ -102,6 +102,12 @@ namespace Afterthought
 				: base(method)
 			{ }
 
+			public void Context<T>(Action<Method, T> context)
+				where T : new()
+			{
+				context(this, new T());
+			}
+
 			#region Create (Action)
 
 			public delegate void CreateMethodAction(TAmended instance, string method);

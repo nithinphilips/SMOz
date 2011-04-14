@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Afterthought.UnitTest.Target
 {
@@ -173,6 +174,11 @@ namespace Afterthought.UnitTest.Target
 		public long Sum3(int[] values)
 		{
 			return 0;
+		}
+
+		public void LogMe()
+		{
+			Thread.Sleep(100);
 		}
 	}
 }
