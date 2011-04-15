@@ -46,6 +46,7 @@ namespace Afterthought
 	public partial class Amendment<TType, TAmended> : Amendment
 	{
 		public class Attribute<A> : Attribute
+			where A : System.Attribute
 		{
 			internal Attribute()
 				: base(typeof(A).Name)
