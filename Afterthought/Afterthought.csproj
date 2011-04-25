@@ -47,11 +47,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attribute.cs" />
+    <Compile Include="Constructor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IEventAmendment.cs" />
+    <Compile Include="Event.cs" />
     <Compile Include="IAmendmentAttribute.cs" />
     <Compile Include="IAttributeAmendment.cs" />
     <Compile Include="IMemberAmendment.cs" />
-    <Compile Include="Parameter.cs" />
-    <Compile Include="Constructor.cs" />
     <Compile Include="InterfaceMember.cs" />
     <Compile Include="Member.cs" />
     <Compile Include="Field.cs" />

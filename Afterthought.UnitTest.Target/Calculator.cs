@@ -175,5 +175,15 @@ namespace Afterthought.UnitTest.Target
 		{
 			return 0;
 		}
+
+		public long Sum4(int[] values)
+		{
+			return (long)Sum(this, "Sum4", new object[] { values }, 0);
+		}
+
+		public static object Sum(Calculator c, string methodName, object[] parameters, object result)
+		{
+			return ((int[])parameters[0]).Sum();
+		}
 	}
 }

@@ -830,11 +830,14 @@ namespace Microsoft.Cci {
     }
 
     private uint GetCustomAttributeTypeCodedIndex(IMethodReference methodReference) {
-      IUnitReference/*?*/ definingUnit = TypeHelper.GetDefiningUnitReference(methodReference.ContainingType);
+		uint result = 0;
+		IUnitReference/*?*/ definingUnit = TypeHelper.GetDefiningUnitReference(methodReference.ContainingType);
       if (definingUnit != null && definingUnit.UnitIdentity.Equals(this.module.ModuleIdentity))
-        return (this.GetMethodDefIndex(methodReference) << 3)|2;
+		  result = (this.GetMethodDefIndex(methodReference) << 3) | 2;
       else
-        return (this.GetMemberRefIndex(methodReference) << 3)|3;
+		  result = (this.GetMemberRefIndex(methodReference) << 3) | 3;
+
+	  return result;
     }
 
     private uint GetDataOffset(ISectionBlock sectionBlock) {
@@ -1073,11 +1076,13 @@ namespace Microsoft.Cci {
     }
 
     internal uint GetMethodDefOrRefCodedIndex(IMethodReference methodReference) {
+		uint result = 0;
       IUnitReference/*?*/ definingUnit = TypeHelper.GetDefiningUnitReference(methodReference.ContainingType);
       if (definingUnit != null && definingUnit.UnitIdentity.Equals(this.module.ModuleIdentity))
-        return this.GetMethodDefIndex(methodReference) << 1;
+        result = this.GetMethodDefIndex(methodReference) << 1;
       else
-        return (this.GetMemberRefIndex(methodReference) << 1)|1;
+		  result = (this.GetMemberRefIndex(methodReference) << 1) | 1;
+	  return result;
     }
 
     private static ushort GetMethodFlags(IMethodDefinition methodDef) {

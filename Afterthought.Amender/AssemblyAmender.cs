@@ -69,6 +69,33 @@ namespace Afterthought.Amender
 		}
 
 		/// <summary>
+		/// Remove references to Afterthought from the target assembly.
+		/// </summary>
+		/// <param name="assembly"></param>
+		/// <returns></returns>
+		public override Assembly Mutate(Assembly assembly)
+		{
+			assembly.AssemblyReferences.RemoveAll(a => a.Name.Value == "Afterthought");
+			return base.Mutate(assembly);
+		}
+
+		/// <summary>
+		/// Remove references to Afterthought from the target assembly.
+		/// </summary>
+		/// <param name="module"></param>
+		/// <returns></returns>
+		public override Module Mutate(Module module)
+		{
+			module.AssemblyReferences.RemoveAll(a => a.Name.Value == "Afterthought");
+			return base.Mutate(module);
+		}
+
+		public override EventDefinition Mutate(EventDefinition eventDefinition)
+		{
+			return base.Mutate(eventDefinition);
+		}
+
+		/// <summary>
 		/// Performs mutations on nested types.
 		/// </summary>
 		/// <param name="nestedTypeDefinition"></param>
@@ -366,7 +393,7 @@ namespace Afterthought.Amender
 			bool isInterface = method.Implements != null;
 
 			// Add the method
-			var args = method.Implementation.GetParameters().Skip(2).Select(p => p.ParameterType.GetGenericArguments()).FirstOrDefault() ?? new Type[] { };
+			var args = method.Implementation.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray();
 			var methodDef = new MethodDefinition
 			{
 				ContainingTypeDefinition = type,
@@ -525,9 +552,12 @@ namespace Afterthought.Amender
 		public override FieldDefinition Mutate(FieldDefinition fieldDefinition)
 		{
 			// Add attributes
-			IFieldAmendment fieldAmendment;
-			if (Fields.TryGetValue(fieldDefinition, out fieldAmendment))
-				AddAttributes<FieldDefinition>(fieldDefinition, fieldAmendment);
+			if (IsAmending)
+			{
+				IFieldAmendment fieldAmendment;
+				if (Fields.TryGetValue(fieldDefinition, out fieldAmendment))
+					AddAttributes<FieldDefinition>(fieldDefinition, fieldAmendment);
+			}
 
 			return base.Mutate(fieldDefinition);
 		}
@@ -657,14 +687,14 @@ namespace Afterthought.Amender
 			{
 				// Before 
 				if (constructorAmendment.Before != null)
-					CallMethodDelegate(methodBody, constructorAmendment.Before, true, il, null);
+					CallMethodDelegate(methodBody, constructorAmendment.Before, true, il, null, MethodDelegateType.Before);
 
 				// Implementation
 				if (constructorAmendment.Implementation != null)
 				{
 					// Clear the original method body
 					il.Operations.Clear();
-					CallMethodDelegate(methodBody, constructorAmendment.Implementation, false, il, null);
+					CallMethodDelegate(methodBody, constructorAmendment.Implementation, false, il, null, MethodDelegateType.Implement);
 				}
 
 				// Emit the original method operations if the method implementation was not overriden
@@ -673,7 +703,7 @@ namespace Afterthought.Amender
 
 				// After 
 				if (constructorAmendment.After != null)
-					CallMethodDelegate(methodBody, constructorAmendment.After, false, il, null);
+					CallMethodDelegate(methodBody, constructorAmendment.After, false, il, null, MethodDelegateType.After);
 
 				// Or emit a return for new/overriden methods
 				if (constructorAmendment.Implementation != null)
@@ -1051,7 +1081,7 @@ namespace Afterthought.Amender
 
 			// Before Method
 			if (methodAmendment.Before != null)
-				CallMethodDelegate(methodBody, methodAmendment.Before, true, il, null);
+				CallMethodDelegate(methodBody, methodAmendment.Before, true, il, null, MethodDelegateType.Before);
 
 			// Implementation
 			Action implement = () =>
@@ -1060,7 +1090,7 @@ namespace Afterthought.Amender
 				{
 					// Clear the original method body
 					il.Operations.Clear();
-					CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il, null);
+					CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il, null, MethodDelegateType.Implement);
 				}
 
 				// Emit the original method operations if the method implementation was not overriden
@@ -1077,7 +1107,7 @@ namespace Afterthought.Amender
 
 			// After Method
 			if (methodAmendment.After != null)
-				CallMethodDelegate(methodBody, methodAmendment.After, false, il, implement);
+				CallMethodDelegate(methodBody, methodAmendment.After, false, il, implement, MethodDelegateType.After);
 
 			// Or emit a return for new/overriden methods
 			if (methodAmendment.Implementation != null)
@@ -1095,163 +1125,117 @@ namespace Afterthought.Amender
 		/// <param name="updateArguments"></param>
 		/// <param name="il"></param>
 		/// <param name="implement"></param>
-		void CallMethodDelegate(MethodBody methodBody, System.Reflection.MethodInfo method, bool updateArguments, ILAmender il, Action implement)
+		void CallMethodDelegate(MethodBody methodBody, System.Reflection.MethodInfo method, bool updateArguments, ILAmender il, Action implement, MethodDelegateType delegateType)
 		{
 			// Get the corresponding before method definition
 			var methodDef = methodBody.MethodDefinition;
 			
 			// Get the method definition to emit a call to
-			var targetMethodDef = ResolveMethodDelegate(methodBody.MethodDefinition.ContainingType, method);
+			var targetMethodDef = ResolveMethodDelegate(methodBody.MethodDefinition.ContainingType, method, methodDef, ref delegateType);
 			
 			// Load this pointer onto stack
 			il.Emit(OperationCode.Ldarg_0);
 
-			// Load method name onto stack
-			il.Emit(OperationCode.Ldstr, methodBody.MethodDefinition.Name.Value);
-
-			// Conditionally handle parameters
-			var parameters = method.GetParameters();
-			if (parameters.Length >= 3 && (typeof(Parameter).IsAssignableFrom(parameters[2].ParameterType) || parameters[2].ParameterType == typeof(object[])))
+			// Array syntax (T instance, string methodName, object[] parameters[, object result])
+			if ((delegateType & MethodDelegateType.ArraySyntax) > 0)
 			{
-				Type argType = parameters[2].ParameterType;
-				ITypeDefinition argTypeDef = targetMethodDef.Parameters.Skip(2).First().Type.ResolvedType;
+				// Load method name onto stack
+				il.Emit(OperationCode.Ldstr, methodBody.MethodDefinition.Name.Value);
 
 				// Add local variable to store the return value before delegate
+				ITypeDefinition argTypeDef = targetMethodDef.Parameters.Skip(2).First().Type.ResolvedType;
 				var args = new LocalDefinition() { Name = host.NameTable.GetNameFor("_args_"), Type = argTypeDef };
 				methodBody.LocalVariables.Add(args);
 
-				// Array
-				if (argType == typeof(object[]))
+				// Load the number of arguments onto the stack
+				il.Emit(OperationCode.Ldc_I4, methodDef.Parameters.Count());
+
+				// Create an object array
+				il.Emit(OperationCode.Newarr, argTypeDef);
+
+				// Store the new array
+				il.Emit(OperationCode.Stloc, args);
+
+				// Populate the array with method arguments
+				foreach (var parameter in methodDef.Parameters)
 				{
-					// Load the number of arguments onto the stack
-					il.Emit(OperationCode.Ldc_I4, methodDef.Parameters.Count());
-
-					// Create an object array
-					il.Emit(OperationCode.Newarr, argTypeDef);
-
-					// Store the new array
-					il.Emit(OperationCode.Stloc, args);
-
-					// Populate the array with method arguments
-					foreach (var parameter in methodDef.Parameters)
-					{
-						// Load the argument array
-						il.Emit(OperationCode.Ldloc, args);
-
-						// Add argument index to the stack
-						il.Emit(OperationCode.Ldc_I4, parameter.Index);
-
-						// Load the argument
-						il.Emit(OperationCode.Ldarg, parameter);
-
-						// Box value types
-						if (parameter.Type.IsValueType)
-							il.Emit(OperationCode.Box, parameter.Type);
-
-						// Store the argument in the array
-						il.Emit(OperationCode.Stelem_Ref);
-					}
-
 					// Load the argument array
 					il.Emit(OperationCode.Ldloc, args);
 
-					// Emit the method implementation here if specified
-					if (implement != null)
-						implement();
+					// Add argument index to the stack
+					il.Emit(OperationCode.Ldc_I4, parameter.Index);
 
-					// Call the target method
-					il.Emit(OperationCode.Call, targetMethodDef);
+					// Load the argument
+					il.Emit(OperationCode.Ldarg, parameter);
 
-					// Handle method delegates that potentially return updated arguments
-					if (updateArguments)
-					{
-						// Store the updated argument array
-						il.Emit(OperationCode.Stloc, args);
+					// Box value types
+					if (parameter.Type.IsValueType)
+						il.Emit(OperationCode.Box, parameter.Type);
 
-						// Load the argument array
-						il.Emit(OperationCode.Ldloc, args);
-		
-						// Skip null return values
-						var skipIfNull = new ILGeneratorLabel();
-						il.Emit(OperationCode.Brfalse_S, skipIfNull);
-
-						// Update the method arguments with the result of the invocation
-						foreach (var parameter in methodDef.Parameters)
-						{
-							// Load the arguments back on the stack
-							il.Emit(OperationCode.Ldloc, args);
-
-							// Load the index of the argument value
-							il.Emit(OperationCode.Ldc_I4, parameter.Index);
-
-							// Get the argument value from the array
-							il.Emit(OperationCode.Ldelem_Ref);
-
-							// Unbox value types
-							if (parameter.Type.IsValueType)
-								il.Emit(OperationCode.Unbox_Any, parameter.Type);
-
-							// Update the actual argument
-							il.Emit(OperationCode.Starg, parameter);
-						}
-
-						// End the skipping branch
-						il.MarkLabel(skipIfNull);
-					}
+					// Store the argument in the array
+					il.Emit(OperationCode.Stelem_Ref);
 				}
 
-				// Parameter<T1,...,TN>
-				else
+				// Load the argument array
+				il.Emit(OperationCode.Ldloc, args);
+
+				// Emit the method implementation here if specified
+				if (implement != null)
+					implement();
+
+				// Box result values if necessary
+				if ((delegateType & MethodDelegateType.HasResultParameter) > 0 && methodDef.Type.IsValueType)
+					il.Emit(OperationCode.Box, methodDef.Type);
+
+				// Call the target method
+				il.Emit(OperationCode.Call, targetMethodDef);
+
+				// Unbox result values if necessary
+				if ((delegateType & MethodDelegateType.HasResultParameter) > 0 && methodDef.Type.IsValueType)
+					il.Emit(OperationCode.Unbox_Any, methodDef.Type);
+
+				// Handle method delegates that potentially return updated arguments
+				if (updateArguments)
 				{
-					// Load the method arguments onto the stack
+					// Update the method arguments with the result of the invocation
 					foreach (var parameter in methodDef.Parameters)
-						il.Emit(OperationCode.Ldarg, parameter);
-
-					// Create the parameter argument
-					il.Emit(OperationCode.Newobj, argTypeDef.Methods.Where(m => m.IsConstructor).First());
-
-					// Emit the method implementation here if specified
-					if (implement != null)
-						implement();
-
-					// Call the target method
-					il.Emit(OperationCode.Call, targetMethodDef);
-
-					// Handle method delegates that potentially return updated arguments
-					if (updateArguments)
 					{
-						// Store the return value
-						il.Emit(OperationCode.Stloc, args);
-
 						// Load the arguments back on the stack
 						il.Emit(OperationCode.Ldloc, args);
 
-						// Skip null return values
-						var skipIfNull = new ILGeneratorLabel();
-						il.Emit(OperationCode.Brfalse_S, skipIfNull);
+						// Load the index of the argument value
+						il.Emit(OperationCode.Ldc_I4, parameter.Index);
 
-						// Update the method arguments with the result of the invocation
-						foreach (var parameter in methodDef.Parameters)
-						{
-							// Load the arguments back on the stack
-							il.Emit(OperationCode.Ldloc, args);
+						// Get the argument value from the array
+						il.Emit(OperationCode.Ldelem_Ref);
 
-							// Get the argument value
-							il.Emit(OperationCode.Call, GetProperty(argTypeDef, "Param" + (parameter.Index + 1)).Getter);
+						// Unbox value types
+						if (parameter.Type.IsValueType)
+							il.Emit(OperationCode.Unbox_Any, parameter.Type);
 
-							// Update the actual argument
-							il.Emit(OperationCode.Starg, parameter);
-						}
-
-						// End the skipping branch
-						il.MarkLabel(skipIfNull);
+						// Update the actual argument
+						il.Emit(OperationCode.Starg, parameter);
 					}
 				}
 			}
 
-			// Otherwise, just call the target method
-			else
-				il.Emit(OperationCode.Call, methodDef);
+			// Explicit syntax
+			else 
+			{
+				// Determine whether to load the argument value or argument references
+				var ldArg = methodDef.ParameterCount > 0 && targetMethodDef.Parameters.Skip(1).First().IsByReference ? OperationCode.Ldarga_S : OperationCode.Ldarg_S; 
+
+				// Load the method arguments onto the stack
+				foreach (var parameter in methodDef.Parameters)
+					il.Emit(ldArg, parameter);
+
+				// Emit the method implementation here if specified
+				if (implement != null)
+					implement();
+
+				// Call the target method
+				il.Emit(OperationCode.Call, targetMethodDef);
+			}
 		}
 
 		/// <summary>
@@ -1476,24 +1460,25 @@ namespace Afterthought.Amender
 
 		GenericMethod ResolvePropertyDelegate(IPropertyDefinition propertyDef, System.Reflection.MethodInfo method)
 		{
-			var genericType = ResolveType(method.DeclaringType.GetGenericTypeDefinition());
+			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
 
 			// Create a concrete type instance
-			var concreteType = GenericTypeInstance.GetGenericTypeInstance(genericType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory);
-
+			if (declaringType.IsGeneric)
+				declaringType = GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory);
+		
 			// Then get the generic Amendment method
-			var genericMethod = concreteType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
+			var genericMethod = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
 
 			// Finally, return a concrete method instance
 			return new GenericMethod()
 			{
-				Operations = genericType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault().Body.Operations,
+				Operations = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault().Body.Operations,
 				Instance = genericMethod.GenericParameterCount == 0 ? genericMethod : new GenericMethodInstance(genericMethod, new ITypeReference[] { propertyDef.Type }, host.InternFactory)
 					
 			};
 		}
 
-		IMethodDefinition ResolveMethodDelegate(ITypeReference instanceType, System.Reflection.MethodInfo method)
+		IMethodDefinition ResolveMethodDelegate(ITypeReference instanceType, System.Reflection.MethodInfo method, IMethodDefinition methodDef, ref MethodDelegateType delegateType)
 		{
 			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
 
@@ -1502,7 +1487,51 @@ namespace Afterthought.Amender
 				declaringType = GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { instanceType }, host.InternFactory);
 
 			// Then get the Amendment method
-			return declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
+			var targetMethodDef = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
+			var parameters = method.GetParameters();
+
+			// Determine if the target method is an action (void) or function (non-void)
+			delegateType = delegateType | (TypeHelper.TypesAreEquivalent(targetMethodDef.Type, host.PlatformType.SystemVoid) ? MethodDelegateType.Action : MethodDelegateType.Function);
+
+			// Determine if the target method should have a result parameter passed in
+			if ((delegateType & MethodDelegateType.Function) > 0 && (delegateType & (MethodDelegateType.After | MethodDelegateType.Finally)) > 0)
+				delegateType = delegateType | MethodDelegateType.HasResultParameter;
+
+			// Determine if the target method uses the object array or explicit parameter syntax
+			delegateType = delegateType | (((delegateType & MethodDelegateType.Action) > 0 ?
+				parameters.Length == 3 && parameters[1].ParameterType == typeof(string) && parameters[2].ParameterType == typeof(object[]) :
+				parameters.Length == 4 && parameters[1].ParameterType == typeof(string) && parameters[2].ParameterType == typeof(object[]) && parameters[3].ParameterType == typeof(object) && method.ReturnType == typeof(object)) ?
+				MethodDelegateType.ArraySyntax :
+				MethodDelegateType.ExplicitSyntax);
+
+			// Ensure the instance parameter is compatible
+			if (!TypeHelper.TypesAreAssignmentCompatible(methodDef.ContainingType.ResolvedType, targetMethodDef.Parameters.First().Type.ResolvedType))
+				throw new ArgumentException("The specified method delegate does not have the correct instance parameter type.");
+
+			// Perform additional checks for explicit delegates
+			if ((delegateType & MethodDelegateType.ExplicitSyntax) > 0)
+			{
+				// Return false if the target method does not have the correct number of parameters
+				// It should always have one more than the method being amended to support the instance parameter
+				// and will have one more parameter if the delegate has a return value
+				if (methodDef.ParameterCount != targetMethodDef.ParameterCount - 1 - ((delegateType & MethodDelegateType.HasResultParameter) > 0 ? 1 : 0))
+					throw new ArgumentException("The specified explicit method delegate does not have the correct number of parameters.");
+
+				// Verify that the parameter types are compatible
+				var paramDefs = targetMethodDef.Parameters.ToArray();
+				if (!methodDef.Parameters.All(p => TypeHelper.TypesAreEquivalent(p.Type, paramDefs[p.Index + 1].Type)))
+					throw new ArgumentException("The specified explicit method delegate does not have the correct parameter types.");
+
+				// Verify that the result parameter is compatible
+				if ((delegateType & MethodDelegateType.HasResultParameter) > 0 && !TypeHelper.TypesAreEquivalent(methodDef.Type, paramDefs[parameters.Length - 1].Type))
+					throw new ArgumentException("The specified result parameter is not valid.");
+
+				// Verify that the return type is compatible
+				if ((delegateType & MethodDelegateType.Function) > 0 && !TypeHelper.TypesAreEquivalent(methodDef.Type, targetMethodDef.Type))
+					throw new ArgumentException("The specified return type is not valid.");
+			}
+
+			return targetMethodDef;
 		}
 
 

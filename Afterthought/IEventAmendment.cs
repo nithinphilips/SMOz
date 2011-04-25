@@ -9,21 +9,26 @@
 //
 //-----------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
+using System.Reflection;
 
 namespace Afterthought
 {
-	/// <summary>
-	/// Interface implemented by attributes that produce <see cref="ITypeAmendment"/> instances
-	/// for types in an assembly.
-	/// </summary>
-	public interface IAmendmentAttribute
+	public interface IEventAmendment : IMemberAmendment
 	{
-		/// <summary>
-		/// Identifies the set of <see cref="ITypeAmendment"/> instances to apply based on the type
-		/// the attribute was applied to.
-		/// </summary>
-		IEnumerable<ITypeAmendment> GetAmendments(Type target);
+		MethodInfo Adder { get; }
+
+		MethodInfo AfterAdd { get; }
+		
+		MethodInfo AfterRemove { get; }
+		
+		MethodInfo BeforeAdd { get; }
+		
+		MethodInfo BeforeRemove { get; }
+		
+		EventInfo EventInfo { get; }
+		
+		EventInfo Implements { get; }
+		
+		MethodInfo Remover { get; }
 	}
 }

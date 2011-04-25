@@ -90,7 +90,7 @@ namespace Afterthought.Amender
 			};
 
 			// Get the set of amendments to apply from all of the specified assemblies
-			var amendments = assemblies.SelectMany(a => AmendmentAttribute.GetAmendments(System.Reflection.Assembly.LoadFrom(a.DllBackupPath))).ToList();
+			var amendments = AmendmentAttribute.GetAmendments(assemblies.Select(a => System.Reflection.Assembly.LoadFrom(a.DllBackupPath)).ToArray()).ToList();
 
 			// Exit immediately if there are no amendments in the target assemblies
 			if (amendments.Count == 0)
@@ -99,6 +99,10 @@ namespace Afterthought.Amender
 			// Process each target assembly individually
 			foreach (var assembly in assemblies)
 			{
+				var assemblyAmendments = amendments.Where(a => a.Type.Assembly.Location == assembly.DllBackupPath).ToArray();
+				if (assemblyAmendments.Length == 0)
+					continue;
+
 				Console.Write("Amending " + Path.GetFileName(assembly.DllPath));
 				var start = DateTime.Now;
 
@@ -126,7 +130,7 @@ namespace Afterthought.Amender
 					using (pdbReader)
 					{
 						// Create and execute a new assembly amender
-						AssemblyAmender amender = new AssemblyAmender(host, pdbReader, amendments);
+						AssemblyAmender amender = new AssemblyAmender(host, pdbReader, assemblyAmendments);
 						amender.TargetRuntimeVersion = module.TargetRuntimeVersion;
 						module = amender.Visit(module);
 

@@ -104,157 +104,163 @@ namespace Afterthought
 
 			#region Create (Action)
 
-			public delegate void CreateMethodAction(TAmended instance, string method);
-
-			public delegate void CreateMethodAction<P>(TAmended instance, string method, P parameters);
-
-			public static Method Create(string name, CreateMethodAction create)
+			public static Method Create(string name, ImplementMethodAction implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1>(string name, CreateMethodAction<Parameter<P1>> create)
+			public static Method Create<P1>(string name, ImplementMethodAction<P1> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2>(string name, CreateMethodAction<Parameter<P1, P2>> create)
+			public static Method Create<P1, P2>(string name, ImplementMethodAction<P1, P2> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3>(string name, CreateMethodAction<Parameter<P1, P2, P3>> create)
+			public static Method Create<P1, P2, P3>(string name, ImplementMethodAction<P1, P2, P3> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4>(string name, CreateMethodAction<Parameter<P1, P2, P3, P4>> create)
+			public static Method Create<P1, P2, P3, P4>(string name, ImplementMethodAction<P1, P2, P3, P4> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5>(string name, CreateMethodAction<Parameter<P1, P2, P3, P4, P5>> create)
+			public static Method Create<P1, P2, P3, P4, P5>(string name, ImplementMethodAction<P1, P2, P3, P4, P5> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, P6>(string name, CreateMethodAction<Parameter<P1, P2, P3, P4, P5, P6>> create)
+			public static Method Create<P1, P2, P3, P4, P5, P6>(string name, ImplementMethodAction<P1, P2, P3, P4, P5, P6> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, P6, P7>(string name, CreateMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7>> create)
+			public static Method Create<P1, P2, P3, P4, P5, P6, P7>(string name, ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, P6, P7, P8>(string name, CreateMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> create)
+			public static Method Create<P1, P2, P3, P4, P5, P6, P7, P8>(string name, ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
 			#endregion
 
 			#region Create (Func)
 
-			public delegate R CreateMethodFunc<R>(TAmended instance, string method);
-
-			public delegate R CreateMethodFunc<P, R>(TAmended instance, string method, P parameters);
-
-			public static Method Create<TResult>(string name, CreateMethodFunc<TResult> create)
+			public static Method Create<TResult>(string name, ImplementMethodFunc<TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, TResult>(string name, CreateMethodFunc<Parameter<P1>, TResult> create)
+			public static Method Create<P1, TResult>(string name, ImplementMethodFunc<P1, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, TResult>(string name, CreateMethodFunc<Parameter<P1, P2>, TResult> create)
+			public static Method Create<P1, P2, TResult>(string name, ImplementMethodFunc<P1, P2, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3>, TResult> create)
+			public static Method Create<P1, P2, P3, TResult>(string name, ImplementMethodFunc<P1, P2, P3, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3, P4>, TResult> create)
+			public static Method Create<P1, P2, P3, P4, TResult>(string name, ImplementMethodFunc<P1, P2, P3, P4, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> create)
+			public static Method Create<P1, P2, P3, P4, P5, TResult>(string name, ImplementMethodFunc<P1, P2, P3, P4, P5, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, P6, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> create)
+			public static Method Create<P1, P2, P3, P4, P5, P6, TResult>(string name, ImplementMethodFunc<P1, P2, P3, P4, P5, P6, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, P6, P7, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7>, TResult> create)
+			public static Method Create<P1, P2, P3, P4, P5, P6, P7, TResult>(string name, ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
-			public static Method Create<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(string name, CreateMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> create)
+			public static Method Create<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(string name, ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> implementation)
 			{
-				return new Method(name) { ImplementationMethod = create.Method };
+				return new Method(name) { ImplementationMethod = implementation.Method };
 			}
 
 			#endregion
 
 			#region Implement (Action)
 
-			public delegate void ImplementMethodAction(TAmended instance, string method);
-
-			public delegate void ImplementMethodAction<P>(TAmended instance, string method, P parameters);
+			public delegate void ImplementMethodAction(TAmended instance);
 
 			public void Implement(ImplementMethodAction implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1>(ImplementMethodAction<Parameter<P1>> implementation)
+			public delegate void ImplementMethodAction<P1>(TAmended instance, P1 param1);
+
+			public void Implement<P1>(ImplementMethodAction<P1> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2>(ImplementMethodAction<Parameter<P1, P2>> implementation)
+			public delegate void ImplementMethodAction<P1, P2>(TAmended instance, P1 param1, P2 param2);
+
+			public void Implement<P1, P2>(ImplementMethodAction<P1, P2> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3>(ImplementMethodAction<Parameter<P1, P2, P3>> implementation)
+			public delegate void ImplementMethodAction<P1, P2, P3>(TAmended instance, P1 param1, P2 param2, P3 param3);
+
+			public void Implement<P1, P2, P3>(ImplementMethodAction<P1, P2, P3> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4>(ImplementMethodAction<Parameter<P1, P2, P3, P4>> implementation)
+			public delegate void ImplementMethodAction<P1, P2, P3, P4>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
+
+			public void Implement<P1, P2, P3, P4>(ImplementMethodAction<P1, P2, P3, P4> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5>> implementation)
+			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
+
+			public void Implement<P1, P2, P3, P4, P5>(ImplementMethodAction<P1, P2, P3, P4, P5> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6>> implementation)
+			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5, P6>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
+
+			public void Implement<P1, P2, P3, P4, P5, P6>(ImplementMethodAction<P1, P2, P3, P4, P5, P6> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7>> implementation)
+			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7>(ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(ImplementMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> implementation)
+			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
@@ -263,51 +269,65 @@ namespace Afterthought
 
 			#region Implement (Func)
 
-			public delegate R ImplementMethodFunc<R>(TAmended instance, string method);
-
-			public delegate R ImplementMethodFunc<P, R>(TAmended instance, string method, P parameters);
+			public delegate TResult ImplementMethodFunc<TResult>(TAmended instance);
 
 			public void Implement<TResult>(ImplementMethodFunc<TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, TResult>(ImplementMethodFunc<Parameter<P1>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, TResult>(TAmended instance, P1 param1);
+
+			public void Implement<P1, TResult>(ImplementMethodFunc<P1, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, TResult>(ImplementMethodFunc<Parameter<P1, P2>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, TResult>(TAmended instance, P1 param1, P2 param2);
+
+			public void Implement<P1, P2, TResult>(ImplementMethodFunc<P1, P2, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, P3, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3);
+
+			public void Implement<P1, P2, P3, TResult>(ImplementMethodFunc<P1, P2, P3, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
+
+			public void Implement<P1, P2, P3, P4, TResult>(ImplementMethodFunc<P1, P2, P3, P4, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
+
+			public void Implement<P1, P2, P3, P4, P5, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, P6, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
+
+			public void Implement<P1, P2, P3, P4, P5, P6, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(ImplementMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> implementation)
+			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
+
+			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
 			}
@@ -316,81 +336,73 @@ namespace Afterthought
 
 			#region Before
 
-			public new delegate void BeforeMethod(TAmended instance, string method);
+			public delegate void BeforeMethodArray(TAmended instance, string method, object[] parameters);
 
-			public delegate P BeforeMethod<P>(TAmended instance, string method, P parameters);
+			public void Before(BeforeMethodArray before)
+			{
+				base.BeforeMethod = before.Method;
+			}
+
+			public new delegate void BeforeMethod(TAmended instance);
 
 			public void Before(BeforeMethod before)
 			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before(BeforeMethod<object[]> before)
+			public delegate void BeforeMethod<P1>(TAmended instance, ref P1 param1);
+
+			public void Before<P1>(BeforeMethod<P1> before)
 			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1>(BeforeMethod<Parameter<P1>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 1)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void BeforeMethod<P1, P2>(TAmended instance, ref P1 param1, ref P2 param2);
 
+			public void Before<P1, P2>(BeforeMethod<P1, P2> before)
+			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1, P2>(BeforeMethod<Parameter<P1, P2>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 2)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void BeforeMethod<P1, P2, P3>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3);
 
+			public void Before<P1, P2, P3>(BeforeMethod<P1, P2, P3> before)
+			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1, P2, P3>(BeforeMethod<Parameter<P1, P2, P3>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 3)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void BeforeMethod<P1, P2, P3, P4>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4);
 
+			public void Before<P1, P2, P3, P4>(BeforeMethod<P1, P2, P3, P4> before)
+			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1, P2, P3, P4>(BeforeMethod<Parameter<P1, P2, P3, P4>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 4)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void BeforeMethod<P1, P2, P3, P4, P5>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5);
 
+			public void Before<P1, P2, P3, P4, P5>(BeforeMethod<P1, P2, P3, P4, P5> before)
+			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1, P2, P3, P4, P5>(BeforeMethod<Parameter<P1, P2, P3, P4, P5>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 5)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void BeforeMethod<P1, P2, P3, P4, P5, P6>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6);
 
+			public void Before<P1, P2, P3, P4, P5, P6>(BeforeMethod<P1, P2, P3, P4, P5, P6> before)
+			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1, P2, P3, P4, P5, P6>(BeforeMethod<Parameter<P1, P2, P3, P4, P5, P6>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 6)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void BeforeMethod<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7);
 
+			public void Before<P1, P2, P3, P4, P5, P6, P7>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7> before)
+			{
 				base.BeforeMethod = before.Method;
 			}
 
-			public void Before<P1, P2, P3, P4, P5, P6, P7>(BeforeMethod<Parameter<P1, P2, P3, P4, P5, P6, P7>> before)
+			public delegate void BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7, ref P8 param8);
+
+			public void Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8> before)
 			{
-				if (MethodInfo.GetParameters().Length != 7)
-					throw new ArgumentException("The number of parameters must match the method signature.");
-
-				base.BeforeMethod = before.Method;
-			}
-
-			public void Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeMethod<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> before)
-			{
-				if (MethodInfo.GetParameters().Length != 8)
-					throw new ArgumentException("The number of parameters must match the method signature.");
-
 				base.BeforeMethod = before.Method;
 			}
 
@@ -398,81 +410,73 @@ namespace Afterthought
 
 			#region After (Action)
 
-			public delegate void AfterMethodAction(TAmended instance, string method);
+			public delegate void AfterMethodActionArray(TAmended instance, string method, object[] parameters);
 
-			public delegate void AfterMethodAction<P>(TAmended instance, string method, P parameters);
+			public void After(AfterMethodActionArray after)
+			{
+				AfterMethod = after.Method;
+			}
+
+			public delegate void AfterMethodAction(TAmended instance);
 
 			public void After(AfterMethodAction after)
 			{
 				AfterMethod = after.Method;
 			}
 
-			public void After(AfterMethodAction<object[]> after)
+			public delegate void AfterMethodAction<P1>(TAmended instance, P1 param1);
+
+			public void After<P1>(AfterMethodAction<P1> after)
 			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1>(AfterMethodAction<Parameter<P1>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 1)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void AfterMethodAction<P1, P2>(TAmended instance, P1 param1, P2 param2);
 
+			public void After<P1, P2>(AfterMethodAction<P1, P2> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2>(AfterMethodAction<Parameter<P1, P2>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 2)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void AfterMethodAction<P1, P2, P3>(TAmended instance, P1 param1, P2 param2, P3 param3);
 
+			public void After<P1, P2, P3>(AfterMethodAction<P1, P2, P3> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3>(AfterMethodAction<Parameter<P1, P2, P3>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 3)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void AfterMethodAction<P1, P2, P3, P4>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
 
+			public void After<P1, P2, P3, P4>(AfterMethodAction<P1, P2, P3, P4> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4>(AfterMethodAction<Parameter<P1, P2, P3, P4>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 4)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
 
+			public void After<P1, P2, P3, P4, P5>(AfterMethodAction<P1, P2, P3, P4, P5> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, P5>(AfterMethodAction<Parameter<P1, P2, P3, P4, P5>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 5)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
 
+			public void After<P1, P2, P3, P4, P5, P6>(AfterMethodAction<P1, P2, P3, P4, P5, P6> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, P5, P6>(AfterMethodAction<Parameter<P1, P2, P3, P4, P5, P6>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 6)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
 
+			public void After<P1, P2, P3, P4, P5, P6, P7>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, P5, P6, P7>(AfterMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7>> after)
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
+
+			public void After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> after)
 			{
-				if (MethodInfo.GetParameters().Length != 7)
-					throw new ArgumentException("The number of parameters must match the method signature.");
-
-				AfterMethod = after.Method;
-			}
-
-			public void After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterMethodAction<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>> after)
-			{
-				if (MethodInfo.GetParameters().Length != 8)
-					throw new ArgumentException("The number of parameters must match the method signature.");
-
 				AfterMethod = after.Method;
 			}
 
@@ -480,81 +484,73 @@ namespace Afterthought
 
 			#region After (Func)
 
-			public delegate R AfterMethodFunc<R>(TAmended instance, string method, R returnValue);
+			public delegate object AfterMethodFuncArray(TAmended instance, string method, object[] parameters, object result);
 
-			public delegate R AfterMethodFunc<P, R>(TAmended instance, string method, P parameters, R returnValue);
+			public void After(AfterMethodFuncArray after)
+			{
+				AfterMethod = after.Method;
+			}
+
+			public delegate TResult AfterMethodFunc<TResult>(TAmended instance, TResult result);
 
 			public void After<TResult>(AfterMethodFunc<TResult> after)
 			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<TResult>(AfterMethodFunc<object[], TResult> after)
+			public delegate TResult AfterMethodFunc<P1, TResult>(TAmended instance, P1 param1, TResult result);
+
+			public void After<P1, TResult>(AfterMethodFunc<P1, TResult> after)
 			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, TResult>(AfterMethodFunc<Parameter<P1>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 1)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate TResult AfterMethodFunc<P1, P2, TResult>(TAmended instance, P1 param1, P2 param2, TResult result);
 
+			public void After<P1, P2, TResult>(AfterMethodFunc<P1, P2, TResult> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, TResult>(AfterMethodFunc<Parameter<P1, P2>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 2)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate TResult AfterMethodFunc<P1, P2, P3, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, TResult result);
 
+			public void After<P1, P2, P3, TResult>(AfterMethodFunc<P1, P2, P3, TResult> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, TResult>(AfterMethodFunc<Parameter<P1, P2, P3>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 3)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, TResult result);
 
+			public void After<P1, P2, P3, P4, TResult>(AfterMethodFunc<P1, P2, P3, P4, TResult> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 4)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, TResult result);
 
+			public void After<P1, P2, P3, P4, P5, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, TResult> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, P5, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4, P5>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 5)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, TResult result);
 
+			public void After<P1, P2, P3, P4, P5, P6, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, P5, P6, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4, P5, P6>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 6)
-					throw new ArgumentException("The number of parameters must match the method signature.");
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, TResult result);
 
+			public void After<P1, P2, P3, P4, P5, P6, P7, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> after)
+			{
 				AfterMethod = after.Method;
 			}
 
-			public void After<P1, P2, P3, P4, P5, P6, P7, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7>, TResult> after)
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, TResult result);
+
+			public void After<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> after)
 			{
-				if (MethodInfo.GetParameters().Length != 7)
-					throw new ArgumentException("The number of parameters must match the method signature.");
-
-				AfterMethod = after.Method;
-			}
-
-			public void After<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(AfterMethodFunc<Parameter<P1, P2, P3, P4, P5, P6, P7, P8>, TResult> after)
-			{
-				if (MethodInfo.GetParameters().Length != 8)
-					throw new ArgumentException("The number of parameters must match the method signature.");
-
 				AfterMethod = after.Method;
 			}
 

@@ -10,9 +10,9 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Afterthought
 {
@@ -44,15 +44,24 @@ namespace Afterthought
 		/// </summary>
 		/// <param name="assembly"></param>
 		/// <returns></returns>
-		public static IEnumerable<ITypeAmendment> GetAmendments(System.Reflection.Assembly assembly)
+		public static IEnumerable<ITypeAmendment> GetAmendments(params Assembly[] assemblies)
 		{
-			foreach (var type in assembly.GetTypes())
+			// Start by finding all assembly amenders
+			var assemblyAmenders = assemblies.SelectMany(a => a.GetCustomAttributes(true)).OfType<IAmendmentAttribute>().ToArray();
+
+			foreach (var assembly in assemblies)
 			{
-				foreach (var amendment in type.GetCustomAttributes(true).OfType<IAmendmentAttribute>().SelectMany(attr => attr.GetAmendments(type)))
+				foreach (var type in assembly.GetTypes())
 				{
-					if (amendment is Amendment)
-						((Amendment)amendment).Initialize();
-					yield return amendment;
+					// Process all type and assembly-level amendments
+					foreach (var amendment in 
+						type.GetCustomAttributes(true).OfType<IAmendmentAttribute>().SelectMany(attr => attr.GetAmendments(type))
+						.Concat(assemblyAmenders.SelectMany(a => a.GetAmendments(type))))
+					{
+						if (amendment is Amendment)
+							((Amendment)amendment).Initialize();
+						yield return amendment;
+					}
 				}
 			}
 		}

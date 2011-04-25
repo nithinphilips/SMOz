@@ -349,7 +349,7 @@ namespace Afterthought
 						var method = (Method)member;
 
 						// Determine the method being implemented
-						var args = method.ImplementationMethod.GetParameters().Skip(2).Select(p => p.ParameterType.GetGenericArguments()).FirstOrDefault() ?? new Type[] { };
+						var args = method.ImplementationMethod.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray();
 						method.Implements = interfaceType.GetMethods()
 							.FirstOrDefault(m => m.Name == method.Name && m.GetParameters().Length == args.Length &&
 								m.GetParameters().All(p => args[p.Position] == p.ParameterType));

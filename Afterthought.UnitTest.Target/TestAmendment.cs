@@ -56,7 +56,7 @@ namespace Afterthought.UnitTest.Target
 				new Property<decimal>("Pi") { Getter = (instance, property) => 3.14159m },
 
 				// Subtract()
-				Method.Create<decimal, decimal, decimal>("Subtract", (instance, method, parameters) => parameters.Param1 - parameters.Param2)
+				Method.Create("Subtract", (T instance, decimal x, decimal y) => x - y)
 			);
 
 			// Add attributes
@@ -154,12 +154,9 @@ namespace Afterthought.UnitTest.Target
 			{
 				// Modify Multiply to also set the Result property to the resulting value
 				case "Multiply" :
-					method.Before<int, int>((instance, methodName, parameters) =>
+					method.Before((T instance, ref int x, ref int y) =>
 					{
-						instance.Result = parameters.Param1 * parameters.Param2;
-
-						// Return null to indicate that the original parameters should not be modified
-						return null;
+						instance.Result = x * y;
 					});
 
 					method.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
@@ -169,24 +166,19 @@ namespace Afterthought.UnitTest.Target
 					break;
 
 				// Modify Multiply2 to also set the Result property to the resulting value
+				// Demonstrates use of array syntax
 				case "Multiply2":
 					method.Before((instance, methodName, parameters) =>
 					{
 						instance.Result = (int)parameters[0] * (int)parameters[1];
-
-						// Return null to indicate that the original parameters should not be modified
-						return null;
 					});
 					break;
 
 				// Modify Divide to change the second parameter value to 1 every time
 				case "Divide":
-				    method.Before<int, int>((instance, methodName, parameters) =>
+				    method.Before((T instance, ref int x, ref int y) =>
 				    {
-				        parameters.Param2 = 1;
-
-				        // Return the updated parameters to cause the new values to be used by the original implementation
-				        return parameters;
+				        y = 1;
 				    });
 				    break;
 
@@ -195,23 +187,20 @@ namespace Afterthought.UnitTest.Target
 					method.Before((instance, methodName, parameters) =>
 					{
 						parameters[1] = 1;
-
-						// Return the updated parameters to cause the new values to be used by the original implementation
-						return parameters;
 					});
 					break;
 
 				// Replace implementation of Square to correct coding error
 				case "Square":
-					method.Implement<int, int>((instance, methodName, parameters) => parameters.Param1 * parameters.Param1);
+					method.Implement((T instance, int x) => x * x);
 					break;
 
 				// Modify Double to double each of the input values
 				case "Double":
-					method.After<int[]>((instance, methodName, parameters) =>
+					method.After((T instance, int[] set) =>
 					{
-						for (int i = 0; i < parameters.Param1.Length; i++)
-							parameters.Param1[i] = parameters.Param1[i] * 2;
+						for (int i = 0; i < set.Length; i++)
+							set[i] = set[i] * 2;
 					});
 					break;
 
@@ -226,18 +215,18 @@ namespace Afterthought.UnitTest.Target
 
 				// Modify Sum to return the sum of the input values
 				case "Sum":
-					method.After<int[], long>((instance, methodName, parameters, returnValue) =>
+					method.After((T instance, int[] set, long result) =>
 					{
-						return parameters.Param1.Sum();
+						return set.Sum();
 					});
 					break;
 
 
 				// Modify Sum to return the sum of the input values
 				case "Sum2":
-					method.After<long>((instance, methodName, parameters, returnValue) =>
+					method.After((instance, methodName, parameters, result) =>
 					{
-						return ((int[])parameters[0]).Sum();
+						return (long)((int[])parameters[0]).Sum();
 					});
 					break;
 
