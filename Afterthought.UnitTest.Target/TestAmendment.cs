@@ -60,7 +60,6 @@ namespace Afterthought.UnitTest.Target
 			);
 
 			// Add attributes
-			AddAttribute(Attribute<TestAttribute>.Create(new object()));
 			AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
 			AddAttribute(Attribute<TestAttribute>.Create());
 			AddAttribute(Attribute<TestAttribute>.Create(5));
@@ -82,10 +81,13 @@ namespace Afterthought.UnitTest.Target
 
 		public override void Amend(Constructor constructor)
 		{
-			constructor.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
-			constructor.AddAttribute(Attribute<TestAttribute>.Create());
-			constructor.AddAttribute(Attribute<TestAttribute>.Create(5));
-			constructor.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
+			if (constructor.ConstructorInfo.GetParameters().Length == 0)
+			{
+				constructor.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
+				constructor.AddAttribute(Attribute<TestAttribute>.Create());
+				constructor.AddAttribute(Attribute<TestAttribute>.Create(5));
+				constructor.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
+			}
 		}
 
 		/// <summary>
@@ -249,19 +251,34 @@ namespace Afterthought.UnitTest.Target
 
 	public class TestAttribute : System.Attribute
 	{
+		public int IntValue { get; private set; }
+		public Type TypeValue { get; private set; }
+		public string[] StringArValue { get; private set; }
+		public object ObjectValue { get; private set; }
+
 		public TestAttribute()
-		{ }
+		{
+			IntValue = -1;
+		}
 
 		public TestAttribute(int number)
-		{ }
+		{
+			IntValue = number;
+		}
 
 		public TestAttribute(Type type)
-		{ }
+		{
+			TypeValue = type;
+		}
 
 		public TestAttribute(string[] values)
-		{ }
+		{
+			StringArValue = values;
+		}
 
 		public TestAttribute(object values)
-		{ }
+		{
+			ObjectValue = values;
+		}
 	}
 }

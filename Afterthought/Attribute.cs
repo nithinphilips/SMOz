@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Collections;
 
 namespace Afterthought
 {
@@ -45,6 +46,7 @@ namespace Afterthought
 	public partial class Amendment<TType, TAmended> : Amendment
 	{
 		public class Attribute<A> : Attribute
+			where A : System.Attribute
 		{
 			internal Attribute()
 				: base(typeof(A).Name)
@@ -81,6 +83,38 @@ namespace Afterthought
 				return constructorInfo;
 			}
 
+			private static bool IsConstantExpression(object value)
+			{
+				Type type = value.GetType();
+
+				// Verify type
+				return type == typeof(sbyte) ||
+					type == typeof(byte) ||
+					type == typeof(ushort) ||
+					type == typeof(int) ||
+					type == typeof(uint) ||
+					type == typeof(long) ||
+					type == typeof(ulong) ||
+					type == typeof(char) ||
+					type == typeof(float) ||
+					type == typeof(double) ||
+					type == typeof(decimal) ||
+					type == typeof(bool) ||
+					type == typeof(string) ||
+					typeof(Type).IsAssignableFrom(type) ||
+					type.IsArray ||
+					type.IsEnum;
+			}
+
+			private static void ValidateParameters(IEnumerable parameters)
+			{
+				foreach (var obj in parameters)
+					if (!IsConstantExpression(obj))
+						throw new ArgumentException("An attribute argument must be a constant expression, typeof expression or array creation expression of an attribute parameter type");
+					else if (obj.GetType().IsArray)
+						ValidateParameters((IEnumerable) obj);
+			}
+
 			/// <summary>
 			/// Create a new Attribute
 			/// </summary>
@@ -102,10 +136,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1>(P1 value1)
 			{
+				object[] parameters = new object[] { value1 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1) }),
-					Arguments = new object[] { value1 }
+					Arguments = parameters
 				};
 			}
 
@@ -119,10 +157,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2>(P1 value1, P2 value2)
 			{
+				object[] parameters = new object[] { value1, value2 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2) }),
-					Arguments = new object[] { value1, value2 }
+					Arguments = parameters
 				};
 			}
 
@@ -138,10 +180,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2, P3>(P1 value1, P2 value2, P3 value3)
 			{
+				object[] parameters = new object[] { value1, value2, value3 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2), typeof(P3) }),
-					Arguments = new object[] { value1, value2, value3 }
+					Arguments = parameters
 				};
 			}
 
@@ -159,10 +205,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2, P3, P4>(P1 value1, P2 value2, P3 value3, P4 value4)
 			{
+				object[] parameters = new object[] { value1, value2, value3, value4 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2), typeof(P3), typeof(P4) }),
-					Arguments = new object[] { value1, value2, value3, value4 }
+					Arguments = parameters
 				};
 			}
 
@@ -182,10 +232,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2, P3, P4, P5>(P1 value1, P2 value2, P3 value3, P4 value4, P5 value5)
 			{
+				object[] parameters = new object[] { value1, value2, value3, value4, value5 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5) }),
-					Arguments = new object[] { value1, value2, value3, value4, value5 }
+					Arguments = parameters
 				};
 			}
 
@@ -207,10 +261,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2, P3, P4, P5, P6>(P1 value1, P2 value2, P3 value3, P4 value4, P5 value5, P6 value6)
 			{
+				object[] parameters = new object[] { value1, value2, value3, value4, value5, value6 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6) }),
-					Arguments = new object[] { value1, value2, value3, value4, value5, value6 }
+					Arguments = parameters
 				};
 			}
 
@@ -234,10 +292,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2, P3, P4, P5, P6, P7>(P1 value1, P2 value2, P3 value3, P4 value4, P5 value5, P6 value6, P7 value7)
 			{
+				object[] parameters = new object[] { value1, value2, value3, value4, value5, value6, value7 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7) }),
-					Arguments = new object[] { value1, value2, value3, value4, value5, value6, value7 }
+					Arguments = parameters
 				};
 			}
 
@@ -263,10 +325,14 @@ namespace Afterthought
 			/// <returns></returns>
 			public static Attribute<A> Create<P1, P2, P3, P4, P5, P6, P7, P8>(P1 value1, P2 value2, P3 value3, P4 value4, P5 value5, P6 value6, P7 value7, P8 value8)
 			{
+				object[] parameters = new object[] { value1, value2, value3, value4, value5, value6, value7, value8 };
+
+				ValidateParameters(parameters);
+
 				return new Attribute<A>
 				{
 					Constructor = GetConstructor<A>(new Type[] { typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8) }),
-					Arguments = new object[] { value1, value2, value3, value4, value5, value6, value7, value8 }
+					Arguments = parameters
 				};
 			}
 

@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <package>
   <metadata>
 	<id>Afterthought</id>
 	<title>Afterthought</title>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<authors>Jamie Thomas, VC3</authors>
 	<summary>An open source .NET compile-time code amender.</summary>
 	<description>
