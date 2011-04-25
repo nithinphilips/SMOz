@@ -20,7 +20,7 @@ namespace Afterthought.UnitTest
 			Exception ex = null;
 			try
 			{
-				Afterthought.Amendment<object, object>.Attribute<DefaultValueAttribute> attr = Amendment<object, object>.Attribute<DefaultValueAttribute>.Create(new object());
+				var attr = Amendment<object, object>.Attribute<DefaultValueAttribute>.Create(new object());
 			}
 			catch (Exception creationEx)
 			{

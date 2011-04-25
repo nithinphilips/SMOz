@@ -57,6 +57,10 @@
       <Project>{F8EDDA64-66A0-433B-9DC2-A6D9CF9AEB84}</Project>
       <Name>Afterthought.UnitTest.Target</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Afterthought\Afterthought.csproj">
+      <Project>{0857EBD2-0AE9-4FE2-B9D9-E3D5F924F0F0}</Project>
+      <Name>Afterthought</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
