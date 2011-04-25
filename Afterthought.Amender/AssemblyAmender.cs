@@ -839,7 +839,7 @@ namespace Afterthought.Amender
 					}
 				}
 
-				// Amend the existing method
+				// Amend the existing property
 				else
 				{
 					// Before Get
@@ -975,7 +975,7 @@ namespace Afterthought.Amender
 					il.Emit(OperationCode.Ret);
 				}
 
-				// Amend the existing method
+				// Amend the existing property setter
 				else if (propertyAmendment.BeforeSet != null || propertyAmendment.AfterSet != null)
 				{
 					// Get the before and after set delegate implementations
@@ -1351,7 +1351,6 @@ namespace Afterthought.Amender
 		IMethodDefinition ResolveMethod(ITypeDefinition declaringType, System.Reflection.MethodInfo method)
 		{
 			return TypeHelper.GetMethod(declaringType, host.NameTable.GetNameFor(method.Name), method.GetParameters().Select(p => ResolveType(p.ParameterType)).ToArray());
-//			return declaringType.Methods.Where(m => AreEquivalent(m, method)).FirstOrDefault();
 		}
 
 		/// <summary>
@@ -1462,12 +1461,14 @@ namespace Afterthought.Amender
 		{
 			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
 
-			// Create a concrete type instance
-			if (declaringType.IsGeneric)
-				declaringType = GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory);
-		
 			// Then get the generic Amendment method
-			var genericMethod = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
+			var genericMethod = 
+				(
+					declaringType.IsGeneric ? 
+					GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory) : 
+					declaringType
+				)
+				.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
 
 			// Finally, return a concrete method instance
 			return new GenericMethod()
