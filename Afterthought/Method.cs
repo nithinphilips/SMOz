@@ -52,6 +52,8 @@ namespace Afterthought
 
 			MethodInfo IMethodAmendment.Implements { get { return Implements; } }
 
+			MethodInfo IMethodAmendment.Overrides { get { return OverrideMethod; } }
+
 			MethodInfo IMethodAmendment.Implementation { get { return ImplementationMethod; } }
 
 			MethodInfo IMethodAmendment.Before { get { return BeforeMethod; } }
@@ -75,6 +77,20 @@ namespace Afterthought
 				}
 			}
 
+			MethodInfo overrideMethod;
+			internal MethodInfo OverrideMethod
+			{
+				get
+				{
+					return overrideMethod;
+				}
+				set
+				{
+					if (overrideMethod != null)
+						throw new InvalidOperationException("The override method may only be set once.");
+					overrideMethod = value;
+				}
+			}			
 			internal MethodInfo ImplementationMethod { get; set; }
 
 			internal MethodInfo BeforeMethod { get; set; }
@@ -200,69 +216,132 @@ namespace Afterthought
 
 			#endregion
 
+			#region Override
+
+			static MethodInfo GetOverrideMethod(string name, params Type[] parameterTypes)
+			{
+				return typeof(TType).GetMethod(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, parameterTypes, null);
+			}
+
+			public static Method Override(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name) };
+			}
+
+			public static Method Override<P1>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1)) };
+			}
+
+			public static Method Override<P1, P2>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2)) };
+			}
+
+			public static Method Override<P1, P2, P3>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3)) };
+			}
+
+			public static Method Override<P1, P2, P3, P4>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4)) };
+			}
+
+			public static Method Override<P1, P2, P3, P4, P5>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5)) };
+			}
+
+			public static Method Override<P1, P2, P3, P4, P5, P6>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6)) };
+			}
+
+			public static Method Override<P1, P2, P3, P4, P5, P6, P7>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7)) };
+			}
+			
+			public static Method Override<P1, P2, P3, P4, P5, P6, P7, P8>(string name)
+			{
+				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8)) };
+			}
+
+			#endregion
+
 			#region Implement (Action)
 
 			public delegate void ImplementMethodAction(TAmended instance);
 
-			public void Implement(ImplementMethodAction implementation)
+			public Method Implement(ImplementMethodAction implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1>(TAmended instance, P1 param1);
 
-			public void Implement<P1>(ImplementMethodAction<P1> implementation)
+			public Method Implement<P1>(ImplementMethodAction<P1> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2>(TAmended instance, P1 param1, P2 param2);
 
-			public void Implement<P1, P2>(ImplementMethodAction<P1, P2> implementation)
+			public Method Implement<P1, P2>(ImplementMethodAction<P1, P2> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2, P3>(TAmended instance, P1 param1, P2 param2, P3 param3);
 
-			public void Implement<P1, P2, P3>(ImplementMethodAction<P1, P2, P3> implementation)
+			public Method Implement<P1, P2, P3>(ImplementMethodAction<P1, P2, P3> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2, P3, P4>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
 
-			public void Implement<P1, P2, P3, P4>(ImplementMethodAction<P1, P2, P3, P4> implementation)
+			public Method Implement<P1, P2, P3, P4>(ImplementMethodAction<P1, P2, P3, P4> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
 
-			public void Implement<P1, P2, P3, P4, P5>(ImplementMethodAction<P1, P2, P3, P4, P5> implementation)
+			public Method Implement<P1, P2, P3, P4, P5>(ImplementMethodAction<P1, P2, P3, P4, P5> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5, P6>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
 
-			public void Implement<P1, P2, P3, P4, P5, P6>(ImplementMethodAction<P1, P2, P3, P4, P5, P6> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, P6>(ImplementMethodAction<P1, P2, P3, P4, P5, P6> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7>(ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, P6, P7>(ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate void ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8>(ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, P6, P7, P8>(ImplementMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			#endregion
@@ -271,65 +350,74 @@ namespace Afterthought
 
 			public delegate TResult ImplementMethodFunc<TResult>(TAmended instance);
 
-			public void Implement<TResult>(ImplementMethodFunc<TResult> implementation)
+			public Method Implement<TResult>(ImplementMethodFunc<TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, TResult>(TAmended instance, P1 param1);
 
-			public void Implement<P1, TResult>(ImplementMethodFunc<P1, TResult> implementation)
+			public Method Implement<P1, TResult>(ImplementMethodFunc<P1, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, TResult>(TAmended instance, P1 param1, P2 param2);
 
-			public void Implement<P1, P2, TResult>(ImplementMethodFunc<P1, P2, TResult> implementation)
+			public Method Implement<P1, P2, TResult>(ImplementMethodFunc<P1, P2, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, P3, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3);
 
-			public void Implement<P1, P2, P3, TResult>(ImplementMethodFunc<P1, P2, P3, TResult> implementation)
+			public Method Implement<P1, P2, P3, TResult>(ImplementMethodFunc<P1, P2, P3, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
 
-			public void Implement<P1, P2, P3, P4, TResult>(ImplementMethodFunc<P1, P2, P3, P4, TResult> implementation)
+			public Method Implement<P1, P2, P3, P4, TResult>(ImplementMethodFunc<P1, P2, P3, P4, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
 
-			public void Implement<P1, P2, P3, P4, P5, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, TResult> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, P6, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
 
-			public void Implement<P1, P2, P3, P4, P5, P6, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, TResult> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, P6, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, P6, P7, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			public delegate TResult ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
 
-			public void Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> implementation)
+			public Method Implement<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(ImplementMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> implementation)
 			{
 				ImplementationMethod = implementation.Method;
+				return this;
 			}
 
 			#endregion
@@ -338,72 +426,82 @@ namespace Afterthought
 
 			public delegate void BeforeMethodArray(TAmended instance, string method, object[] parameters);
 
-			public void Before(BeforeMethodArray before)
+			public Method Before(BeforeMethodArray before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public new delegate void BeforeMethod(TAmended instance);
 
-			public void Before(BeforeMethod before)
+			public Method Before(BeforeMethod before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1>(TAmended instance, ref P1 param1);
 
-			public void Before<P1>(BeforeMethod<P1> before)
+			public Method Before<P1>(BeforeMethod<P1> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2>(TAmended instance, ref P1 param1, ref P2 param2);
 
-			public void Before<P1, P2>(BeforeMethod<P1, P2> before)
+			public Method Before<P1, P2>(BeforeMethod<P1, P2> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2, P3>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3);
 
-			public void Before<P1, P2, P3>(BeforeMethod<P1, P2, P3> before)
+			public Method Before<P1, P2, P3>(BeforeMethod<P1, P2, P3> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2, P3, P4>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4);
 
-			public void Before<P1, P2, P3, P4>(BeforeMethod<P1, P2, P3, P4> before)
+			public Method Before<P1, P2, P3, P4>(BeforeMethod<P1, P2, P3, P4> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2, P3, P4, P5>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5);
 
-			public void Before<P1, P2, P3, P4, P5>(BeforeMethod<P1, P2, P3, P4, P5> before)
+			public Method Before<P1, P2, P3, P4, P5>(BeforeMethod<P1, P2, P3, P4, P5> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2, P3, P4, P5, P6>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6);
 
-			public void Before<P1, P2, P3, P4, P5, P6>(BeforeMethod<P1, P2, P3, P4, P5, P6> before)
+			public Method Before<P1, P2, P3, P4, P5, P6>(BeforeMethod<P1, P2, P3, P4, P5, P6> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7);
 
-			public void Before<P1, P2, P3, P4, P5, P6, P7>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7> before)
+			public Method Before<P1, P2, P3, P4, P5, P6, P7>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			public delegate void BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7, ref P8 param8);
 
-			public void Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8> before)
+			public Method Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8> before)
 			{
 				base.BeforeMethod = before.Method;
+				return this;
 			}
 
 			#endregion
@@ -412,72 +510,82 @@ namespace Afterthought
 
 			public delegate void AfterMethodActionArray(TAmended instance, string method, object[] parameters);
 
-			public void After(AfterMethodActionArray after)
+			public Method After(AfterMethodActionArray after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction(TAmended instance);
 
-			public void After(AfterMethodAction after)
+			public Method After(AfterMethodAction after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1>(TAmended instance, P1 param1);
 
-			public void After<P1>(AfterMethodAction<P1> after)
+			public Method After<P1>(AfterMethodAction<P1> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2>(TAmended instance, P1 param1, P2 param2);
 
-			public void After<P1, P2>(AfterMethodAction<P1, P2> after)
+			public Method After<P1, P2>(AfterMethodAction<P1, P2> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2, P3>(TAmended instance, P1 param1, P2 param2, P3 param3);
 
-			public void After<P1, P2, P3>(AfterMethodAction<P1, P2, P3> after)
+			public Method After<P1, P2, P3>(AfterMethodAction<P1, P2, P3> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2, P3, P4>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
 
-			public void After<P1, P2, P3, P4>(AfterMethodAction<P1, P2, P3, P4> after)
+			public Method After<P1, P2, P3, P4>(AfterMethodAction<P1, P2, P3, P4> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2, P3, P4, P5>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
 
-			public void After<P1, P2, P3, P4, P5>(AfterMethodAction<P1, P2, P3, P4, P5> after)
+			public Method After<P1, P2, P3, P4, P5>(AfterMethodAction<P1, P2, P3, P4, P5> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
 
-			public void After<P1, P2, P3, P4, P5, P6>(AfterMethodAction<P1, P2, P3, P4, P5, P6> after)
+			public Method After<P1, P2, P3, P4, P5, P6>(AfterMethodAction<P1, P2, P3, P4, P5, P6> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
 
-			public void After<P1, P2, P3, P4, P5, P6, P7>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7> after)
+			public Method After<P1, P2, P3, P4, P5, P6, P7>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
 
-			public void After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> after)
+			public Method After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			#endregion
@@ -486,72 +594,82 @@ namespace Afterthought
 
 			public delegate object AfterMethodFuncArray(TAmended instance, string method, object[] parameters, object result);
 
-			public void After(AfterMethodFuncArray after)
+			public Method After(AfterMethodFuncArray after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<TResult>(TAmended instance, TResult result);
 
-			public void After<TResult>(AfterMethodFunc<TResult> after)
+			public Method After<TResult>(AfterMethodFunc<TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, TResult>(TAmended instance, P1 param1, TResult result);
 
-			public void After<P1, TResult>(AfterMethodFunc<P1, TResult> after)
+			public Method After<P1, TResult>(AfterMethodFunc<P1, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, TResult>(TAmended instance, P1 param1, P2 param2, TResult result);
 
-			public void After<P1, P2, TResult>(AfterMethodFunc<P1, P2, TResult> after)
+			public Method After<P1, P2, TResult>(AfterMethodFunc<P1, P2, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, P3, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, TResult result);
 
-			public void After<P1, P2, P3, TResult>(AfterMethodFunc<P1, P2, P3, TResult> after)
+			public Method After<P1, P2, P3, TResult>(AfterMethodFunc<P1, P2, P3, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, TResult result);
 
-			public void After<P1, P2, P3, P4, TResult>(AfterMethodFunc<P1, P2, P3, P4, TResult> after)
+			public Method After<P1, P2, P3, P4, TResult>(AfterMethodFunc<P1, P2, P3, P4, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, TResult result);
 
-			public void After<P1, P2, P3, P4, P5, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, TResult> after)
+			public Method After<P1, P2, P3, P4, P5, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, TResult result);
 
-			public void After<P1, P2, P3, P4, P5, P6, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult> after)
+			public Method After<P1, P2, P3, P4, P5, P6, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, TResult result);
 
-			public void After<P1, P2, P3, P4, P5, P6, P7, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> after)
+			public Method After<P1, P2, P3, P4, P5, P6, P7, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, TResult result);
 
-			public void After<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> after)
+			public Method After<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> after)
 			{
 				AfterMethod = after.Method;
+				return this;
 			}
 
 			#endregion

@@ -174,9 +174,9 @@ namespace Afterthought
 
 			public PropertyInitializer LazyInitializer { set { UnderlyingProperty.LazyInitializerMethod = value.Method; } }
 
-			public BeforeProperyGet BeforeGet { set { UnderlyingProperty.BeforeGetMethod = value.Method; } }
+			public BeforePropertyGet BeforeGet { set { UnderlyingProperty.BeforeGetMethod = value.Method; } }
 
-			public AfterProperyGet AfterGet { set { UnderlyingProperty.AfterGetMethod = value.Method; } }
+			public AfterPropertyGet AfterGet { set { UnderlyingProperty.AfterGetMethod = value.Method; } }
 
 			public BeforePropertySet BeforeSet { set { UnderlyingProperty.BeforeSetMethod = value.Method; } }
 
@@ -188,9 +188,9 @@ namespace Afterthought
 
 			public delegate void PropertySetter(TAmended instance, string propertyName, TProperty value);
 
-			public delegate void BeforeProperyGet(TAmended instance, string propertyName);
+			public delegate void BeforePropertyGet(TAmended instance, string propertyName);
 
-			public delegate TProperty AfterProperyGet(TAmended instance, string propertyName, TProperty returnValue);
+			public delegate TProperty AfterPropertyGet(TAmended instance, string propertyName, TProperty returnValue);
 
 			public delegate TProperty BeforePropertySet(TAmended instance, string propertyName, TProperty oldValue, TProperty value);
 

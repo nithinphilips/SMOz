@@ -29,5 +29,7 @@ namespace Afterthought
 		IEnumerable<IPropertyAmendment> Properties { get; }
 
 		IEnumerable<IMethodAmendment> Methods { get; }
+
+		IEnumerable<IEventAmendment> Events { get; }
 	}
 }

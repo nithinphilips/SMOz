@@ -56,6 +56,8 @@ namespace Afterthought.Amender
 
 		Dictionary<IMethodDefinition, IMethodAmendment> Methods { get; set; }
 
+		Dictionary<IEventDefinition, IEventAmendment> Events { get; set; }
+
 		Dictionary<IPropertyDefinition, GenericMethod> PropertyInitializers { get; set; }
 
 		/// <summary>
@@ -204,6 +206,24 @@ namespace Afterthought.Amender
 					Methods.Add(ResolveMethod(type, method.MethodInfo), method);
 			}
 
+			// Events
+			Events = new Dictionary<IEventDefinition, IEventAmendment>();
+			foreach (var @event in typeAmendment.Events)
+			{
+				IEventDefinition eventDef;
+
+				// Add a new event
+				if (@event.EventInfo == null)
+					eventDef = AddEvent(type, @event);
+
+				// Track existing events being amended
+				else
+				{
+					eventDef = ResolveEvent(type, @event.EventInfo);
+					Events.Add(eventDef, @event);
+				}
+			}
+
 			// Implement interfaces
 			foreach (var interfaceType in typeAmendment.Interfaces)
 			{
@@ -233,6 +253,37 @@ namespace Afterthought.Amender
 					// Determine if the property needs to be implicitly implemented as an auto property
 					else if (!Properties.Values.Any(p => p.Implements == property))
 						AddProperty(type, Afterthought.Amendment.Property.Implement(typeAmendment.Type, property));
+				}
+
+				// Process all interface events
+				foreach (var eventInfo in interfaceType.GetEvents())
+				{
+					// Get the corresponding event definition
+					var eventDef = ResolveEvent(interfaceDef, eventInfo);
+
+					// Determine if the interface event is already implemented by the type
+					var existingEvent = type.Events.Where(e => AreEquivalent(e, eventInfo) && e.Visibility == TypeMemberVisibility.Public).FirstOrDefault();
+
+					// Mark the existing event as implementing the interface
+					if (existingEvent != null)
+					{
+						// Notify the type that the interface is being implemented by this event
+						if (existingEvent.Adder != null)
+							Implement(type, eventDef.Adder, existingEvent.Adder);
+
+						if (existingEvent.Remover != null)
+							Implement(type, eventDef.Remover, existingEvent.Remover);
+					}
+
+					// Determine if the event needs to be implicitly implemented as an auto event
+					else if (!Events.Values.Any(e => e.Implements == eventInfo))
+					{
+						var args = eventInfo.EventHandlerType.GetMethod("Invoke").GetParameters()
+							.SkipWhile((p, i) => (i == 0 && p.ParameterType == typeof(object)) || (i == 1 && p.ParameterType == typeof(EventArgs)))
+							.Select(p => p.ParameterType).ToArray();
+						var evt = Afterthought.Amendment.Event.Implement(typeAmendment.Type, eventInfo, interfaceType.GetMethod("On" + eventInfo.Name, args));
+						AddEvent(type, evt);
+					}
 				}
 
 				// Mark the type as implementing the interface
@@ -393,19 +444,24 @@ namespace Afterthought.Amender
 			bool isInterface = method.Implements != null;
 
 			// Add the method
-			var args = method.Implementation.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray();
+			var args = method.Implementation != null ?
+				method.Implementation.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray() :
+				method.Overrides.GetParameters().Select(p => p.ParameterType);
 			var methodDef = new MethodDefinition
 			{
 				ContainingTypeDefinition = type,
-				Type = ResolveType(method.Implementation.ReturnType),
+				Type = ResolveType((method.Implementation ?? method.Overrides).ReturnType),
 				Name = host.NameTable.GetNameFor(method.Name),
-				IsSpecialName = true,
-				IsHiddenBySignature = true,
+				IsSpecialName = isInterface,
+				IsHiddenBySignature = isInterface,
 				IsCil = true,
 				IsNewSlot = isInterface,
-				IsVirtual = isInterface,
+				IsVirtual = isInterface || method.Overrides != null,
 				IsSealed = isInterface,
-				Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
+				Visibility =
+					isInterface ? TypeMemberVisibility.Private :
+					(method.Overrides != null && !method.Overrides.IsPublic ? TypeMemberVisibility.Family :
+					TypeMemberVisibility.Public),
 				CallingConvention = CallingConvention.HasThis,
 				InternFactory = host.InternFactory,
 				Body = new MethodBody(),
@@ -419,7 +475,7 @@ namespace Afterthought.Amender
 					)
 					.ToList<IParameterDefinition>()
 			};
-			
+
 			((MethodBody)methodDef.Body).MethodDefinition = methodDef;
 			type.Methods.Add(methodDef);
 			if (isInterface)
@@ -430,6 +486,219 @@ namespace Afterthought.Amender
 
 			// Return the new method definition
 			return methodDef;
+		}
+
+		/// <summary>
+		/// Adds a new event to a type definition.
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="event"></param>
+		/// <returns></returns>
+		EventDefinition AddEvent(TypeDefinition type, IEventAmendment @event)
+		{
+			var eventType = ResolveType(@event.Type);
+			bool isInterface = @event.Implements != null;
+
+			// Add the event
+			var eventDef = new EventDefinition()
+			{
+				Name = host.NameTable.GetNameFor(@event.Name),
+				Type = eventType,
+				ContainingTypeDefinition = type,
+				Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
+				Accessors = new List<IMethodReference>()
+			};
+			type.Events.Add(eventDef);
+
+			// Optionally create an adder
+			if (@event.Adder != null || (isInterface && @event.Implements.GetAddMethod() != null) || (!isInterface && @event.Remover == null))
+			{
+				// Create the adder method
+				var adder = new MethodDefinition
+				{
+					ContainingTypeDefinition = type,
+					Type = host.PlatformType.SystemVoid,
+					Name = host.NameTable.GetNameFor((isInterface ? @event.Implements.DeclaringType.FullName + "." : "") +
+							"add_" + (isInterface ? @event.Implements.Name : @event.Name)),
+					IsSpecialName = true,
+					IsHiddenBySignature = true,
+					IsCil = true,
+					IsNewSlot = isInterface,
+					IsVirtual = isInterface,
+					IsSealed = isInterface,
+					Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
+					CallingConvention = CallingConvention.HasThis,
+					InternFactory = host.InternFactory,
+					Body = new MethodBody(),
+					Parameters = new List<IParameterDefinition>() { new ParameterDefinition() 
+						{
+							Index = 0,
+							Name = host.NameTable.value,
+							Type = eventType
+						}}
+				};
+
+				// Associate the adder with the event definition
+				eventDef.Adder = adder;
+				eventDef.Accessors.Add(adder);
+				((MethodBody)adder.Body).MethodDefinition = adder;
+				type.Methods.Add(adder);
+				if (isInterface)
+					Implement(type, ResolveEvent(ResolveType(@event.Implements.DeclaringType), @event.Implements).Adder, adder);
+
+			}
+
+			// Optionally create a remover
+			if (@event.Remover != null || (isInterface && @event.Implements.GetRemoveMethod() != null) || (!isInterface && @event.Adder == null))
+			{
+				// Create the remover method
+				var remover = new MethodDefinition
+				{
+					ContainingTypeDefinition = type,
+					Type = host.PlatformType.SystemVoid,
+					Name = host.NameTable.GetNameFor((isInterface ? @event.Implements.DeclaringType.FullName + "." : "") +
+							"remove_" + (isInterface ? @event.Implements.Name : @event.Name)),
+					IsSpecialName = true,
+					IsHiddenBySignature = true,
+					IsCil = true,
+					IsNewSlot = isInterface,
+					IsVirtual = isInterface,
+					IsSealed = isInterface,
+					Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
+					CallingConvention = CallingConvention.HasThis,
+					InternFactory = host.InternFactory,
+					Body = new MethodBody(),
+					Parameters = new List<IParameterDefinition>() { new ParameterDefinition() 
+						{
+							Index = 0,
+							Name = host.NameTable.value,
+							Type = eventType
+						}}
+				};
+
+				// Associate the remover with the event definition
+				eventDef.Remover = remover;
+				eventDef.Accessors.Add(remover);
+				((MethodBody)remover.Body).MethodDefinition = remover;
+				type.Methods.Add(remover);
+				if (isInterface)
+					Implement(type, ResolveEvent(ResolveType(@event.Implements.DeclaringType), @event.Implements).Remover, remover);
+			}
+
+			// Add a backing field for new properties that do not have a adder or remover defined
+			if (@event.EventInfo == null && @event.Adder == null && @event.Remover == null)
+			{
+				// Add the backing field
+				var backingField = new FieldDefinition()
+				{
+					Name = host.NameTable.GetNameFor(@event.Name),
+					Type = eventType,
+					InternFactory = host.InternFactory,
+				};
+				type.Fields.Add(backingField);
+
+				// Optionally create a method to raise the event
+				if (@event.RaisedBy != null)
+				{
+					isInterface = @event.RaisedByImplements != null;
+
+					// Get the event raise arguments
+					var invokeMethod = @event.Type.GetMethod("Invoke");
+					var thisFirstParam = invokeMethod.GetParameters()[0].ParameterType == typeof(object);
+					var eventArgsSecondParam = invokeMethod.GetParameters()[1].ParameterType == typeof(EventArgs);
+					var args = @event.Type.GetMethod("Invoke").GetParameters()
+						.SkipWhile((p, i) => (i == 0 && thisFirstParam) || (i == 1 && eventArgsSecondParam))
+						.Select(p => p.ParameterType).ToArray();
+
+					// Add the event raise method
+					var methodDef = new MethodDefinition
+					{
+						ContainingTypeDefinition = type,
+						Type = host.PlatformType.SystemVoid,
+						Name = host.NameTable.GetNameFor(@event.RaisedBy),
+						IsSpecialName = isInterface,
+						IsHiddenBySignature = isInterface,
+						IsCil = true,
+						IsNewSlot = isInterface,
+						IsVirtual = isInterface,
+						IsSealed = isInterface,
+						Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
+						CallingConvention = CallingConvention.HasThis,
+						InternFactory = host.InternFactory,
+						Body = new MethodBody(),
+						Parameters = args.Select((parameterType, index) =>
+								new ParameterDefinition()
+								{
+									Index = (ushort)index,
+									Name = host.NameTable.GetNameFor("arg" + index),
+									Type = ResolveType(parameterType)
+								}
+							)
+							.ToList<IParameterDefinition>()
+					};
+
+					((MethodBody)methodDef.Body).MethodDefinition = methodDef;
+					type.Methods.Add(methodDef);
+					if (isInterface)
+						Implement(type, ResolveMethod(ResolveType(@event.RaisedByImplements.DeclaringType), @event.RaisedByImplements), methodDef);
+
+					// Emit the method body
+					ILAmender il = new ILAmender(host, (MethodBody)methodDef.Body);
+
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load event handler backing field onto stack
+					il.Emit(OperationCode.Ldfld, backingField);
+
+					// Load null onto stack
+					il.Emit(OperationCode.Ldnull);
+
+					// See if the field is null
+					il.Emit(OperationCode.Ceq);
+
+					// Create a branching label
+					var ifRaise = new ILGeneratorLabel();
+					il.Emit(OperationCode.Brtrue_S, ifRaise);
+
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load event handler backing field onto stack
+					il.Emit(OperationCode.Ldfld, backingField);
+
+					// Load this pointer onto stack if required
+					if (thisFirstParam)
+						il.Emit(OperationCode.Ldarg_0);
+
+					// Create event args if required
+					if (eventArgsSecondParam)
+						il.Emit(OperationCode.Newobj, ResolveConstructor(ResolveType(typeof(EventArgs)), typeof(EventArgs).GetConstructor(Type.EmptyTypes)));
+
+					// Load all method arguments
+					foreach (var arg in methodDef.Parameters)
+						il.Emit(OperationCode.Ldarg_S, arg);
+
+					// Invoke the delegate
+					il.Emit(OperationCode.Callvirt, ResolveMethod(ResolveType(invokeMethod.DeclaringType), invokeMethod));
+
+					// Finish the raise conditional block
+					il.MarkLabel(ifRaise);
+					il.Emit(OperationCode.Nop);
+
+					// Return from the method
+					il.Emit(OperationCode.Ret);
+
+					// Finish emitting the method
+					il.UpdateMethodBody((ushort)Math.Max(4, methodDef.ParameterCount + 1));
+				}
+			}
+
+			// Track the newly added event
+			Events.Add(eventDef, @event);
+
+			// Return the new event definition
+			return eventDef;
 		}
 
 		/// <summary>
@@ -446,13 +715,13 @@ namespace Afterthought.Amender
 				return new MetadataConstant { Type = typeDef, Value = null };
 
 			if (typeof(Type).IsAssignableFrom(type))
-				return new MetadataTypeOf { Type = typeDef, TypeToGet = ResolveType((Type) value) };
+				return new MetadataTypeOf { Type = typeDef, TypeToGet = ResolveType((Type)value) };
 
 			if (type.IsArray)
 			{
 				// Recursively generate initial state for each element of the array
-				var initializers = (from e in ((IEnumerable) value).Cast<object>()
-										  select GetMetadataExpression(e.GetType(), e)).ToList();
+				var initializers = (from e in ((IEnumerable)value).Cast<object>()
+									select GetMetadataExpression(e.GetType(), e)).ToList();
 
 				return new MetadataCreateArray { Type = typeDef, ElementType = ResolveType(type.GetElementType()), Initializers = initializers };
 			}
@@ -479,7 +748,7 @@ namespace Afterthought.Amender
 
 				// Create an IMetadataExpression list for all attributes being passed to the constructor
 				List<IMetadataExpression> args = (from a in attribute.Arguments
-															 select GetMetadataExpression(a.GetType(), a)).ToList();
+												  select GetMetadataExpression(a.GetType(), a)).ToList();
 
 				typeDef.Attributes.Add(new CustomAttribute
 				{
@@ -512,7 +781,7 @@ namespace Afterthought.Amender
 
 				// Create an IMetadataExpression list for all attributes being passed to the constructor
 				List<IMetadataExpression> args = (from a in attribute.Arguments
-															 select GetMetadataExpression(a.GetType(), a)).ToList();
+												  select GetMetadataExpression(a.GetType(), a)).ToList();
 
 				typeDefMember.Attributes.Add(new CustomAttribute
 				{
@@ -643,7 +912,7 @@ namespace Afterthought.Amender
 				// Ignore methods that are generated to implement properties defined on base types
 				if (propertyDef == null && interfaceName != "")
 					return methodBody;
-	
+
 				// Get the property Amendment
 				IPropertyAmendment propertyAmendment;
 
@@ -655,6 +924,29 @@ namespace Afterthought.Amender
 				AmendProperty(propertyDef, propertyAmendment, methodBody);
 			}
 
+			// Events
+			else if (methodDef.IsHiddenBySignature && methodDef.IsSpecialName && (methodName.StartsWith("add_") || methodName.StartsWith("remove_")))
+			{
+				// Determine which event is being mutated
+				IEventDefinition eventDef = GetCurrentType().Events
+					.Where(e => e.Name.Value == interfaceName + methodName.Substring(methodName.StartsWith("a") ? 4 : 7))
+					.FirstOrDefault();
+
+				// Ignore methods that are generated to implement events defined on base types
+				if (eventDef == null && interfaceName != "")
+					return methodBody;
+
+				// Get the event amendment
+				IEventAmendment eventAmendment;
+
+				// Exit immediately if the event is not being amended
+				if (!Events.TryGetValue(eventDef, out eventAmendment))
+					return methodBody;
+
+				// Amend the event
+				AmendEvent(eventDef, eventAmendment, methodBody);
+			}
+
 			// Methods
 			else
 			{
@@ -663,7 +955,7 @@ namespace Afterthought.Amender
 
 				// Exit immediately if the method is not being amended
 				if (!Methods.TryGetValue(methodDef, out methodAmendment))
-					return methodBody;
+					return base.Mutate(methodBody);
 
 				// Amends the method
 				AmendMethod(methodAmendment, methodBody);
@@ -746,7 +1038,7 @@ namespace Afterthought.Amender
 		/// <param name="propertyAmendment"></param>
 		/// <param name="methodBody"></param>
 		void AmendProperty(IPropertyDefinition propertyDef, IPropertyAmendment propertyAmendment, MethodBody methodBody)
-		{	
+		{
 			// Create an IL generator to amend the operations
 			var il = new ILAmender(host, methodBody);
 
@@ -824,7 +1116,7 @@ namespace Afterthought.Amender
 
 						// Update the backing field
 						il.Emit(OperationCode.Stfld, backingField);
-						
+
 						// End the skipping branch
 						il.MarkLabel(skipIfNotNull);
 
@@ -886,7 +1178,7 @@ namespace Afterthought.Amender
 
 							// Load the current value
 							il.Emit(OperationCode.Ldloc, currentValue);
-		
+
 							// Skip initialization if the backing field is already initialized
 							var skipIfNotNull = new ILGeneratorLabel();
 							il.Emit(OperationCode.Brtrue_S, skipIfNotNull);
@@ -927,7 +1219,6 @@ namespace Afterthought.Amender
 					// Emit the rest of the original method if not amending after get
 					else
 						il.EmitUntilReturn();
-
 				}
 			}
 
@@ -1086,11 +1377,26 @@ namespace Afterthought.Amender
 			// Implementation
 			Action implement = () =>
 			{
+				// Emit the implementation if specified
 				if (methodAmendment.Implementation != null)
 				{
 					// Clear the original method body
 					il.Operations.Clear();
 					CallMethodDelegate(methodBody, methodAmendment.Implementation, false, il, null, MethodDelegateType.Implement);
+				}
+
+				// Emit a call to the base method if overriding and an implementation was not specified
+				else if (methodAmendment.Overrides != null)
+				{
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load method arguments onto the stack
+					foreach (var arg in methodBody.MethodDefinition.Parameters)
+						il.Emit(OperationCode.Ldarg_S, arg);
+
+					// Call the base method
+					il.Emit(OperationCode.Callvirt, ResolveMethod(ResolveType(methodAmendment.Overrides.DeclaringType), methodAmendment.Overrides));
 				}
 
 				// Emit the original method operations if the method implementation was not overriden
@@ -1110,11 +1416,284 @@ namespace Afterthought.Amender
 				CallMethodDelegate(methodBody, methodAmendment.After, false, il, implement, MethodDelegateType.After);
 
 			// Or emit a return for new/overriden methods
-			if (methodAmendment.Implementation != null)
+			if (methodAmendment.Implementation != null || methodAmendment.Overrides != null)
 				il.Emit(OperationCode.Ret);
 
 			// Update the method body
 			il.UpdateMethodBody(6);
+		}
+
+		/// <summary>
+		/// Amends an event definition using the specified event amendment.
+		/// </summary>
+		/// <param name="eventDef"></param>
+		/// <param name="eventAmendment"></param>
+		/// <param name="methodBody"></param>
+		void AmendEvent(IEventDefinition eventDef, IEventAmendment eventAmendment, MethodBody methodBody)
+		{
+			// Create an IL generator to amend the operations
+			var il = new ILAmender(host, methodBody);
+
+			// Event Get
+			if (methodBody.MethodDefinition.Name.Value.StartsWith("add_") || methodBody.MethodDefinition.Name.Value.Contains(".add_"))
+			{
+				// Adder for new or existing event
+				if (eventAmendment.Adder != null)
+				{
+					// Clear the original method body
+					il.Operations.Clear();
+
+					// Get the delegate to call 
+					var getter = ResolveEventDelegate(eventDef, eventAmendment.Adder);
+
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load event name onto stack
+					il.Emit(OperationCode.Ldstr, eventDef.Name.Value);
+
+					// Load value argument onto stack
+					il.Emit(OperationCode.Ldarg_1);
+
+					// Call Adder delegate
+					il.Emit(OperationCode.Call, getter.Instance);
+
+					// Return
+					il.Emit(OperationCode.Ret);
+				}
+
+				// New event without defined adder
+				else if (eventAmendment.EventInfo == null)
+					EmitDefaultEvent(eventDef, eventAmendment, methodBody, il, true);
+
+				// Amend the existing event adder
+				else
+				{
+					// Before Add
+					if (eventAmendment.BeforeAdd != null)
+					{
+						// Get the delegate to call before the event adder
+						var beforeAdd = ResolveEventDelegate(eventDef, eventAmendment.BeforeAdd);
+
+						// Load this pointer onto stack
+						il.Emit(OperationCode.Ldarg_0);
+
+						// Load event name onto stack
+						il.Emit(OperationCode.Ldstr, eventDef.Name.Value);
+
+						// Load value argument onto stack
+						il.Emit(OperationCode.Ldarg_1);
+
+						// Call BeforeAdd delegate
+						il.Emit(OperationCode.Call, beforeAdd.Instance);
+					}
+
+					// Emit the original event adder instructions
+					il.EmitUntilReturn();
+
+					// After Add
+					if (eventAmendment.AfterAdd != null)
+					{
+						// Load this pointer onto stack
+						il.Emit(OperationCode.Ldarg_0);
+
+						// Load event name onto stack
+						il.Emit(OperationCode.Ldstr, eventDef.Name.Value);
+
+						// Load value argument onto stack
+						il.Emit(OperationCode.Ldarg_1);
+
+						// Call AfterAdd delegate
+						il.Emit(OperationCode.Call, ResolveEventDelegate(eventDef, eventAmendment.AfterAdd).Instance);
+					}
+				}
+			}
+
+			// Event Remove
+			else
+			{
+				// Remover for new or existing event
+				if (eventAmendment.Remover != null)
+				{
+					// Clear the original method body
+					il.Operations.Clear();
+
+					// Get the delegate to call 
+					var remover = ResolveEventDelegate(eventDef, eventAmendment.Remover);
+
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load event name onto stack
+					il.Emit(OperationCode.Ldstr, eventDef.Name.Value);
+
+					// Load value argument onto stack
+					il.Emit(OperationCode.Ldarg_1);
+
+					// Call Remover delegate
+					il.Emit(OperationCode.Call, remover.Instance);
+
+					// Return
+					il.Emit(OperationCode.Ret);
+				}
+
+				// New event without setter
+				else if (eventAmendment.EventInfo == null)
+					EmitDefaultEvent(eventDef, eventAmendment, methodBody, il, false);
+
+				// Amend the existing event remover
+				else
+				{
+					// Before Remove
+					if (eventAmendment.BeforeRemove != null)
+					{
+						// Get the delegate to call 
+						var beforeRemove = ResolveEventDelegate(eventDef, eventAmendment.BeforeRemove);
+
+						// Load this pointer onto stack
+						il.Emit(OperationCode.Ldarg_0);
+
+						// Load event name onto stack
+						il.Emit(OperationCode.Ldstr, eventDef.Name.Value);
+
+						// Load value argument pointer
+						il.Emit(OperationCode.Ldarg_1);
+
+						// Call BeforeRemove delegate
+						il.Emit(OperationCode.Call, beforeRemove.Instance);
+					}
+
+					// Emit the old event setter instructions
+					il.EmitUntilReturn();
+
+					// After Remove
+					if (eventAmendment.AfterRemove != null)
+					{
+						// Get the delegate to call 
+						var afterRemove = ResolveEventDelegate(eventDef, eventAmendment.AfterRemove);
+
+						// Load this pointer onto stack
+						il.Emit(OperationCode.Ldarg_0);
+
+						// Load event name onto stack
+						il.Emit(OperationCode.Ldstr, eventDef.Name.Value);
+
+						// Load value argument onto stack
+						il.Emit(OperationCode.Ldarg_1);
+
+						// Call AfterRemove delegate
+						il.Emit(OperationCode.Call, afterRemove.Instance);
+					}
+				}
+			}
+
+			// Update the method body
+			il.UpdateMethodBody(6);
+		}
+
+		/// <summary>
+		/// Emits the IL implementation for a default event adder or remover following the approach used by the C# compiler.
+		/// </summary>
+		/// <param name="eventDef"></param>
+		/// <param name="eventAmendment"></param>
+		/// <param name="methodBody"></param>
+		/// <param name="il"></param>
+		/// <param name="isAdder"></param>
+		void EmitDefaultEvent(IEventDefinition eventDef, IEventAmendment eventAmendment, MethodBody methodBody, ILAmender il, bool isAdder)
+		{
+			// Get the previously created backing field for this event
+			var backingField = GetCurrentType().Fields.Where(f => f.Name.Value == eventAmendment.Name).First();
+
+			// Create local variables to track the event handler state
+			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_h0_"), Type = eventDef.Type });
+			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_h1_"), Type = eventDef.Type });
+			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_h2_"), Type = eventDef.Type });
+			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_flag_"), Type = host.PlatformType.SystemBoolean });
+
+			// Load this pointer onto stack
+			il.Emit(OperationCode.Ldarg_0);
+
+			// Load the backing field
+			il.Emit(OperationCode.Ldfld, backingField);
+
+			// Store the value in the first local variable
+			il.Emit(OperationCode.Stloc_0);
+
+			// Begin a loop to perform the change
+			var loop = new ILGeneratorLabel();
+			il.MarkLabel(loop);
+
+			// Load the value of the first local variable
+			il.Emit(OperationCode.Ldloc_0);
+
+			// Store the value in the second local variable
+			il.Emit(OperationCode.Stloc_1);
+
+			// Load the value of the second local variable
+			il.Emit(OperationCode.Ldloc_1);
+
+			// Load the event value argument
+			il.Emit(OperationCode.Ldarg_1);
+
+			// Either call System.Delegate.Combine(System.Delegate, System.Delegate) or System.Delegate.Remove(System.Delegate, System.Delegate)
+			il.Emit(OperationCode.Call, ResolveMethod(
+				ResolveType(typeof(System.Delegate)),
+				typeof(System.Delegate).GetMethod(isAdder ? "Combine" : "Remove", new Type[] { typeof(Delegate), typeof(Delegate) })));
+
+			// Cast to the correct delegate type
+			il.Emit(OperationCode.Castclass, eventDef.Type);
+
+			// Store the value in the third local variable
+			il.Emit(OperationCode.Stloc_2);
+
+			// Load this pointer onto stack
+			il.Emit(OperationCode.Ldarg_0);
+
+			// Load the backing field address
+			il.Emit(OperationCode.Ldflda, backingField);
+
+			// Load the value of the third local variable
+			il.Emit(OperationCode.Ldloc_2);
+
+			// Load the value of the second local variable
+			il.Emit(OperationCode.Ldloc_1);
+
+			// Call System.Threading.Interlocked.CompareExchange<TEvent>(ref TEvent, TEvent, TEvent)
+			il.Emit(OperationCode.Call,
+				new GenericMethodInstance(
+					ResolveType(typeof(System.Threading.Interlocked)).Methods.Where(m => m.Name.Value == "CompareExchange" && m.IsGeneric && m.GenericParameterCount == 1 && m.ParameterCount == 3).First(),
+					new ITypeReference[] { eventDef.Type },
+					host.InternFactory));
+
+			// Store the value in the first local variable
+			il.Emit(OperationCode.Stloc_0);
+
+			// Load the value of the first local variable
+			il.Emit(OperationCode.Ldloc_0);
+
+			// Load the value of the second local variable
+			il.Emit(OperationCode.Ldloc_1);
+
+			// Compare the event handlers
+			il.Emit(OperationCode.Ceq);
+
+			// Load 0 onto the stack
+			il.Emit(OperationCode.Ldc_I4_0);
+
+			// Compare equality of the result to get a boolean value
+			il.Emit(OperationCode.Ceq);
+
+			// Store the value in the fourth local variable
+			il.Emit(OperationCode.Stloc_3);
+
+			// Load the value of the fourth local variable
+			il.Emit(OperationCode.Ldloc_3);
+
+			// Continue looping until the operation has completed
+			il.Emit(OperationCode.Brtrue_S, loop);
+
+			// Return
+			il.Emit(OperationCode.Ret);
 		}
 
 		/// <summary>
@@ -1129,10 +1708,10 @@ namespace Afterthought.Amender
 		{
 			// Get the corresponding before method definition
 			var methodDef = methodBody.MethodDefinition;
-			
+
 			// Get the method definition to emit a call to
 			var targetMethodDef = ResolveMethodDelegate(methodBody.MethodDefinition.ContainingType, method, methodDef, ref delegateType);
-			
+
 			// Load this pointer onto stack
 			il.Emit(OperationCode.Ldarg_0);
 
@@ -1220,10 +1799,10 @@ namespace Afterthought.Amender
 			}
 
 			// Explicit syntax
-			else 
+			else
 			{
 				// Determine whether to load the argument value or argument references
-				var ldArg = methodDef.ParameterCount > 0 && targetMethodDef.Parameters.Skip(1).First().IsByReference ? OperationCode.Ldarga_S : OperationCode.Ldarg_S; 
+				var ldArg = methodDef.ParameterCount > 0 && targetMethodDef.Parameters.Skip(1).First().IsByReference ? OperationCode.Ldarga_S : OperationCode.Ldarg_S;
 
 				// Load the method arguments onto the stack
 				foreach (var parameter in methodDef.Parameters)
@@ -1251,7 +1830,7 @@ namespace Afterthought.Amender
 				return GetProperty(type.BaseClasses.Select(t => t.ResolvedType).FirstOrDefault(), property);
 			return propertyDef;
 		}
-	
+
 		/// <summary>
 		/// Get the <see cref="INamedTypeDefinition"/> corresponding to the specified <see cref="Type"/>.
 		/// </summary>
@@ -1341,7 +1920,7 @@ namespace Afterthought.Amender
 		{
 			return declaringType.Properties.Where(p => AreEquivalent(p, property)).FirstOrDefault();
 		}
-	
+
 		/// <summary>
 		/// Gets the <see cref="IMethodDefinition"/> that corresponds to the specified <see cref="MethodInfo"/>.
 		/// </summary>
@@ -1351,6 +1930,17 @@ namespace Afterthought.Amender
 		IMethodDefinition ResolveMethod(ITypeDefinition declaringType, System.Reflection.MethodInfo method)
 		{
 			return TypeHelper.GetMethod(declaringType, host.NameTable.GetNameFor(method.Name), method.GetParameters().Select(p => ResolveType(p.ParameterType)).ToArray());
+		}
+
+		/// <summary>
+		/// Gets the <see cref="IEventDefinition"/> that corresponds to the specified <see cref="EventInfo"/>.
+		/// </summary>
+		/// <param name="declaringType"></param>
+		/// <param name="eventInfo"></param>
+		/// <returns></returns>
+		IEventDefinition ResolveEvent(ITypeDefinition declaringType, System.Reflection.EventInfo eventInfo)
+		{
+			return declaringType.Events.Where(e => AreEquivalent(e, eventInfo)).FirstOrDefault();
 		}
 
 		/// <summary>
@@ -1398,40 +1988,6 @@ namespace Afterthought.Amender
 				TypeHelper.TypesAreEquivalent(fieldDef.Type, ResolveType(field.FieldType));
 		}
 
-		/// <summary>
-		/// Indicates whether the specified <see cref="IMethodDefinition"/> and
-		/// <see cref="MethodBase"/> are equivalent, representing the same method.
-		/// </summary>
-		/// <param name="methodDef"></param>
-		/// <param name="method"></param>
-		/// <returns></returns>
-		internal bool AreEquivalent(IMethodDefinition methodDef, System.Reflection.MethodBase method)
-		{
-			bool genericTest = true;
-			bool generalTest = true;
-
-			generalTest = 
-				// Ensure method names match
-				methodDef.Name.Value == method.Name && 
-
-				// Ensure parameter counts match
-				methodDef.ParameterCount == method.GetParameters().Length &&
-
-				// Ensure parameter types match
-				method.GetParameters().Select(p => ResolveType(p.ParameterType)).Cast<ITypeDefinition>().SequenceEqual(methodDef.Parameters.Select(p => p.Type.ResolvedType));
-		
-			if (!(method is System.Reflection.ConstructorInfo))
-			{
-				genericTest = 
-					// Ensure generic parameter types match
-					method.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeDefinition>().SequenceEqual(methodDef.GenericParameters.Cast<IGenericParameterReference>().Select(p => p.ResolvedType)) &&
-	
-					// Ensure generic type parameter counts match
-					methodDef.GenericParameterCount == method.GetGenericArguments().Length;
-			}
-
-			return generalTest && genericTest;
-		}
 
 		/// <summary>
 		/// Indicates whether the specified <see cref="IPropertyDefinition"/> and
@@ -1457,15 +2013,74 @@ namespace Afterthought.Amender
 				property.GetIndexParameters().Select(p => ResolveType(p.ParameterType)).Cast<ITypeDefinition>().SequenceEqual(propertyDef.Parameters.Select(p => p.Type.ResolvedType));
 		}
 
+		/// <summary>
+		/// Indicates whether the specified <see cref="IMethodDefinition"/> and
+		/// <see cref="MethodBase"/> are equivalent, representing the same method.
+		/// </summary>
+		/// <param name="methodDef"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
+		internal bool AreEquivalent(IMethodDefinition methodDef, System.Reflection.MethodBase method)
+		{
+			bool genericTest = true;
+			bool generalTest = true;
+
+			generalTest =
+				// Ensure method names match
+				methodDef.Name.Value == method.Name &&
+
+				// Ensure parameter counts match
+				methodDef.ParameterCount == method.GetParameters().Length &&
+
+				// Ensure parameter types match
+				method.GetParameters().Select(p => ResolveType(p.ParameterType)).Cast<ITypeDefinition>().SequenceEqual(methodDef.Parameters.Select(p => p.Type.ResolvedType));
+
+			if (!(method is System.Reflection.ConstructorInfo))
+			{
+				genericTest =
+					// Ensure generic parameter types match
+					method.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeDefinition>().SequenceEqual(methodDef.GenericParameters.Cast<IGenericParameterReference>().Select(p => p.ResolvedType)) &&
+
+					// Ensure generic type parameter counts match
+					methodDef.GenericParameterCount == method.GetGenericArguments().Length;
+			}
+
+			return generalTest && genericTest;
+		}
+
+		/// <summary>
+		/// Indicates whether the specified <see cref="IEventDefinition"/> and
+		/// <see cref="PropertyInfo"/> are equivalent, representing the same property.
+		/// </summary>
+		/// <param name="eventDef"></param>
+		/// <param name="eventInfo"></param>
+		/// <returns></returns>
+		internal bool AreEquivalent(IEventDefinition eventDef, System.Reflection.EventInfo eventInfo)
+		{
+			return
+
+				// Ensure event names match
+				eventDef.Name.Value == eventInfo.Name &&
+
+				// Ensure event handler types match
+				TypeHelper.TypesAreEquivalent(eventDef.Type, ResolveType(eventInfo.EventHandlerType));
+		}
+
+		/// <summary>
+		/// Gets the delegate to call to amend a property.
+		/// </summary>
+		/// <param name="propertyDef"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
 		GenericMethod ResolvePropertyDelegate(IPropertyDefinition propertyDef, System.Reflection.MethodInfo method)
 		{
 			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
 
 			// Then get the generic Amendment method
-			var genericMethod = 
+			var genericMethod =
 				(
-					declaringType.IsGeneric ? 
-					GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory) : 
+					declaringType.IsGeneric ?
+					GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory) :
 					declaringType
 				)
 				.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
@@ -1475,10 +2090,17 @@ namespace Afterthought.Amender
 			{
 				Operations = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault().Body.Operations,
 				Instance = genericMethod.GenericParameterCount == 0 ? genericMethod : new GenericMethodInstance(genericMethod, new ITypeReference[] { propertyDef.Type }, host.InternFactory)
-					
 			};
 		}
 
+		/// <summary>
+		/// Gets the delegate to call to amend a method.
+		/// </summary>
+		/// <param name="instanceType"></param>
+		/// <param name="method"></param>
+		/// <param name="methodDef"></param>
+		/// <param name="delegateType"></param>
+		/// <returns></returns>
 		IMethodDefinition ResolveMethodDelegate(ITypeReference instanceType, System.Reflection.MethodInfo method, IMethodDefinition methodDef, ref MethodDelegateType delegateType)
 		{
 			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
@@ -1537,6 +2159,33 @@ namespace Afterthought.Amender
 
 
 		/// <summary>
+		/// Gets the delegate to call to amend an event.
+		/// </summary>
+		/// <param name="eventDef"></param>
+		/// <param name="method"></param>
+		/// <returns></returns>
+		GenericMethod ResolveEventDelegate(IEventDefinition eventDef, System.Reflection.MethodInfo method)
+		{
+			var declaringType = ResolveType(method.DeclaringType.IsGenericType ? method.DeclaringType.GetGenericTypeDefinition() : method.DeclaringType);
+
+			// Then get the generic Amendment method
+			var genericMethod =
+				(
+					declaringType.IsGeneric ?
+					GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { eventDef.ContainingType }, host.InternFactory) :
+					declaringType
+				)
+				.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
+
+			// Finally, return a concrete method instance
+			return new GenericMethod()
+			{
+				Operations = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault().Body.Operations,
+				Instance = genericMethod.GenericParameterCount == 0 ? genericMethod : new GenericMethodInstance(genericMethod, new ITypeReference[] { eventDef.Type }, host.InternFactory)
+			};
+		}
+
+		/// <summary>
 		/// Gets the name of the private backing field to use for new generated properties.
 		/// </summary>
 		/// <param name="property"></param>
@@ -1544,7 +2193,7 @@ namespace Afterthought.Amender
 		string GetBackingFieldName(IPropertyAmendment property)
 		{
 			// Return backing field name consistent with C# compiler conventions
-			return "<" + (property.Implements != null ? property.Implements.DeclaringType.FullName.Replace('.', '_') : "") + property.Name + ">k__BackingField";
+			return "<" + property.Name + ">k__BackingField";
 		}
 	}
 

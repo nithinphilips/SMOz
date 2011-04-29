@@ -25,6 +25,8 @@ namespace Afterthought
 
 		MethodInfo Implements { get; }
 
+		MethodInfo Overrides { get; }
+
 		MethodInfo Implementation { get; }
 
 		MethodInfo Before { get; }

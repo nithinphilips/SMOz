@@ -33,5 +33,7 @@ namespace Afterthought.UnitTest.Target
 		decimal Base { get; set; }
 
 		decimal Subtract(decimal x, decimal y);
+
+		event EventHandler Error;
 	}
 }

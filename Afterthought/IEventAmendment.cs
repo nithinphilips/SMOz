@@ -10,25 +10,32 @@
 //-----------------------------------------------------------------------------
 
 using System.Reflection;
+using System;
 
 namespace Afterthought
 {
 	public interface IEventAmendment : IMemberAmendment
 	{
+		Type Type { get; }
+
+		EventInfo EventInfo { get; }
+
+		EventInfo Implements { get; }
+
 		MethodInfo Adder { get; }
 
-		MethodInfo AfterAdd { get; }
-		
-		MethodInfo AfterRemove { get; }
+		MethodInfo Remover { get; }
 		
 		MethodInfo BeforeAdd { get; }
 		
 		MethodInfo BeforeRemove { get; }
-		
-		EventInfo EventInfo { get; }
-		
-		EventInfo Implements { get; }
-		
-		MethodInfo Remover { get; }
+
+		MethodInfo AfterAdd { get; }
+
+		MethodInfo AfterRemove { get; }
+
+		string RaisedBy { get; }
+
+		MethodInfo RaisedByImplements { get; }
 	}
 }
