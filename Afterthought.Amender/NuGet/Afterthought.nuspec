@@ -3,7 +3,7 @@
   <metadata>
 	<id>Afterthought</id>
 	<title>Afterthought</title>
-	<version>1.0.4</version>
+	<version>$version$</version>
 	<authors>Jamie Thomas, VC3</authors>
 	<summary>An open source .NET compile-time code amender.</summary>
 	<description>
@@ -12,6 +12,7 @@
 	</description>
 	<projectUrl>https://github.com/vc3/Afterthought</projectUrl>
 	<licenseUrl>https://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
+	<iconUrl>https://github.com/vc3/Afterthought/raw/master/Afterthought_Icon.png</iconUrl>
 	<tags>aop, aspect, postsharp, assembly, il, postcompile, injection, weaving, interception</tags>
   </metadata>
   <files>
