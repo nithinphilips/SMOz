@@ -44,6 +44,13 @@ namespace Microsoft.Cci {
       visitor.Visit(this);
     }
 
+    /// <summary>
+    /// Calls visitor.Visit(IArrayTypeReference)
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit(this);
+    }
+
     public ITypeReference ElementType {
       get { return this.elementType; }
     }
@@ -109,11 +116,11 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<int> LowerBounds {
-      get { return IteratorHelper.GetEmptyEnumerable<int>(); }
+      get { return Enumerable<int>.Empty; }
     }
 
     public override IEnumerable<ITypeDefinitionMember> Members {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>(); }
+      get { return Enumerable<ITypeDefinitionMember>.Empty; }
     }
 
     public override IPlatformType PlatformType {
@@ -125,7 +132,7 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ulong> Sizes {
-      get { return IteratorHelper.GetEmptyEnumerable<ulong>(); }
+      get { return Enumerable<ulong>.Empty; }
     }
 
     //^ [Confined]
@@ -142,7 +149,7 @@ namespace Microsoft.Cci {
     }
 
     IEnumerable<IGenericTypeParameter> ITypeDefinition.GenericParameters {
-      get { return IteratorHelper.GetEmptyEnumerable<IGenericTypeParameter>(); }
+      get { return Enumerable<IGenericTypeParameter>.Empty; }
     }
 
     ushort ITypeDefinition.GenericParameterCount {
@@ -157,7 +164,7 @@ namespace Microsoft.Cci {
     #region IContainer<ITypeDefinitionMember> Members
 
     IEnumerable<ITypeDefinitionMember> IContainer<ITypeDefinitionMember>.Members {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>(); }
+      get { return Enumerable<ITypeDefinitionMember>.Empty; }
     }
 
     #endregion
@@ -165,7 +172,7 @@ namespace Microsoft.Cci {
     #region IDefinition Members
 
     IEnumerable<ICustomAttribute> IReference.Attributes {
-      get { return IteratorHelper.GetEmptyEnumerable<ICustomAttribute>(); }
+      get { return Enumerable<ICustomAttribute>.Empty; }
     }
 
     #endregion
@@ -174,21 +181,21 @@ namespace Microsoft.Cci {
 
     [Pure]
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.GetMatchingMembersNamed(IName name, bool ignoreCase, Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     [Pure]
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.GetMatchingMembers(Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     [Pure]
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.GetMembersNamed(IName name, bool ignoreCase) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.Members {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>(); }
+      get { return Enumerable<ITypeDefinitionMember>.Empty; }
     }
 
     #endregion
@@ -267,7 +274,7 @@ namespace Microsoft.Cci {
       this.returnValueIsByRef = signature.ReturnValueIsByRef;
       this.type = signature.Type;
       this.parameters = signature.Parameters;
-      this.extraArgumentTypes = IteratorHelper.GetEmptyEnumerable<IParameterTypeInformation>();
+      this.extraArgumentTypes = Enumerable<IParameterTypeInformation>.Empty;
     }
 
     public FunctionPointerType(CallingConvention callingConvention, bool returnValueIsByRef, ITypeReference type,
@@ -280,7 +287,7 @@ namespace Microsoft.Cci {
       this.type = type;
       this.parameters = parameters;
       if (extraArgumentTypes == null)
-        this.extraArgumentTypes = IteratorHelper.GetEmptyEnumerable<IParameterTypeInformation>();
+        this.extraArgumentTypes = Enumerable<IParameterTypeInformation>.Empty;
       else
         this.extraArgumentTypes = extraArgumentTypes;
     }
@@ -294,6 +301,13 @@ namespace Microsoft.Cci {
     /// Calls visitor.Visit(IFunctionPointerTypeReference)
     /// </summary>
     public override void Dispatch(IMetadataVisitor visitor) {
+      visitor.Visit(this);
+    }
+
+    /// <summary>
+    /// Calls visitor.Visit(IFunctionPointerTypeReference)
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
       visitor.Visit(this);
     }
 
@@ -351,17 +365,19 @@ namespace Microsoft.Cci {
 
   public class GenericTypeInstance : Scope<ITypeDefinitionMember>, IGenericTypeInstance {
 
-    public static GenericTypeInstance GetGenericTypeInstance(ITypeReference genericType, IEnumerable<ITypeReference> genericArguments, IInternFactory internFactory)
+    public static GenericTypeInstance GetGenericTypeInstance(INamedTypeReference genericType, IEnumerable<ITypeReference> genericArguments, IInternFactory internFactory)
       //^ requires genericType.ResolvedType.IsGeneric;
       //^ ensures !result.IsGeneric;
     {
+      Contract.Requires(!(genericType is Dummy));
       Contract.Ensures(Contract.Result<GenericTypeInstance>() != null);
       return new GenericTypeInstance(genericType, genericArguments, internFactory);
     }
 
-    private GenericTypeInstance(ITypeReference genericType, IEnumerable<ITypeReference> genericArguments, IInternFactory internFactory)
+    private GenericTypeInstance(INamedTypeReference genericType, IEnumerable<ITypeReference> genericArguments, IInternFactory internFactory)
       //^ requires genericType.ResolvedType.IsGeneric;
     {
+      Contract.Requires(!(genericType is Dummy));
       this.genericType = genericType;
       this.genericArguments = genericArguments;
       this.internFactory = internFactory;
@@ -372,7 +388,7 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ICustomAttribute> Attributes {
-      get { return IteratorHelper.GetEmptyEnumerable<ICustomAttribute>(); }
+      get { return Enumerable<ICustomAttribute>.Empty; }
     }
 
     public IEnumerable<ITypeReference> BaseClasses {
@@ -384,7 +400,17 @@ namespace Microsoft.Cci {
       }
     }
 
+    /// <summary>
+    /// Calls this.Visit(IGenericTypeInstanceReference).
+    /// </summary>
     public void Dispatch(IMetadataVisitor visitor) {
+      visitor.Visit(this);
+    }
+
+    /// <summary>
+    /// Calls this.Visit(IGenericTypeInstanceReference).
+    /// </summary>
+    public void DispatchAsReference(IMetadataVisitor visitor) {
       visitor.Visit(this);
     }
 
@@ -397,11 +423,11 @@ namespace Microsoft.Cci {
     }
 
     public IEnumerable<ILocation> Locations {
-      get { return IteratorHelper.GetEmptyEnumerable<ILocation>(); }
+      get { return Enumerable<ILocation>.Empty; }
     }
 
     public IEnumerable<IMethodImplementation> ExplicitImplementationOverrides {
-      get { return IteratorHelper.GetEmptyEnumerable<IMethodImplementation>(); }
+      get { return Enumerable<IMethodImplementation>.Empty; }
     }
 
     public IEnumerable<ITypeReference> GenericArguments {
@@ -409,10 +435,10 @@ namespace Microsoft.Cci {
     }
     readonly IEnumerable<ITypeReference> genericArguments;
 
-    public ITypeReference GenericType {
+    public INamedTypeReference GenericType {
       get { return this.genericType; }
     }
-    readonly ITypeReference genericType; //^ invariant genericType.ResolvedType.IsGeneric;
+    readonly INamedTypeReference genericType; //^ invariant genericType.ResolvedType.IsGeneric;
 
     protected override void InitializeIfNecessary() {
       if (this.initialized) return;
@@ -482,7 +508,7 @@ namespace Microsoft.Cci {
     }
 
     public bool IsValueType {
-      get { return this.GenericType.ResolvedType.IsValueType; }
+      get { return this.GenericType.IsValueType; }
     }
 
     public bool IsStruct {
@@ -498,13 +524,13 @@ namespace Microsoft.Cci {
     }
 
     public IPlatformType PlatformType {
-      get { return this.GenericType.ResolvedType.PlatformType; }
+      get { return this.GenericType.PlatformType; }
     }
 
     public IEnumerable<ITypeDefinitionMember> PrivateHelperMembers {
       get {
         //TODO: specialize and cache the private helper members of the generic type template.
-        return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+        return Enumerable<ITypeDefinitionMember>.Empty;
       }
     }
 
@@ -522,7 +548,7 @@ namespace Microsoft.Cci {
     /// replace the occurrences of matching type parameters in <paramref name="genericTypeInstance"/>.</param>
     ///  /// <param name="internFactory">An intern factory. </param>
     internal static ITypeReference DeepCopyTypeReference(IGenericTypeInstanceReference genericTypeInstance, SpecializedNestedTypeDefinition targetContainer, IInternFactory internFactory) {
-      var copiedGenericType = TypeDefinition.DeepCopyTypeReference(genericTypeInstance.GenericType, targetContainer, internFactory);
+      var copiedGenericType = (INamedTypeReference)TypeDefinition.DeepCopyTypeReference(genericTypeInstance.GenericType, targetContainer, internFactory);
       List<ITypeReference>/*?*/ copiedArguments = null;
       int i = 0;
       foreach (ITypeReference argType in genericTypeInstance.GenericArguments) {
@@ -548,7 +574,7 @@ namespace Microsoft.Cci {
     /// corresponding values of containingMethodInstance.GenericArguments.
     /// </summary>
     public static ITypeReference SpecializeIfConstructedFromApplicableTypeParameter(IGenericTypeInstanceReference genericTypeInstance, IGenericMethodInstanceReference containingMethodInstance, IInternFactory internFactory) {
-      var specializedGenericType = TypeDefinition.SpecializeIfConstructedFromApplicableTypeParameter(genericTypeInstance.GenericType, containingMethodInstance, internFactory);
+      var specializedGenericType = (INamedTypeReference)TypeDefinition.SpecializeIfConstructedFromApplicableTypeParameter(genericTypeInstance.GenericType, containingMethodInstance, internFactory);
       List<ITypeReference>/*?*/ specializedArguments = null;
       int i = 0;
       foreach (ITypeReference argType in genericTypeInstance.GenericArguments) {
@@ -573,7 +599,7 @@ namespace Microsoft.Cci {
     /// corresponding values of containingTypeInstance.GenericArguments.
     /// </summary>
     public static ITypeReference SpecializeIfConstructedFromApplicableTypeParameter(IGenericTypeInstanceReference genericTypeInstance, IGenericTypeInstanceReference containingTypeInstance, IInternFactory internFactory) {
-      var specializedGenericType = TypeDefinition.SpecializeIfConstructedFromApplicableTypeParameter(genericTypeInstance.GenericType, containingTypeInstance, internFactory);
+      var specializedGenericType = (INamedTypeReference)TypeDefinition.SpecializeIfConstructedFromApplicableTypeParameter(genericTypeInstance.GenericType, containingTypeInstance, internFactory);
       List<ITypeReference>/*?*/ specializedArguments = null;
       int i = 0;
       foreach (ITypeReference argType in genericTypeInstance.GenericArguments) {
@@ -598,7 +624,7 @@ namespace Microsoft.Cci {
     /// specializedMethodDefinition.UnspecializedVersion with the corresponding values of specializedMethodDefinition.
     /// </summary>
     internal static ITypeReference DeepCopyTypeReferenceWRTSpecializedMethod(IGenericTypeInstanceReference genericTypeInstance, SpecializedMethodDefinition specializedMethodDefinition, IInternFactory internFactory) {
-      var specializedGenericType = TypeDefinition.DeepCopyTypeReferenceWRTSpecializedMethod(genericTypeInstance.GenericType, specializedMethodDefinition, internFactory);
+      var specializedGenericType = (INamedTypeReference)TypeDefinition.DeepCopyTypeReferenceWRTSpecializedMethod(genericTypeInstance.GenericType, specializedMethodDefinition, internFactory);
       List<ITypeReference>/*?*/ specializedArguments = null;
       int i = 0;
       foreach (ITypeReference argType in genericTypeInstance.GenericArguments) {
@@ -726,7 +752,7 @@ namespace Microsoft.Cci {
     #region ITypeDefinition Members
 
     IEnumerable<IGenericTypeParameter> ITypeDefinition.GenericParameters {
-      get { return IteratorHelper.GetEmptyEnumerable<IGenericTypeParameter>(); }
+      get { return Enumerable<IGenericTypeParameter>.Empty; }
     }
 
     ushort ITypeDefinition.GenericParameterCount {
@@ -742,7 +768,7 @@ namespace Microsoft.Cci {
     }
 
     IEnumerable<ISecurityAttribute> ITypeDefinition.SecurityAttributes {
-      get { return IteratorHelper.GetEmptyEnumerable<ISecurityAttribute>(); }
+      get { return Enumerable<ISecurityAttribute>.Empty; }
     }
 
     #endregion
@@ -898,6 +924,13 @@ namespace Microsoft.Cci {
       visitor.Visit(this);
     }
 
+    /// <summary>
+    /// Calls visitor.Visit(IManagedPointerTypeReference)
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit(this);
+    }
+
     public static ManagedPointerType GetManagedPointerType(ITypeReference targetType, IInternFactory internFactory) {
       Contract.Ensures(Contract.Result<ManagedPointerType>() != null);
       ManagedPointerType result = new ManagedPointerType(targetType, internFactory);
@@ -905,7 +938,7 @@ namespace Microsoft.Cci {
     }
 
     public override IPlatformType PlatformType {
-      get { return this.TargetType.ResolvedType.PlatformType; }
+      get { return this.TargetType.PlatformType; }
     }
 
     /// <summary>
@@ -1089,13 +1122,20 @@ namespace Microsoft.Cci {
       visitor.Visit(this);
     }
 
+    /// <summary>
+    /// Calls visitor.Visit(IPointerTypeReference)
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit(this);
+    }
+
     public static PointerType GetPointerType(ITypeReference targetType, IInternFactory internFactory) {
       Contract.Ensures(Contract.Result<PointerType>() != null);
       return new PointerType(targetType, internFactory);
     }
 
     public override IPlatformType PlatformType {
-      get { return this.TargetType.ResolvedType.PlatformType; }
+      get { return this.TargetType.PlatformType; }
     }
 
     /// <summary>
@@ -1435,7 +1475,7 @@ namespace Microsoft.Cci {
     }
 
     public IPlatformType PlatformType {
-      get { return this.UnmodifiedType.ResolvedType.PlatformType; }
+      get { return this.UnmodifiedType.PlatformType; }
     }
 
     public ITypeDefinition ResolvedType {
@@ -1451,15 +1491,25 @@ namespace Microsoft.Cci {
     #region IReference Members
 
     public IEnumerable<ICustomAttribute> Attributes {
-      get { return IteratorHelper.GetEmptyEnumerable<ICustomAttribute>(); }
+      get { return Enumerable<ICustomAttribute>.Empty; }
     }
 
+    /// <summary>
+    /// Calls visitor.Visit(IModifiedTypeReference).
+    /// </summary>
     public void Dispatch(IMetadataVisitor visitor) {
       visitor.Visit(this);
     }
 
+    /// <summary>
+    /// Calls visitor.Visit(IModifiedTypeReference).
+    /// </summary>
+    public void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit(this);
+    }
+
     public IEnumerable<ILocation> Locations {
-      get { return IteratorHelper.GetEmptyEnumerable<ILocation>(); }
+      get { return Enumerable<ILocation>.Empty; }
     }
 
     #endregion
@@ -1598,7 +1648,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<ITypeReference> BaseClasses {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeReference>(); }
+      get { return Enumerable<ITypeReference>.Empty; }
     }
 
     /// <summary>
@@ -1612,7 +1662,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IGenericTypeParameter> GenericParameters {
-      get { return IteratorHelper.GetEmptyEnumerable<IGenericTypeParameter>(); }
+      get { return Enumerable<IGenericTypeParameter>.Empty; }
     }
 
     /// <summary>
@@ -1620,7 +1670,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<ITypeReference> Interfaces {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeReference>(); }
+      get { return Enumerable<ITypeReference>.Empty; }
     }
 
     /// <summary>
@@ -1652,7 +1702,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IMethodImplementation> ExplicitImplementationOverrides {
-      get { return IteratorHelper.GetEmptyEnumerable<IMethodImplementation>(); }
+      get { return Enumerable<IMethodImplementation>.Empty; }
     }
 
     #region IGenericParameter Members
@@ -1706,7 +1756,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IEventDefinition> Events {
-      get { return IteratorHelper.GetEmptyEnumerable<IEventDefinition>(); }
+      get { return Enumerable<IEventDefinition>.Empty; }
     }
 
     /// <summary>
@@ -1714,7 +1764,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IFieldDefinition> Fields {
-      get { return IteratorHelper.GetEmptyEnumerable<IFieldDefinition>(); }
+      get { return Enumerable<IFieldDefinition>.Empty; }
     }
 
     /// <summary>
@@ -1823,7 +1873,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<ITypeDefinitionMember> Members {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>(); }
+      get { return Enumerable<ITypeDefinitionMember>.Empty; }
     }
 
     /// <summary>
@@ -1831,7 +1881,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IMethodDefinition> Methods {
-      get { return IteratorHelper.GetEmptyEnumerable<IMethodDefinition>(); }
+      get { return Enumerable<IMethodDefinition>.Empty; }
     }
 
     /// <summary>
@@ -1839,7 +1889,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<INestedTypeDefinition> NestedTypes {
-      get { return IteratorHelper.GetEmptyEnumerable<INestedTypeDefinition>(); }
+      get { return Enumerable<INestedTypeDefinition>.Empty; }
     }
 
     /// <summary>
@@ -1847,7 +1897,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IPropertyDefinition> Properties {
-      get { return IteratorHelper.GetEmptyEnumerable<IPropertyDefinition>(); }
+      get { return Enumerable<IPropertyDefinition>.Empty; }
     }
 
     /// <summary>
@@ -1982,10 +2032,17 @@ namespace Microsoft.Cci {
 
     /// <summary>
     /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
-    /// of the object implementing IDoubleDispatcher. The dispatch method does not invoke Dispatch on any child objects. If child traversal
-    /// is desired, the implementations of the Visit methods should do the subsequent dispatching.
+    /// of the object implementing IReference. The dispatch method does nothing else.
     /// </summary>
     public abstract void Dispatch(IMetadataVisitor visitor);
+
+    /// <summary>
+    /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
+    /// of the object implementing IReference, which is not derived from IDefinition. For example an object implemeting IArrayType will
+    /// call visitor.Visit(IArrayTypeReference) and not visitor.Visit(IArrayType).
+    /// The dispatch method does nothing else.
+    /// </summary>
+    public abstract void DispatchAsReference(IMetadataVisitor visitor);
 
     #endregion
 
@@ -2034,7 +2091,7 @@ namespace Microsoft.Cci {
     /// <returns></returns>
     [Pure]
     public IEnumerable<ITypeDefinitionMember> GetMatchingMembersNamed(IName name, bool ignoreCase, Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     /// <summary>
@@ -2044,7 +2101,7 @@ namespace Microsoft.Cci {
     /// <returns></returns>
     [Pure]
     public IEnumerable<ITypeDefinitionMember> GetMatchingMembers(Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     /// <summary>
@@ -2055,7 +2112,7 @@ namespace Microsoft.Cci {
     /// <returns></returns>
     [Pure]
     public IEnumerable<ITypeDefinitionMember> GetMembersNamed(IName name, bool ignoreCase) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     #endregion
@@ -2079,7 +2136,7 @@ namespace Microsoft.Cci {
     }
 
     public IEnumerable<ICustomModifier> CustomModifiers {
-      get { return IteratorHelper.GetEmptyEnumerable<ICustomModifier>(); }
+      get { return Enumerable<ICustomModifier>.Empty; }
     }
 
     public bool IsModified {
@@ -2206,6 +2263,13 @@ namespace Microsoft.Cci {
     /// </summary>
     public override void Dispatch(IMetadataVisitor visitor) {
       visitor.Visit(this);
+    }
+
+    /// <summary>
+    /// Calls the visitor.Visit(IGenericTypeParameterReference) method.
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit((IGenericTypeParameterReference)this);
     }
 
     /// <summary>
@@ -2390,7 +2454,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<IMethodImplementation> ExplicitImplementationOverrides {
-      get { return IteratorHelper.GetEmptyEnumerable<IMethodImplementation>(); }
+      get { return Enumerable<IMethodImplementation>.Empty; }
     }
 
     /// <summary>
@@ -2465,7 +2529,7 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public IEnumerable<ITypeDefinitionMember> PrivateHelperMembers {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>(); }
+      get { return Enumerable<ITypeDefinitionMember>.Empty; }
     }
 
     /// <summary>
@@ -2771,6 +2835,16 @@ namespace Microsoft.Cci {
       }
     }
 
+    /// <summary>
+    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String"/> that represents this instance.
+    /// </returns>
+    public override string ToString() {
+      return TypeHelper.GetTypeName(this);
+    }
+
     #endregion
 
     #region IDefinition Members
@@ -2787,8 +2861,18 @@ namespace Microsoft.Cci {
 
     #region IDoubleDispatcher Members
 
+    /// <summary>
+    /// Calls visitor.Visit(INestedTypeDefinition).
+    /// </summary>
     public void Dispatch(IMetadataVisitor visitor) {
       visitor.Visit(this);
+    }
+
+    /// <summary>
+    /// Calls visitor.Visit(INestedTypeReference).
+    /// </summary>
+    public void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit((ISpecializedNestedTypeReference)this);
     }
 
     #endregion
@@ -2908,23 +2992,23 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ITypeReference> BaseClasses {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeReference>(); }
+      get { return Enumerable<ITypeReference>.Empty; }
     }
 
     public IEnumerable<IEventDefinition> Events {
-      get { return IteratorHelper.GetEmptyEnumerable<IEventDefinition>(); }
+      get { return Enumerable<IEventDefinition>.Empty; }
     }
 
     public IEnumerable<IMethodImplementation> ExplicitImplementationOverrides {
-      get { return IteratorHelper.GetEmptyEnumerable<IMethodImplementation>(); }
+      get { return Enumerable<IMethodImplementation>.Empty; }
     }
 
     public IEnumerable<IFieldDefinition> Fields {
-      get { return IteratorHelper.GetEmptyEnumerable<IFieldDefinition>(); }
+      get { return Enumerable<IFieldDefinition>.Empty; }
     }
 
     public IEnumerable<IGenericTypeParameter> GenericParameters {
-      get { return IteratorHelper.GetEmptyEnumerable<IGenericTypeParameter>(); }
+      get { return Enumerable<IGenericTypeParameter>.Empty; }
     }
 
     public ushort GenericParameterCount {
@@ -2936,7 +3020,7 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ITypeReference> Interfaces {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeReference>(); }
+      get { return Enumerable<ITypeReference>.Empty; }
     }
 
     public IGenericTypeInstanceReference InstanceType {
@@ -3016,15 +3100,15 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ITypeDefinitionMember> Members {
-      get { return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>(); }
+      get { return Enumerable<ITypeDefinitionMember>.Empty; }
     }
 
     public IEnumerable<IMethodDefinition> Methods {
-      get { return IteratorHelper.GetEmptyEnumerable<IMethodDefinition>(); }
+      get { return Enumerable<IMethodDefinition>.Empty; }
     }
 
     public IEnumerable<INestedTypeDefinition> NestedTypes {
-      get { return IteratorHelper.GetEmptyEnumerable<INestedTypeDefinition>(); }
+      get { return Enumerable<INestedTypeDefinition>.Empty; }
     }
 
     public abstract IPlatformType PlatformType { get; }
@@ -3034,11 +3118,11 @@ namespace Microsoft.Cci {
     }
 
     public IEnumerable<IPropertyDefinition> Properties {
-      get { return IteratorHelper.GetEmptyEnumerable<IPropertyDefinition>(); }
+      get { return Enumerable<IPropertyDefinition>.Empty; }
     }
 
     public IEnumerable<ISecurityAttribute> SecurityAttributes {
-      get { return IteratorHelper.GetEmptyEnumerable<ISecurityAttribute>(); }
+      get { return Enumerable<ISecurityAttribute>.Empty; }
     }
 
     public uint SizeOf {
@@ -3062,13 +3146,25 @@ namespace Microsoft.Cci {
     #region IDefinition Members
 
     public IEnumerable<ICustomAttribute> Attributes {
-      get { return IteratorHelper.GetEmptyEnumerable<ICustomAttribute>(); }
+      get { return Enumerable<ICustomAttribute>.Empty; }
     }
 
+    /// <summary>
+    /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
+    /// of the object implementing IReference. The dispatch method does nothing else.
+    /// </summary>
     public abstract void Dispatch(IMetadataVisitor visitor);
 
+    /// <summary>
+    /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
+    /// of the object implementing IReference, which is not derived from IDefinition. For example an object implemeting IArrayType will
+    /// call visitor.Visit(IArrayTypeReference) and not visitor.Visit(IArrayType).
+    /// The dispatch method does nothing else.
+    /// </summary>
+    public abstract void DispatchAsReference(IMetadataVisitor visitor);
+
     public IEnumerable<ILocation> Locations {
-      get { return IteratorHelper.GetEmptyEnumerable<ILocation>(); }
+      get { return Enumerable<ILocation>.Empty; }
     }
 
     #endregion
@@ -3081,30 +3177,30 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ITypeDefinitionMember> GetMatchingMembersNamed(IName name, bool ignoreCase, Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     public virtual IEnumerable<ITypeDefinitionMember> GetMatchingMembers(Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     public virtual IEnumerable<ITypeDefinitionMember> GetMembersNamed(IName name, bool ignoreCase) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     [Pure]
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.GetMatchingMembersNamed(IName name, bool ignoreCase, Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     [Pure]
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.GetMatchingMembers(Function<ITypeDefinitionMember, bool> predicate) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     [Pure]
     IEnumerable<ITypeDefinitionMember> IScope<ITypeDefinitionMember>.GetMembersNamed(IName name, bool ignoreCase) {
-      return IteratorHelper.GetEmptyEnumerable<ITypeDefinitionMember>();
+      return Enumerable<ITypeDefinitionMember>.Empty;
     }
 
     #endregion
@@ -3120,7 +3216,7 @@ namespace Microsoft.Cci {
     }
 
     public virtual IEnumerable<ICustomModifier> CustomModifiers {
-      get { return IteratorHelper.GetEmptyEnumerable<ICustomModifier>(); }
+      get { return Enumerable<ICustomModifier>.Empty; }
     }
 
     public virtual bool IsModified {

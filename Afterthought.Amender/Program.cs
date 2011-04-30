@@ -38,8 +38,9 @@ namespace Afterthought.Amender
 				throw new ArgumentException("At least one target assembly must be specified.");
 
 			// Ensure that the target assemblies exist
-			foreach (var path in targets)
+			for (int i = 0; i < targets.Length; i++)
 			{
+				var path = targets[i] = Path.GetFullPath(targets[i]);
 				if (!File.Exists(path))
 					throw new ArgumentException("The specified target assembly, " + path + ", does not exist.");
 			}
@@ -114,7 +115,7 @@ namespace Afterthought.Amender
 						throw new ArgumentException(assembly.DllBackupPath + " is not a PE file containing a CLR assembly, or an error occurred when loading it.");
 
 					// Copy the assembly to enable it to be mutated
-					module = MetadataCopier.DeepCopy(host, module);
+					module = new MetadataDeepCopier(host).Copy(module);
 
 					// Load the debug file if it exists
 					PdbReader pdbReader = null;

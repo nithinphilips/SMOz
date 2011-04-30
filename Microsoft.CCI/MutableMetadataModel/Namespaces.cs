@@ -11,9 +11,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Text;
-
-//^ using Microsoft.Contracts;
 
 namespace Microsoft.Cci.MutableCodeModel {
 
@@ -50,11 +49,17 @@ namespace Microsoft.Cci.MutableCodeModel {
     IUnitNamespace containingUnitNamespace;
 
     /// <summary>
-    /// 
+    /// Calls visitor.Visit(INestedUnitNamespace).
     /// </summary>
-    /// <param name="visitor"></param>
     public override void Dispatch(IMetadataVisitor visitor) {
       visitor.Visit(this);
+    }
+
+    /// <summary>
+    /// Calls visitor.Visit(INestedUnitNamespaceReference).
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit((INestedUnitNamespaceReference)this);
     }
 
     #region INamespaceMember Members
@@ -112,6 +117,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// 
     /// </summary>
     public NestedUnitNamespaceReference() {
+      Contract.Ensures(!this.IsFrozen);
       this.containingUnitNamespace = Dummy.RootUnitNamespace;
       this.name = Dummy.Name;
     }
@@ -138,10 +144,9 @@ namespace Microsoft.Cci.MutableCodeModel {
     IUnitNamespaceReference containingUnitNamespace;
 
     /// <summary>
-    /// 
+    /// Calls visitor.Visit(INestedUnitNamespaceReference).
     /// </summary>
-    /// <param name="visitor"></param>
-    public override void Dispatch(IMetadataVisitor visitor) {
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
       visitor.Visit(this);
     }
 
@@ -159,11 +164,15 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <value></value>
     public IName Name {
       get { return this.name; }
-      set { this.name = value; this.resolvedNestedUnitNamespace = null; }
+      set {
+        Contract.Requires(!this.IsFrozen);
+        this.name = value;
+      }
     }
     IName name;
 
     private INestedUnitNamespace Resolve() {
+      this.isFrozen = true;
       foreach (INamespaceMember member in this.containingUnitNamespace.ResolvedUnitNamespace.GetMembersNamed(this.Name, false)) {
         INestedUnitNamespace/*?*/ ns = member as INestedUnitNamespace;
         if (ns != null) return ns;
@@ -224,11 +233,17 @@ namespace Microsoft.Cci.MutableCodeModel {
     }
 
     /// <summary>
-    /// 
+    /// Calls visitor.Visit(IRootUnitNamespace).
     /// </summary>
-    /// <param name="visitor"></param>
     public override void Dispatch(IMetadataVisitor visitor) {
       visitor.Visit(this);
+    }
+
+    /// <summary>
+    /// Calls visitor.Visit(IRootUnitNamespaceReference).
+    /// </summary>
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
+      visitor.Visit((IRootUnitNamespaceReference)this);
     }
 
   }
@@ -241,6 +256,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// 
     /// </summary>
     public RootUnitNamespaceReference() {
+      Contract.Ensures(!this.IsFrozen);
       this.unit = Dummy.Unit;
     }
 
@@ -255,10 +271,9 @@ namespace Microsoft.Cci.MutableCodeModel {
     }
 
     /// <summary>
-    /// 
+    /// Calls visitor.Visit(IRootUnitNamespaceReference).
     /// </summary>
-    /// <param name="visitor"></param>
-    public override void Dispatch(IMetadataVisitor visitor) {
+    public override void DispatchAsReference(IMetadataVisitor visitor) {
       visitor.Visit(this);
     }
 
@@ -271,8 +286,15 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// </summary>
     /// <value></value>
     public override IUnitNamespace ResolvedUnitNamespace {
-      get { return this.Unit.ResolvedUnit.UnitNamespaceRoot; }
+      get {
+        if (this.resolvedUnitNamespace == null) {
+          this.isFrozen = true;
+          this.resolvedUnitNamespace = this.Unit.ResolvedUnit.UnitNamespaceRoot;
+        }
+        return this.resolvedUnitNamespace;
+      }
     }
+    IUnitNamespace resolvedUnitNamespace;
 
     /// <summary>
     /// A reference to the unit that defines the referenced namespace.
@@ -280,7 +302,11 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <value></value>
     public IUnitReference Unit {
       get { return this.unit; }
-      set { this.unit = value; }
+      set {
+        Contract.Requires(!this.IsFrozen);
+        Contract.Requires(value != null);
+        this.unit = value;
+      }
     }
     IUnitReference unit;
 
@@ -295,9 +321,9 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// 
     /// </summary>
     internal UnitNamespace() {
-      this.attributes = new List<ICustomAttribute>();
-      this.locations = new List<ILocation>(1);
-      this.members = new List<INamespaceMember>();
+      this.attributes = null;
+      this.locations = null;
+      this.members = null;
       this.name = Dummy.Name;
       this.unit = Dummy.Unit;
     }
@@ -308,8 +334,14 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <param name="unitNamespace"></param>
     /// <param name="internFactory"></param>
     public virtual void Copy(IUnitNamespace unitNamespace, IInternFactory internFactory) {
-      this.attributes = new List<ICustomAttribute>(unitNamespace.Attributes);
-      this.locations = new List<ILocation>(unitNamespace.Locations);
+      if (IteratorHelper.EnumerableIsNotEmpty(unitNamespace.Attributes))
+        this.attributes = new List<ICustomAttribute>(unitNamespace.Attributes);
+      else
+        this.attributes = null;
+      if (IteratorHelper.EnumerableIsNotEmpty(unitNamespace.Locations))
+        this.locations = new List<ILocation>(unitNamespace.Locations);
+      else
+        this.locations = null;
       this.members = new List<INamespaceMember>(unitNamespace.Members);
       this.name = unitNamespace.Name;
       this.unit = unitNamespace.Unit;
@@ -319,11 +351,11 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// A collection of metadata custom attributes that are associated with this definition.
     /// </summary>
     /// <value></value>
-    public List<ICustomAttribute> Attributes {
+    public List<ICustomAttribute>/*?*/ Attributes {
       get { return this.attributes; }
       set { this.attributes = value; }
     }
-    List<ICustomAttribute> attributes;
+    List<ICustomAttribute>/*?*/ attributes;
 
     //^ [Pure]
     /// <summary>
@@ -339,11 +371,17 @@ namespace Microsoft.Cci.MutableCodeModel {
 
     /// <summary>
     /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
-    /// of the object implementing IDefinition. The dispatch method does not invoke Dispatch on any child objects. If child traversal
-    /// is desired, the implementations of the Visit methods should do the subsequent dispatching.
+    /// of the object implementing IReference. The dispatch method does nothing else.
     /// </summary>
-    /// <param name="visitor"></param>
     public abstract void Dispatch(IMetadataVisitor visitor);
+
+    /// <summary>
+    /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
+    /// of the object implementing IReference, which is not derived from IDefinition. For example an object implemeting IArrayType will
+    /// call visitor.Visit(IArrayTypeReference) and not visitor.Visit(IArrayType).
+    /// The dispatch method does nothing else.
+    /// </summary>
+    public abstract void DispatchAsReference(IMetadataVisitor visitor);
 
     //^ [Pure]
     /// <summary>
@@ -392,21 +430,24 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// A potentially empty collection of locations that correspond to this instance.
     /// </summary>
     /// <value></value>
-    public List<ILocation> Locations {
+    public List<ILocation>/*?*/ Locations {
       get { return this.locations; }
       set { this.locations = value; }
     }
-    List<ILocation> locations;
+    List<ILocation>/*?*/ locations;
 
     /// <summary>
     /// The collection of member objects comprising the namespaces.
     /// </summary>
     /// <value></value>
     public List<INamespaceMember> Members {
-      get { return this.members; }
+      get {
+        if (this.members == null) this.members = new List<INamespaceMember>();
+        return this.members;
+      }
       set { this.members = value; }
     }
-    List<INamespaceMember> members;
+    List<INamespaceMember>/*?*/ members;
 
     /// <summary>
     /// The name of the entity.
@@ -440,7 +481,7 @@ namespace Microsoft.Cci.MutableCodeModel {
 
 
     IEnumerable<INamespaceMember> INamespaceDefinition.Members {
-      get { return this.members.AsReadOnly(); }
+      get { return this.Members.AsReadOnly(); }
     }
 
     #endregion
@@ -448,7 +489,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     #region IContainer<INamespaceMember> Members
 
     IEnumerable<INamespaceMember> IContainer<INamespaceMember>.Members {
-      get { return this.members.AsReadOnly(); }
+      get { return this.Members.AsReadOnly(); }
     }
 
     #endregion
@@ -456,11 +497,17 @@ namespace Microsoft.Cci.MutableCodeModel {
     #region IReference Members
 
     IEnumerable<ICustomAttribute> IReference.Attributes {
-      get { return this.attributes.AsReadOnly(); }
+      get {
+        if (this.Attributes == null) return Enumerable<ICustomAttribute>.Empty;
+        return this.Attributes.AsReadOnly();
+      }
     }
 
     IEnumerable<ILocation> IObjectWithLocations.Locations {
-      get { return this.locations.AsReadOnly(); }
+      get {
+        if (this.Locations == null) return Enumerable<ILocation>.Empty;
+        return this.Locations.AsReadOnly();
+      }
     }
 
     #endregion
@@ -468,7 +515,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     #region IScope<INamespaceMember> Members
 
     IEnumerable<INamespaceMember> IScope<INamespaceMember>.Members {
-      get { return this.members.AsReadOnly(); }
+      get { return this.Members.AsReadOnly(); }
     }
 
     #endregion
@@ -506,8 +553,8 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// 
     /// </summary>
     internal UnitNamespaceReference() {
-      this.attributes = new List<ICustomAttribute>();
-      this.locations = new List<ILocation>();
+      this.attributes = null;
+      this.locations = null;
     }
 
     /// <summary>
@@ -516,37 +563,71 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <param name="unitNamespaceReference"></param>
     /// <param name="internFactory"></param>
     public virtual void Copy(IUnitNamespaceReference unitNamespaceReference, IInternFactory internFactory) {
-      this.attributes = new List<ICustomAttribute>(unitNamespaceReference.Attributes);
-      this.locations = new List<ILocation>(unitNamespaceReference.Locations);
+      if (IteratorHelper.EnumerableIsNotEmpty(unitNamespaceReference.Attributes))
+        this.attributes = new List<ICustomAttribute>(unitNamespaceReference.Attributes);
+      else
+        this.attributes = null;
+      if (IteratorHelper.EnumerableIsNotEmpty(unitNamespaceReference.Locations))
+        this.locations = new List<ILocation>(unitNamespaceReference.Locations);
+      else
+        this.locations = null;
     }
 
     /// <summary>
     /// A collection of metadata custom attributes that are associated with this definition.
     /// </summary>
     /// <value></value>
-    public List<ICustomAttribute> Attributes {
+    public List<ICustomAttribute>/*?*/ Attributes {
       get { return this.attributes; }
       set { this.attributes = value; }
     }
-    List<ICustomAttribute> attributes;
+    List<ICustomAttribute>/*?*/ attributes;
 
     /// <summary>
     /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
-    /// of the object implementing IDefinition. The dispatch method does not invoke Dispatch on any child objects. If child traversal
-    /// is desired, the implementations of the Visit methods should do the subsequent dispatching.
+    /// of the object implementing IReference. The dispatch method does nothing else.
     /// </summary>
     /// <param name="visitor"></param>
-    public abstract void Dispatch(IMetadataVisitor visitor);
+    public void Dispatch(IMetadataVisitor visitor) {
+      this.DispatchAsReference(visitor);
+    }
+
+    /// <summary>
+    /// Calls the visitor.Visit(T) method where T is the most derived object model node interface type implemented by the concrete type
+    /// of the object implementing IReference, which is not derived from IDefinition. For example an object implemeting IArrayType will
+    /// call visitor.Visit(IArrayTypeReference) and not visitor.Visit(IArrayType).
+    /// The dispatch method does nothing else.
+    /// </summary>
+    public abstract void DispatchAsReference(IMetadataVisitor visitor);
+
+    /// <summary>
+    /// True if the reference has been frozen and can no longer be modified. A reference becomes frozen
+    /// as soon as it is resolved or interned. An unfrozen reference can also explicitly be set to be frozen.
+    /// It is recommended that any code constructing a type reference freezes it immediately after construction is complete.
+    /// </summary>
+    public bool IsFrozen {
+      get { return this.isFrozen; }
+      set {
+        Contract.Requires(!this.IsFrozen && value);
+        this.isFrozen = value;
+      }
+    }
+    /// <summary>
+    /// True if the reference has been frozen and can no longer be modified. A reference becomes frozen
+    /// as soon as it is resolved or interned. An unfrozen reference can also explicitly be set to be frozen.
+    /// It is recommended that any code constructing a type reference freezes it immediately after construction is complete.
+    /// </summary>
+    protected bool isFrozen;
 
     /// <summary>
     /// A potentially empty collection of locations that correspond to this instance.
     /// </summary>
     /// <value></value>
-    public List<ILocation> Locations {
+    public List<ILocation>/*?*/ Locations {
       get { return this.locations; }
       set { this.locations = value; }
     }
-    List<ILocation> locations;
+    List<ILocation>/*?*/ locations;
 
     /// <summary>
     /// The namespace definition being referred to.
@@ -562,14 +643,30 @@ namespace Microsoft.Cci.MutableCodeModel {
       get { return this.GetUnit(); }
     }
 
+    /// <summary>
+    /// Returns a <see cref="System.String"/> that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String"/> that represents this instance.
+    /// </returns>
+    public override string ToString() {
+      return TypeHelper.GetNamespaceName(this, NameFormattingOptions.None);
+    }
+
     #region IReference Members
 
     IEnumerable<ICustomAttribute> IReference.Attributes {
-      get { return this.attributes.AsReadOnly(); }
+      get {
+        if (this.Attributes == null) return Enumerable<ICustomAttribute>.Empty;
+        return this.Attributes.AsReadOnly();
+      }
     }
 
     IEnumerable<ILocation> IObjectWithLocations.Locations {
-      get { return this.locations.AsReadOnly(); }
+      get {
+        if (this.Locations == null) return Enumerable<ILocation>.Empty;
+        return this.Locations.AsReadOnly();
+      }
     }
 
     #endregion

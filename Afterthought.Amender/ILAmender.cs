@@ -32,23 +32,26 @@ namespace Afterthought.Amender
 			: base(host, methodBody.MethodDefinition)
 		{
 			this.methodBody = methodBody;
-			this.operations = methodBody.Operations;
+			this.operations = methodBody.Operations ?? new List<IOperation>();
 
 			// Track existing offsets used by exception handlers
-			foreach (var exceptionInfo in methodBody.OperationExceptionInformation)
+			if (methodBody.OperationExceptionInformation != null)
 			{
-				uint x = exceptionInfo.TryStartOffset;
-				if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
-				x = exceptionInfo.TryEndOffset;
-				if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
-				x = exceptionInfo.HandlerStartOffset;
-				if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
-				x = exceptionInfo.HandlerEndOffset;
-				if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
-				if (exceptionInfo.HandlerKind == HandlerKind.Filter)
+				foreach (var exceptionInfo in methodBody.OperationExceptionInformation)
 				{
-					x = exceptionInfo.FilterDecisionStartOffset;
+					uint x = exceptionInfo.TryStartOffset;
 					if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
+					x = exceptionInfo.TryEndOffset;
+					if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
+					x = exceptionInfo.HandlerStartOffset;
+					if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
+					x = exceptionInfo.HandlerEndOffset;
+					if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
+					if (exceptionInfo.HandlerKind == HandlerKind.Filter)
+					{
+						x = exceptionInfo.FilterDecisionStartOffset;
+						if (!offsetsUsedInExceptionInformation.ContainsKey(x)) offsetsUsedInExceptionInformation.Add(x, true);
+					}
 				}
 			}
 

@@ -77,7 +77,8 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		public override Assembly Mutate(Assembly assembly)
 		{
-			assembly.AssemblyReferences.RemoveAll(a => a.Name.Value == "Afterthought");
+			if (assembly.AssemblyReferences != null)
+				assembly.AssemblyReferences.RemoveAll(a => a.Name.Value == "Afterthought");
 			return base.Mutate(assembly);
 		}
 
@@ -88,7 +89,8 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		public override Module Mutate(Module module)
 		{
-			module.AssemblyReferences.RemoveAll(a => a.Name.Value == "Afterthought");
+			if (module.AssemblyReferences != null)
+				module.AssemblyReferences.RemoveAll(a => a.Name.Value == "Afterthought");
 			return base.Mutate(module);
 		}
 
@@ -112,12 +114,13 @@ namespace Afterthought.Amender
 		/// </summary>
 		/// <param name="type"></param>
 		/// <returns>True if the type is amended, otherwise false</returns>
-		bool AmendType(TypeDefinition type)
+		bool AmendType(NamedTypeDefinition type)
 		{
 			IsAmending = false;
 
 			// Remove all attributes implementing IAmendmentAttribute
-			type.Attributes.RemoveAll(attr => TypeHelper.Type1ImplementsType2(attr.Type.ResolvedType, iAmendmentAttribute));
+			if (type.Attributes != null)
+				type.Attributes.RemoveAll(attr => TypeHelper.Type1ImplementsType2(attr.Type.ResolvedType, iAmendmentAttribute));
 
 			// Get the Amendment for the current type definition
 			ITypeAmendment typeAmendment;
@@ -146,6 +149,8 @@ namespace Afterthought.Amender
 			{
 				if (field.FieldInfo == null)
 				{
+					if (type.Fields == null)
+						type.Fields = new List<IFieldDefinition>();
 					type.Fields.Add(new FieldDefinition()
 					{
 						Name = host.NameTable.GetNameFor(field.Name),
@@ -237,7 +242,7 @@ namespace Afterthought.Amender
 					var propertyDef = ResolveProperty(interfaceDef, property);
 
 					// Determine if the interface property is already implemented by the type
-					var existingProperty = type.Properties.Where(p => AreEquivalent(p, property) && p.Visibility == TypeMemberVisibility.Public).FirstOrDefault();
+					var existingProperty = type.Properties == null ? null : type.Properties.Where(p => AreEquivalent(p, property) && p.Visibility == TypeMemberVisibility.Public).FirstOrDefault();
 
 					// Mark the existing property as implementing the interface
 					if (existingProperty != null)
@@ -262,7 +267,7 @@ namespace Afterthought.Amender
 					var eventDef = ResolveEvent(interfaceDef, eventInfo);
 
 					// Determine if the interface event is already implemented by the type
-					var existingEvent = type.Events.Where(e => AreEquivalent(e, eventInfo) && e.Visibility == TypeMemberVisibility.Public).FirstOrDefault();
+					var existingEvent = type.Events == null ? null : type.Events.Where(e => AreEquivalent(e, eventInfo) && e.Visibility == TypeMemberVisibility.Public).FirstOrDefault();
 
 					// Mark the existing event as implementing the interface
 					if (existingEvent != null)
@@ -287,6 +292,8 @@ namespace Afterthought.Amender
 				}
 
 				// Mark the type as implementing the interface
+				if (type.Interfaces == null)
+					type.Interfaces = new List<ITypeReference>();
 				type.Interfaces.Add(interfaceDef);
 			}
 
@@ -300,8 +307,10 @@ namespace Afterthought.Amender
 		/// <param name="type"></param>
 		/// <param name="implemented"></param>
 		/// <param name="implementing"></param>
-		void Implement(TypeDefinition type, IMethodReference implemented, IMethodReference implementing)
+		void Implement(NamedTypeDefinition type, IMethodReference implemented, IMethodReference implementing)
 		{
+			if (type.ExplicitImplementationOverrides == null)
+				type.ExplicitImplementationOverrides = new List<IMethodImplementation>();
 			type.ExplicitImplementationOverrides.Add(new MethodImplementation()
 			{
 				ContainingType = type,
@@ -316,7 +325,7 @@ namespace Afterthought.Amender
 		/// <param name="type"></param>
 		/// <param name="constructor"></param>
 		/// <returns></returns>
-		MethodDefinition AddConstructor(TypeDefinition type, IConstructorAmendment constructor)
+		MethodDefinition AddConstructor(NamedTypeDefinition type, IConstructorAmendment constructor)
 		{
 			return null;
 		}
@@ -327,7 +336,7 @@ namespace Afterthought.Amender
 		/// <param name="type"></param>
 		/// <param name="property"></param>
 		/// <returns></returns>
-		PropertyDefinition AddProperty(TypeDefinition type, IPropertyAmendment property)
+		PropertyDefinition AddProperty(NamedTypeDefinition type, IPropertyAmendment property)
 		{
 			var propertyType = ResolveType(property.Type);
 			bool isInterface = property.Implements != null;
@@ -342,6 +351,8 @@ namespace Afterthought.Amender
 				Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
 				Accessors = new List<IMethodReference>()
 			};
+			if (type.Properties == null)
+				type.Properties = new List<IPropertyDefinition>();
 			type.Properties.Add(propertyDef);
 
 			// Optionally create a getter
@@ -370,6 +381,8 @@ namespace Afterthought.Amender
 				propertyDef.Getter = getter;
 				propertyDef.Accessors.Add(getter);
 				((MethodBody)getter.Body).MethodDefinition = getter;
+				if (type.Methods == null)
+					type.Methods = new List<IMethodDefinition>();
 				type.Methods.Add(getter);
 				if (isInterface)
 					Implement(type, ResolveProperty(ResolveType(property.Implements.DeclaringType), property.Implements).Getter, getter);
@@ -408,6 +421,8 @@ namespace Afterthought.Amender
 				propertyDef.Setter = setter;
 				propertyDef.Accessors.Add(setter);
 				((MethodBody)setter.Body).MethodDefinition = setter;
+				if (type.Methods == null)
+					type.Methods = new List<IMethodDefinition>(); 
 				type.Methods.Add(setter);
 				if (isInterface)
 					Implement(type, ResolveProperty(ResolveType(property.Implements.DeclaringType), property.Implements).Setter, setter);
@@ -423,6 +438,8 @@ namespace Afterthought.Amender
 					Type = propertyType,
 					InternFactory = host.InternFactory,
 				};
+				if (type.Fields == null)
+					type.Fields = new List<IFieldDefinition>();
 				type.Fields.Add(backingField);
 			}
 
@@ -439,7 +456,7 @@ namespace Afterthought.Amender
 		/// <param name="type"></param>
 		/// <param name="method"></param>
 		/// <returns></returns>
-		MethodDefinition AddMethod(TypeDefinition type, IMethodAmendment method)
+		MethodDefinition AddMethod(NamedTypeDefinition type, IMethodAmendment method)
 		{
 			bool isInterface = method.Implements != null;
 
@@ -477,6 +494,8 @@ namespace Afterthought.Amender
 			};
 
 			((MethodBody)methodDef.Body).MethodDefinition = methodDef;
+			if (type.Methods == null)
+				type.Methods = new List<IMethodDefinition>();
 			type.Methods.Add(methodDef);
 			if (isInterface)
 				Implement(type, ResolveMethod(ResolveType(method.Implements.DeclaringType), method.Implements), methodDef);
@@ -494,7 +513,7 @@ namespace Afterthought.Amender
 		/// <param name="type"></param>
 		/// <param name="event"></param>
 		/// <returns></returns>
-		EventDefinition AddEvent(TypeDefinition type, IEventAmendment @event)
+		EventDefinition AddEvent(NamedTypeDefinition type, IEventAmendment @event)
 		{
 			var eventType = ResolveType(@event.Type);
 			bool isInterface = @event.Implements != null;
@@ -508,6 +527,8 @@ namespace Afterthought.Amender
 				Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
 				Accessors = new List<IMethodReference>()
 			};
+			if (type.Events == null)
+				type.Events = new List<IEventDefinition>();
 			type.Events.Add(eventDef);
 
 			// Optionally create an adder
@@ -542,6 +563,8 @@ namespace Afterthought.Amender
 				eventDef.Adder = adder;
 				eventDef.Accessors.Add(adder);
 				((MethodBody)adder.Body).MethodDefinition = adder;
+				if (type.Methods == null)
+					type.Methods = new List<IMethodDefinition>();
 				type.Methods.Add(adder);
 				if (isInterface)
 					Implement(type, ResolveEvent(ResolveType(@event.Implements.DeclaringType), @event.Implements).Adder, adder);
@@ -580,7 +603,8 @@ namespace Afterthought.Amender
 				eventDef.Remover = remover;
 				eventDef.Accessors.Add(remover);
 				((MethodBody)remover.Body).MethodDefinition = remover;
-				type.Methods.Add(remover);
+				if (type.Methods == null)
+					type.Methods = new List<IMethodDefinition>(); type.Methods.Add(remover);
 				if (isInterface)
 					Implement(type, ResolveEvent(ResolveType(@event.Implements.DeclaringType), @event.Implements).Remover, remover);
 			}
@@ -595,6 +619,8 @@ namespace Afterthought.Amender
 					Type = eventType,
 					InternFactory = host.InternFactory,
 				};
+				if (type.Fields == null)
+					type.Fields = new List<IFieldDefinition>();
 				type.Fields.Add(backingField);
 
 				// Optionally create a method to raise the event
@@ -638,6 +664,8 @@ namespace Afterthought.Amender
 					};
 
 					((MethodBody)methodDef.Body).MethodDefinition = methodDef;
+					if (type.Methods == null)
+						type.Methods = new List<IMethodDefinition>(); 
 					type.Methods.Add(methodDef);
 					if (isInterface)
 						Implement(type, ResolveMethod(ResolveType(@event.RaisedByImplements.DeclaringType), @event.RaisedByImplements), methodDef);
@@ -735,7 +763,7 @@ namespace Afterthought.Amender
 		/// <param name="typeDef"></param>
 		/// <param name="member"></param>
 		/// <returns></returns>
-		private TypeDefinition AddAttributes(TypeDefinition typeDef, IMemberAmendment member)
+		private NamedTypeDefinition AddAttributes(NamedTypeDefinition typeDef, IMemberAmendment member)
 		{
 			foreach (var attribute in member.Attributes)
 			{
@@ -750,6 +778,8 @@ namespace Afterthought.Amender
 				List<IMetadataExpression> args = (from a in attribute.Arguments
 												  select GetMetadataExpression(a.GetType(), a)).ToList();
 
+				if (typeDef.Attributes == null)
+					typeDef.Attributes = new List<ICustomAttribute>();
 				typeDef.Attributes.Add(new CustomAttribute
 				{
 					Constructor = ctor,
@@ -783,6 +813,8 @@ namespace Afterthought.Amender
 				List<IMetadataExpression> args = (from a in attribute.Arguments
 												  select GetMetadataExpression(a.GetType(), a)).ToList();
 
+				if (typeDefMember.Attributes == null)
+					typeDefMember.Attributes = new List<ICustomAttribute>(); 
 				typeDefMember.Attributes.Add(new CustomAttribute
 				{
 					Constructor = ctor,
@@ -875,8 +907,9 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		public override MethodBody Mutate(MethodBody methodBody)
 		{
-			// Get the method definition
+			// Get the method and type definitions
 			IMethodDefinition methodDef = methodBody.MethodDefinition;
+			var typeDef = GetCurrentType();
 
 			// Static methods are not supported
 			if (methodDef.IsStatic)
@@ -905,7 +938,7 @@ namespace Afterthought.Amender
 			else if (methodDef.IsHiddenBySignature && methodDef.IsSpecialName && (methodName.StartsWith("get_") || methodName.StartsWith("set_")))
 			{
 				// Determine which property is being mutated
-				IPropertyDefinition propertyDef = GetCurrentType().Properties
+				IPropertyDefinition propertyDef = typeDef.Properties == null ? null : typeDef.Properties
 					.Where(p => p.Name.Value == interfaceName + methodName.Substring(4))
 					.FirstOrDefault();
 
@@ -928,7 +961,7 @@ namespace Afterthought.Amender
 			else if (methodDef.IsHiddenBySignature && methodDef.IsSpecialName && (methodName.StartsWith("add_") || methodName.StartsWith("remove_")))
 			{
 				// Determine which event is being mutated
-				IEventDefinition eventDef = GetCurrentType().Events
+				IEventDefinition eventDef = typeDef.Events == null ? null : typeDef.Events
 					.Where(e => e.Name.Value == interfaceName + methodName.Substring(methodName.StartsWith("a") ? 4 : 7))
 					.FirstOrDefault();
 
@@ -1005,8 +1038,9 @@ namespace Afterthought.Amender
 				il.EmitUntilReturn();
 
 			// Emit property initializers if the current constructor calls a base constructor or inherits from System.Object
-			if (GetCurrentType().BaseClasses.Any(b => TypeHelper.TypesAreEquivalent(b, host.PlatformType.SystemObject)) ||
-				methodBody.Operations.Any(o => o.OperationCode == OperationCode.Call && ((IMethodReference)o.Value).ResolvedMethod.IsConstructor && ((IMethodReference)o.Value).ResolvedMethod.ContainingType == GetCurrentType()))
+			var typeDef = GetCurrentType();
+			if (typeDef.BaseClasses != null && typeDef.BaseClasses.Any(b => TypeHelper.TypesAreEquivalent(b, host.PlatformType.SystemObject)) ||
+				(methodBody.Operations != null && methodBody.Operations.Any(o => o.OperationCode == OperationCode.Call && ((IMethodReference)o.Value).ResolvedMethod.IsConstructor && ((IMethodReference)o.Value).ResolvedMethod.ContainingType == typeDef)))
 			{
 				foreach (var initializer in PropertyInitializers)
 				{
@@ -1280,6 +1314,8 @@ namespace Afterthought.Amender
 					if (useOriginalValue)
 					{
 						// Add local variable to store the old value of the property
+						if (methodBody.LocalVariables == null)
+							methodBody.LocalVariables = new List<ILocalDefinition>();
 						methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_ov_"), Type = propertyDef.Type });
 
 						// Load this pointer onto stack
@@ -1605,6 +1641,8 @@ namespace Afterthought.Amender
 			var backingField = GetCurrentType().Fields.Where(f => f.Name.Value == eventAmendment.Name).First();
 
 			// Create local variables to track the event handler state
+			if (methodBody.LocalVariables == null)
+				methodBody.LocalVariables = new List<ILocalDefinition>();
 			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_h0_"), Type = eventDef.Type });
 			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_h1_"), Type = eventDef.Type });
 			methodBody.LocalVariables.Add(new LocalDefinition() { Name = host.NameTable.GetNameFor("_h2_"), Type = eventDef.Type });
@@ -1724,6 +1762,8 @@ namespace Afterthought.Amender
 				// Add local variable to store the return value before delegate
 				ITypeDefinition argTypeDef = targetMethodDef.Parameters.Skip(2).First().Type.ResolvedType;
 				var args = new LocalDefinition() { Name = host.NameTable.GetNameFor("_args_"), Type = argTypeDef };
+				if (methodBody.LocalVariables == null)
+					methodBody.LocalVariables = new List<ILocalDefinition>();
 				methodBody.LocalVariables.Add(args);
 
 				// Load the number of arguments onto the stack
@@ -2080,7 +2120,7 @@ namespace Afterthought.Amender
 			var genericMethod =
 				(
 					declaringType.IsGeneric ?
-					GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory) :
+					GenericTypeInstance.GetGenericTypeInstance((INamedTypeReference)declaringType, new ITypeReference[] { propertyDef.ContainingType }, host.InternFactory) :
 					declaringType
 				)
 				.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
@@ -2107,7 +2147,7 @@ namespace Afterthought.Amender
 
 			// Create a concrete type instance
 			if (declaringType.IsGeneric)
-				declaringType = GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { instanceType }, host.InternFactory);
+				declaringType = GenericTypeInstance.GetGenericTypeInstance((INamedTypeReference)declaringType, new ITypeReference[] { instanceType }, host.InternFactory);
 
 			// Then get the Amendment method
 			var targetMethodDef = declaringType.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();
@@ -2172,7 +2212,7 @@ namespace Afterthought.Amender
 			var genericMethod =
 				(
 					declaringType.IsGeneric ?
-					GenericTypeInstance.GetGenericTypeInstance(declaringType, new ITypeReference[] { eventDef.ContainingType }, host.InternFactory) :
+					GenericTypeInstance.GetGenericTypeInstance((INamedTypeReference)declaringType, new ITypeReference[] { eventDef.ContainingType }, host.InternFactory) :
 					declaringType
 				)
 				.Methods.Where(m => m.Name.Value == method.Name && m.ParameterCount == method.GetParameters().Length).FirstOrDefault();

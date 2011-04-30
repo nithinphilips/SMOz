@@ -772,9 +772,30 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// Decides if the given type definition would visible to an assembly listed in an InternalsVisibleTo attribute of the assembly defining
+    /// the given type. It is not necessary for the assembly to actually have such an attribute.
+    /// </summary>
+    public static bool IsVisibleToFriendAssemblies(ITypeDefinition typeDefinition) {
+      Contract.Requires(typeDefinition != null);
+
+      var nestedType = typeDefinition as INestedTypeDefinition;
+      if (nestedType != null && !TypeHelper.IsVisibleToFriendAssemblies(nestedType.ContainingTypeDefinition)) return false;
+      switch (TypeHelper.TypeVisibilityAsTypeMemberVisibility(typeDefinition)) {
+        case TypeMemberVisibility.Public:
+        case TypeMemberVisibility.Family:
+        case TypeMemberVisibility.FamilyOrAssembly:
+        case TypeMemberVisibility.FamilyAndAssembly:
+        case TypeMemberVisibility.Assembly:
+          return true;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// If both type references can be resolved, this returns the merged type of two types as per the verification algorithm in CLR.
     /// Otherwise it returns either type1, or type2 or System.Object, depending on how much is known about either type.
     /// </summary>
+    [Pure]
     public static ITypeReference MergedType(ITypeReference type1, ITypeReference type2) {
       Contract.Requires(type1 != null);
       Contract.Requires(type2 != null);
@@ -795,6 +816,7 @@ namespace Microsoft.Cci {
 
     /// <summary>
     /// Returns the merged type of two types as per the verification algorithm in CLR.
+    /// If the types cannot be merged, then it returns System.Object.
     /// </summary>
     [Pure]
     public static ITypeDefinition MergedType(ITypeDefinition type1, ITypeDefinition type2) {
@@ -810,7 +832,7 @@ namespace Microsoft.Cci {
       if (lcbc != null) {
         return lcbc;
       }
-      return Dummy.Type;
+      return type1.PlatformType.SystemObject.ResolvedType;
     }
 
     /// <summary>
@@ -938,6 +960,30 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// Returns the most nested unit namespace that encloses the given named type definition.
+    /// </summary>
+    public static IUnitNamespace GetDefiningNamespace(INamedTypeDefinition namedTypeDefinition) {
+      Contract.Requires(namedTypeDefinition != null);
+
+      var genericMethodParameter = namedTypeDefinition as IGenericMethodParameter;
+      if (genericMethodParameter != null)
+        namedTypeDefinition = (INamedTypeDefinition)genericMethodParameter.DefiningMethod.ContainingTypeDefinition;
+      else {
+        var genericTypeParameter = namedTypeDefinition as IGenericTypeParameter;
+        if (genericTypeParameter != null)
+          namedTypeDefinition = (INamedTypeDefinition)genericTypeParameter.DefiningType;
+      }
+      var nestedTypeDefinition = namedTypeDefinition as INestedTypeDefinition;
+      while (nestedTypeDefinition != null) {
+        namedTypeDefinition = (INamedTypeDefinition)nestedTypeDefinition.ContainingTypeDefinition;
+        nestedTypeDefinition = namedTypeDefinition as INestedTypeDefinition;
+      }
+      var namespaceTypeDefinition = namedTypeDefinition as INamespaceTypeDefinition;
+      if (namespaceTypeDefinition != null) return namespaceTypeDefinition.ContainingUnitNamespace;
+      return Dummy.RootUnitNamespace;
+    }
+
+    /// <summary>
     /// Returns the unit that defines the given type. If the type is a structural type, such as a pointer the result is 
     /// the defining unit of the element type, or in the case of a generic type instance, the definining type of the generic template type.
     /// </summary>
@@ -963,21 +1009,28 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
-    /// Returns a reference to the unit that defines the given referenced type. If the referenced type is a structural type, such as a pointer or a generic type instance,
-    /// then the result is null.
+    /// Returns a reference to the unit that defines the given type. If the reference type is a reference to a structural type, such as a pointer the result is 
+    /// the a reference to the defining unit of the element type, or in the case of a generic type instance, the definining type of the generic template type.
     /// </summary>
     public static IUnitReference/*?*/ GetDefiningUnitReference(ITypeReference typeReference) {
       Contract.Requires(typeReference != null);
 
-      if (typeReference is ISpecializedNestedTypeReference) return null;
       INestedTypeReference/*?*/ nestedTypeReference = typeReference as INestedTypeReference;
       while (nestedTypeReference != null) {
         typeReference = nestedTypeReference.ContainingType;
         nestedTypeReference = typeReference as INestedTypeReference;
       }
       INamespaceTypeReference/*?*/ namespaceTypeReference = typeReference as INamespaceTypeReference;
-      if (namespaceTypeReference == null) return null;
-      return namespaceTypeReference.ContainingUnitNamespace.Unit;
+      if (namespaceTypeReference != null) return namespaceTypeReference.ContainingUnitNamespace.Unit;
+      IGenericTypeInstanceReference/*?*/ genericTypeInstanceReference = typeReference as IGenericTypeInstanceReference;
+      if (genericTypeInstanceReference != null) return TypeHelper.GetDefiningUnitReference(genericTypeInstanceReference.GenericType);
+      IManagedPointerTypeReference/*?*/ managedPointerTypeReference = typeReference as IManagedPointerTypeReference;
+      if (managedPointerTypeReference != null) return TypeHelper.GetDefiningUnitReference(managedPointerTypeReference.TargetType);
+      IPointerTypeReference/*?*/ pointerTypeReference = typeReference as IPointerTypeReference;
+      if (pointerTypeReference != null) return TypeHelper.GetDefiningUnitReference(pointerTypeReference.TargetType);
+      IArrayTypeReference/*?*/ arrayTypeReference = typeReference as IArrayTypeReference;
+      if (arrayTypeReference != null) return TypeHelper.GetDefiningUnitReference(arrayTypeReference.ElementType);
+      return null;
     }
 
     /// <summary>
@@ -1458,7 +1511,7 @@ namespace Microsoft.Cci {
     public static uint SizeOfType(ITypeReference type) {
       Contract.Requires(type != null);
 
-      return SizeOfType(type, true);
+      return SizeOfType(type, mayUseSizeOfProperty: true);
     }
 
     /// <summary>
@@ -1554,7 +1607,10 @@ namespace Microsoft.Cci {
               if (bitFieldAlignment > fieldAlignment) fieldAlignment = bitFieldAlignment;
               bitFieldAlignment = 0; bitOffset = 0;
               result = ((result+fieldAlignment-1)/fieldAlignment) * fieldAlignment;
-              fieldSize = TypeHelper.SizeOfType(field.Type)*8;
+              if (rootType == fieldType || fieldType.IsReferenceType)
+                fieldSize = type.PlatformType.PointerSize*8u;
+              else
+                fieldSize = TypeHelper.SizeOfType(fieldType, rootType, mayUseSizeOfProperty: true)*8;
             }
             result += fieldSize;
           }
@@ -1570,6 +1626,7 @@ namespace Microsoft.Cci {
     /// paths. For example, both signed and unsigned 16-bit integers are treated as the same as signed 32-bit
     /// integers for the purposes of verifying that stack state merges are safe.
     /// </summary>
+    [Pure]
     public static ITypeReference StackType(ITypeReference type) {
       Contract.Requires(type != null);
       Contract.Ensures(Contract.Result<ITypeReference>() != null);
@@ -1595,6 +1652,13 @@ namespace Microsoft.Cci {
           return type.PlatformType.SystemIntPtr;
       }
       return type;
+    }
+
+    /// <summary>
+    /// Returns true if the stack state types of the given two types are to be considered equivalent for the purpose of signature matching and so on.
+    /// </summary>
+    public static bool StackTypesAreEquivalent(ITypeReference type1, ITypeReference type2) {
+      return TypeHelper.StackType(type1).InternedKey == TypeHelper.StackType(type2).InternedKey;
     }
 
     /// <summary>

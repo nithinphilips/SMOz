@@ -10,6 +10,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Cci</RootNamespace>
     <AssemblyName>Microsoft.Cci.MetadataModel</AssemblyName>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SignAssembly>true</SignAssembly>
     <CodeAnalysisRules>-Microsoft.Design#CA1040;-Microsoft.Design#CA1021;-Microsoft.Design#CA1051;-Microsoft.Design#CA1008;-Microsoft.Design#CA1004;-Microsoft.Design#CA1024;-Microsoft.Design#CA1062;-Microsoft.Maintainability#CA1500;-Microsoft.Naming#CA1718;-Microsoft.Naming#CA1720;-Microsoft.Naming#CA1711;-Microsoft.Naming#CA1721;-Microsoft.Naming#CA1706;-Microsoft.Security#CA2104</CodeAnalysisRules>

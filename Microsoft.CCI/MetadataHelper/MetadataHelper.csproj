@@ -10,6 +10,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Cci</RootNamespace>
     <AssemblyName>Microsoft.Cci.MetadataHelper</AssemblyName>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SignAssembly>true</SignAssembly>
     <CodeAnalysisRules>-Microsoft.Design#CA1011;-Microsoft.Design#CA1051;-Microsoft.Design#CA1004;-Microsoft.Design#CA1014;-Microsoft.Design#CA1060;-Microsoft.Design#CA1034;-Microsoft.Design#CA1062;-Microsoft.Globalization#CA1305;-Microsoft.Maintainability#CA1502;-Microsoft.Maintainability#CA1500;-Microsoft.Naming#CA1706;-Microsoft.Performance#CA1815;-Microsoft.Performance#CA1814;-Microsoft.Security#CA2105;-Microsoft.Security#CA2104;-Microsoft.Usage#CA2233</CodeAnalysisRules>
@@ -98,6 +106,7 @@
     <Compile Include="UnitHelper.cs" />
     <Compile Include="UnmanagedFileIO.cs" />
     <Compile Include="UtilityDataStructures.cs" />
+    <Compile Include="Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MetadataModel\MetadataModel.csproj">
@@ -111,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <EmbeddedResource Include="MetadataHelperErrorMessages.resx" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

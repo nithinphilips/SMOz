@@ -118,10 +118,12 @@ namespace Microsoft.Cci {
     protected virtual AssemblyIdentity GetContractAssemblySymbolicIdentity() {
       if (this.unitCache.Count > 0) {
         AssemblyIdentity/*?*/ result = null;
-        foreach (IUnit unit in this.unitCache.Values) {
-          AssemblyIdentity contractId = unit.ContractAssemblySymbolicIdentity;
-          if (contractId.Name.Value.Length == 0) continue;
-          if (result == null || result.Version < contractId.Version) result = contractId;
+        lock (GlobalLock.LockingObject) {
+          foreach (IUnit unit in this.unitCache.Values) {
+            AssemblyIdentity contractId = unit.ContractAssemblySymbolicIdentity;
+            if (contractId.Name.Value.Length == 0) continue;
+            if (result == null || result.Version < contractId.Version) result = contractId;
+          }
         }
         if (result != null) return result;
       }
@@ -151,10 +153,12 @@ namespace Microsoft.Cci {
       if (this.unitCache.Count > 0) {
         AssemblyIdentity/*?*/ result = null;
         IUnit referringUnit = Dummy.Unit;
-        foreach (IUnit unit in this.unitCache.Values) {
-          AssemblyIdentity coreId = unit.CoreAssemblySymbolicIdentity;
-          if (coreId.Name.Value.Length == 0) continue;
-          if (result == null || result.Version < coreId.Version) { result = coreId; referringUnit = unit; }
+        lock (GlobalLock.LockingObject) {
+          foreach (IUnit unit in this.unitCache.Values) {
+            AssemblyIdentity coreId = unit.CoreAssemblySymbolicIdentity;
+            if (coreId.Name.Value.Length == 0) continue;
+            if (result == null || result.Version < coreId.Version) { result = coreId; referringUnit = unit; }
+          }
         }
         if (result != null) {
           //The loaded assemblies have an opinion on the identity of the core assembly. By default, we are going to respect that opinion.
@@ -281,18 +285,24 @@ namespace Microsoft.Cci {
       lock (GlobalLock.LockingObject) {
         this.unitCache.TryGetValue(assemblyIdentity, out unit);
       }
-      if (unit == null) {
+      IAssembly/*?*/ result;
+      if (unit != null)
+        result = unit as IAssembly;
+      else {
         if (assemblyIdentity.Location == "" || assemblyIdentity.Location == "unknown://location") {
-          unit = Dummy.Assembly;
-          this.unitCache.Add(assemblyIdentity, unit);
+          result = Dummy.Assembly;
+          lock (GlobalLock.LockingObject) {
+            this.unitCache.Add(assemblyIdentity, result);
+          }
         } else {
           unit = this.LoadUnitFrom(assemblyIdentity.Location);
-          var assembly = unit as IAssembly;
-          if (assembly != null && this.UnifyAssembly(assembly.AssemblyIdentity).Equals(assemblyIdentity))
-            this.unitCache[assemblyIdentity] = unit;
+          result = unit as IAssembly;
+          if (result != null && this.UnifyAssembly(result.AssemblyIdentity).Equals(assemblyIdentity))
+            lock (GlobalLock.LockingObject) {
+              this.unitCache[assemblyIdentity] = result;
+            }
         }
       }
-      IAssembly/*?*/ result = unit as IAssembly;
       if (result == null) result = Dummy.Assembly;
       return result;
     }
@@ -306,14 +316,24 @@ namespace Microsoft.Cci {
       lock (GlobalLock.LockingObject) {
         this.unitCache.TryGetValue(moduleIdentity, out unit);
       }
-      if (unit == null) {
+      IModule/*?*/ result;
+      if (unit != null)
+        result = unit as IModule;
+      else {
         if (moduleIdentity.Location == "" || moduleIdentity.Location == "unknown://location") {
-          unit = Dummy.Module;
-          this.unitCache.Add(moduleIdentity, unit);
-        } else
+          result = Dummy.Module;
+          lock (GlobalLock.LockingObject) {
+            this.unitCache.Add(moduleIdentity, result);
+          }
+        } else {
           unit = this.LoadUnitFrom(moduleIdentity.Location);
+          result = unit as IModule;
+          if (result != null)
+            lock (GlobalLock.LockingObject) {
+              this.unitCache.Add(moduleIdentity, result);
+            }
+        }
       }
-      IModule/*?*/ result = unit as IModule;
       if (result == null) result = Dummy.Module;
       return result;
     }
@@ -339,7 +359,9 @@ namespace Microsoft.Cci {
     /// </summary>
     public IEnumerable<IUnit> LoadedUnits {
       get {
-        return this.unitCache.Values;
+        lock (GlobalLock.LockingObject) {
+          return new List<IUnit>(this.unitCache.Values).AsReadOnly();
+        }
       }
     }
 
@@ -395,12 +417,14 @@ namespace Microsoft.Cci {
     protected virtual byte GetTargetPlatformPointerSize()
       //^ ensures result == 4 || result == 8;
     {
-      if (this.unitCache.Count > 0) {
-        foreach (IUnit unit in this.unitCache.Values) {
-          IModule/*?*/ module = unit as IModule;
-          if (module == null) continue;
-          if (module.Requires32bits) return 4;
-          if (module.Requires64bits) return 8;
+      lock (GlobalLock.LockingObject) {
+        if (this.unitCache.Count > 0) {
+          foreach (IUnit unit in this.unitCache.Values) {
+            IModule/*?*/ module = unit as IModule;
+            if (module == null) continue;
+            if (module.Requires32bits) return 4;
+            if (module.Requires64bits) return 8;
+          }
         }
       }
       return 4;
@@ -413,6 +437,8 @@ namespace Microsoft.Cci {
     /// </summary>
     private AssemblyIdentity/*?*/ Probe(string probeDir, AssemblyIdentity referencedAssembly) {
       string path = Path.Combine(probeDir, referencedAssembly.Name.Value + ".dll");
+      if (File.Exists(path)) return new AssemblyIdentity(referencedAssembly, path);
+      path = Path.Combine(probeDir, referencedAssembly.Name.Value + ".winmd");
       if (File.Exists(path)) return new AssemblyIdentity(referencedAssembly, path);
       path = Path.Combine(probeDir, referencedAssembly.Name.Value + ".exe");
       if (File.Exists(path)) return new AssemblyIdentity(referencedAssembly, path);
@@ -562,6 +588,12 @@ namespace Microsoft.Cci {
       }
     }
 
+    /// <summary>
+    /// A cache containing all of the units of metadata that have been loaded via this host.
+    /// Entries may be added to this cache as a side effect of a metadata reader that lazily fills in the object model.
+    /// As a result, any access to this cache must be protected by the global lock, as it cannot be assumed that
+    /// all mutations to this object will happen during setup while the host object is exclusive to a single thread.
+    /// </summary>
     readonly Dictionary<UnitIdentity, IUnit> unitCache = new Dictionary<UnitIdentity, IUnit>();
 
     /// <summary>
@@ -708,7 +740,7 @@ namespace Microsoft.Cci {
     /// <summary>
     /// Calls IDiposable.Dispose on any disposable objects allocated by this host environment.
     /// </summary>
-    public void Dispose() {
+    public virtual void Dispose() {
       this.Close();
       GC.SuppressFinalize(this);
     }
@@ -1406,6 +1438,8 @@ namespace Microsoft.Cci {
     uint GetMethodReferenceInternedId(
       IMethodReference methodReference
     ) {
+      var genInstanceRef = methodReference as IGenericMethodInstanceReference;
+      if (genInstanceRef != null) return this.GetGenericMethodInstanceReferenceInternedKey(genInstanceRef);
       uint containingTypeReferenceInternedId = this.GetTypeReferenceInternId(methodReference.ContainingType);
       uint requiredParameterTypesInternedId = this.GetParameterTypeListInternId(methodReference.Parameters.GetEnumerator());
       uint returnValueCustomModifiersInternedId = 0;
@@ -1435,6 +1469,19 @@ namespace Microsoft.Cci {
         this.CurrentMethodReferenceInternValue++);
       methods.Add((uint)methodReference.Name.UniqueKey, signatureStore1);
       return signatureStore1.InternedId;
+    }
+
+    uint GetGenericMethodInstanceReferenceInternedKey(
+      IGenericMethodInstanceReference genericMethodInstanceReference
+    ) {
+      var genericMethodInternedId = genericMethodInstanceReference.GenericMethod.InternedKey;
+      uint genericArgumentsInternedId = this.GetTypeReferenceListInternedId(genericMethodInstanceReference.GenericArguments.GetEnumerator());
+      uint value = this.GenericInstanceHashtable.Find(genericMethodInternedId, genericArgumentsInternedId);
+      if (value == 0) {
+        value = this.CurrentMethodReferenceInternValue++;
+        this.GenericInstanceHashtable.Add(genericMethodInternedId, genericArgumentsInternedId, value);
+      }
+      return value;
     }
 
     uint GetFieldReferenceInternedId(
@@ -1567,7 +1614,7 @@ namespace Microsoft.Cci {
         if (functionPointerTypeReference.ReturnValueIsModified)
           returnValueCustomModifiers = functionPointerTypeReference.ReturnValueCustomModifiers;
         else
-          returnValueCustomModifiers = IteratorHelper.GetEmptyEnumerable<ICustomModifier>();
+          returnValueCustomModifiers = Enumerable<ICustomModifier>.Empty;
         return this.GetFunctionPointerTypeReferenceInternId(
           functionPointerTypeReference.CallingConvention,
           functionPointerTypeReference.Parameters,
@@ -1593,9 +1640,6 @@ namespace Microsoft.Cci {
     }
 
     uint GetTypeReferenceInternId(ITypeReference typeReference) {
-      if (typeReference.IsAlias) {
-        return this.GetTypeReferenceInternId(typeReference.AliasForType.AliasedType);
-      }
       IModifiedTypeReference/*?*/ modifiedTypeReference = typeReference as IModifiedTypeReference;
       if (modifiedTypeReference != null) {
         return this.GetModifiedTypeReferenceInternId(modifiedTypeReference.UnmodifiedType, modifiedTypeReference.CustomModifiers);

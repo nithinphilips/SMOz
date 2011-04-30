@@ -330,7 +330,7 @@ namespace Microsoft.Cci.MetadataReader.Errors {
     }
 
     public IEnumerable<ILocation> RelatedLocations {
-      get { return IteratorHelper.GetEmptyEnumerable<ILocation>(); }
+      get { return Enumerable<ILocation>.Empty; }
     }
 
     #endregion
