@@ -490,6 +490,7 @@ namespace Afterthought.Amender
 							Type = ResolveType(parameterType)
 						}
 					)
+					.Cast<IParameterDefinition>()
 					.ToList<IParameterDefinition>()
 			};
 
@@ -660,6 +661,7 @@ namespace Afterthought.Amender
 									Type = ResolveType(parameterType)
 								}
 							)
+							.Cast<IParameterDefinition>()
 							.ToList<IParameterDefinition>()
 					};
 
@@ -1917,7 +1919,7 @@ namespace Afterthought.Amender
 					.FirstOrDefault();
 
 				// Return the generic type
-				return GenericTypeInstance.GetGenericTypeInstance(genericTypeDef, type.GetGenericArguments().Select(t => ResolveType(t)), host.InternFactory);
+				return GenericTypeInstance.GetGenericTypeInstance(genericTypeDef, type.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeReference>(), host.InternFactory);
 			}
 
 			// Otherwise, just find the type

@@ -3,7 +3,7 @@
   <metadata>
 	<id>Afterthought</id>
 	<title>Afterthought</title>
-	<version>$version$</version>
+	<version>1.0.6</version>
 	<authors>Jamie Thomas, VC3</authors>
 	<summary>An open source .NET compile-time code amender.</summary>
 	<description>
