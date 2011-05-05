@@ -6,11 +6,11 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{AE704B90-7AC9-4567-B9BC-EB2C60EFD8AF}</ProjectGuid>
+    <ProjectGuid>{CB0A7510-EEB3-4402-9EEE-A04E16B20D3D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Logging.UnitTest</RootNamespace>
-    <AssemblyName>Logging.UnitTest</AssemblyName>
+    <RootNamespace>NotifyPropertyChanged.UnitTest</RootNamespace>
+    <AssemblyName>NotifyPropertyChanged.UnitTest</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -46,16 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LoggerTest.cs" />
+    <Compile Include="NotifyPropertyChangedTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logging.UnitTest.Target\Logging.UnitTest.Target.csproj">
-      <Project>{980DEA7F-BE8A-4287-ACF1-1494602BBB8B}</Project>
-      <Name>Logging.UnitTest.Target</Name>
+    <ProjectReference Include="..\NotifyPropertyChanged.UnitTest.Target\NotifyPropertyChanged.UnitTest.Target.csproj">
+      <Project>{C17FACB4-07E2-43F9-BFFE-7891F65928CF}</Project>
+      <Name>NotifyPropertyChanged.UnitTest.Target</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Logging\Logging.csproj">
-      <Project>{DCF621B2-47A4-490A-897D-C3593E2FB9C1}</Project>
-      <Name>Logging %28Examples\Logging\Logging%29</Name>
+    <ProjectReference Include="..\NotifyPropertyChanged\NotifyPropertyChanged.csproj">
+      <Project>{91D3E48E-0CFC-4F86-8B1C-456428095B1C}</Project>
+      <Name>NotifyPropertyChanged %28Examples\NotifyPropertyChanged\NotifyPropertyChanged%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

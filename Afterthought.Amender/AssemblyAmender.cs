@@ -260,6 +260,25 @@ namespace Afterthought.Amender
 						AddProperty(type, Afterthought.Amendment.Property.Implement(typeAmendment.Type, property));
 				}
 
+				// Process all interface methods
+				foreach (var method in interfaceType.GetMethods())
+				{
+					// Get the corresponding method definition
+					var methodDef = ResolveMethod(interfaceDef, method);
+
+					// Determine if the interface method is already implemented by the type
+					var existingMethod = type.Methods == null ? null : type.Methods.Where(m => AreEquivalent(m, method) && m.Visibility == TypeMemberVisibility.Public).FirstOrDefault();
+
+					// Mark the existing method as implementing the interface
+					if (existingMethod != null)
+						Implement(type, methodDef, existingMethod);
+
+					// TODO: Implicitly implement missing interface methods by throwing a not implemented exception
+					//// Determine if the method needs to be implicitly implemented
+					//else if (!Methods.Values.Any(m => m.Implements == method))
+					//    AddMethod(type, Afterthought.Amendment.Method.Implement(typeAmendment.Type, method));
+				}
+
 				// Process all interface events
 				foreach (var eventInfo in interfaceType.GetEvents())
 				{
@@ -647,7 +666,7 @@ namespace Afterthought.Amender
 						IsHiddenBySignature = isInterface,
 						IsCil = true,
 						IsNewSlot = isInterface,
-						IsVirtual = isInterface,
+						IsVirtual = true,
 						IsSealed = isInterface,
 						Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
 						CallingConvention = CallingConvention.HasThis,
