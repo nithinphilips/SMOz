@@ -305,8 +305,10 @@ namespace Afterthought.Amender
 						var args = eventInfo.EventHandlerType.GetMethod("Invoke").GetParameters()
 							.SkipWhile((p, i) => (i == 0 && p.ParameterType == typeof(object)) || (i == 1 && p.ParameterType == typeof(EventArgs)))
 							.Select(p => p.ParameterType).ToArray();
-						var evt = Afterthought.Amendment.Event.Implement(typeAmendment.Type, eventInfo, interfaceType.GetMethod("On" + eventInfo.Name, args));
+						var evt = Afterthought.Amendment.Event.Implement(typeAmendment.Type, eventInfo);
 						AddEvent(type, evt);
+						if (interfaceType.GetMethod("On" + eventInfo.Name, args) != null)
+							AddMethod(type, evt.RaisedBy("On" + eventInfo.Name));
 					}
 				}
 
@@ -479,14 +481,25 @@ namespace Afterthought.Amender
 		{
 			bool isInterface = method.Implements != null;
 
-			// Add the method
-			var args = method.Implementation != null ?
+			// Determine the method arguments
+			var args = 
+				method.Implementation != null ?
 				method.Implementation.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray() :
-				method.Overrides.GetParameters().Select(p => p.ParameterType);
+				(
+					method.Overrides != null ? 
+					method.Overrides.GetParameters().Select(p => p.ParameterType) :
+					method.Raises.Type.GetMethod("Invoke").GetParameters()
+						.SkipWhile((p, i) => (i == 0 && p.ParameterType == typeof(object)) || (i == 1 && p.ParameterType == typeof(EventArgs)))
+						.Select(p => p.ParameterType).ToArray()
+				);
+
+			// Add the method
 			var methodDef = new MethodDefinition
 			{
 				ContainingTypeDefinition = type,
-				Type = ResolveType((method.Implementation ?? method.Overrides).ReturnType),
+				Type = method.Raises != null ? 
+					(ITypeReference)host.PlatformType.SystemVoid : 
+					ResolveType((method.Implementation ?? method.Overrides).ReturnType),
 				Name = host.NameTable.GetNameFor(method.Name),
 				IsSpecialName = isInterface,
 				IsHiddenBySignature = isInterface,
@@ -642,105 +655,6 @@ namespace Afterthought.Amender
 				if (type.Fields == null)
 					type.Fields = new List<IFieldDefinition>();
 				type.Fields.Add(backingField);
-
-				// Optionally create a method to raise the event
-				if (@event.RaisedBy != null)
-				{
-					isInterface = @event.RaisedByImplements != null;
-
-					// Get the event raise arguments
-					var invokeMethod = @event.Type.GetMethod("Invoke");
-					var thisFirstParam = invokeMethod.GetParameters()[0].ParameterType == typeof(object);
-					var eventArgsSecondParam = invokeMethod.GetParameters()[1].ParameterType == typeof(EventArgs);
-					var args = @event.Type.GetMethod("Invoke").GetParameters()
-						.SkipWhile((p, i) => (i == 0 && thisFirstParam) || (i == 1 && eventArgsSecondParam))
-						.Select(p => p.ParameterType).ToArray();
-
-					// Add the event raise method
-					var methodDef = new MethodDefinition
-					{
-						ContainingTypeDefinition = type,
-						Type = host.PlatformType.SystemVoid,
-						Name = host.NameTable.GetNameFor(@event.RaisedBy),
-						IsSpecialName = isInterface,
-						IsHiddenBySignature = isInterface,
-						IsCil = true,
-						IsNewSlot = isInterface,
-						IsVirtual = true,
-						IsSealed = isInterface,
-						Visibility = isInterface ? TypeMemberVisibility.Private : TypeMemberVisibility.Public,
-						CallingConvention = CallingConvention.HasThis,
-						InternFactory = host.InternFactory,
-						Body = new MethodBody(),
-						Parameters = args.Select((parameterType, index) =>
-								new ParameterDefinition()
-								{
-									Index = (ushort)index,
-									Name = host.NameTable.GetNameFor("arg" + index),
-									Type = ResolveType(parameterType)
-								}
-							)
-							.Cast<IParameterDefinition>()
-							.ToList<IParameterDefinition>()
-					};
-
-					((MethodBody)methodDef.Body).MethodDefinition = methodDef;
-					if (type.Methods == null)
-						type.Methods = new List<IMethodDefinition>(); 
-					type.Methods.Add(methodDef);
-					if (isInterface)
-						Implement(type, ResolveMethod(ResolveType(@event.RaisedByImplements.DeclaringType), @event.RaisedByImplements), methodDef);
-
-					// Emit the method body
-					ILAmender il = new ILAmender(host, (MethodBody)methodDef.Body);
-
-					// Load this pointer onto stack
-					il.Emit(OperationCode.Ldarg_0);
-
-					// Load event handler backing field onto stack
-					il.Emit(OperationCode.Ldfld, backingField);
-
-					// Load null onto stack
-					il.Emit(OperationCode.Ldnull);
-
-					// See if the field is null
-					il.Emit(OperationCode.Ceq);
-
-					// Create a branching label
-					var ifRaise = new ILGeneratorLabel();
-					il.Emit(OperationCode.Brtrue_S, ifRaise);
-
-					// Load this pointer onto stack
-					il.Emit(OperationCode.Ldarg_0);
-
-					// Load event handler backing field onto stack
-					il.Emit(OperationCode.Ldfld, backingField);
-
-					// Load this pointer onto stack if required
-					if (thisFirstParam)
-						il.Emit(OperationCode.Ldarg_0);
-
-					// Create event args if required
-					if (eventArgsSecondParam)
-						il.Emit(OperationCode.Newobj, ResolveConstructor(ResolveType(typeof(EventArgs)), typeof(EventArgs).GetConstructor(Type.EmptyTypes)));
-
-					// Load all method arguments
-					foreach (var arg in methodDef.Parameters)
-						il.Emit(OperationCode.Ldarg_S, arg);
-
-					// Invoke the delegate
-					il.Emit(OperationCode.Callvirt, ResolveMethod(ResolveType(invokeMethod.DeclaringType), invokeMethod));
-
-					// Finish the raise conditional block
-					il.MarkLabel(ifRaise);
-					il.Emit(OperationCode.Nop);
-
-					// Return from the method
-					il.Emit(OperationCode.Ret);
-
-					// Finish emitting the method
-					il.UpdateMethodBody((ushort)Math.Max(4, methodDef.ParameterCount + 1));
-				}
 			}
 
 			// Track the newly added event
@@ -1456,6 +1370,60 @@ namespace Afterthought.Amender
 					il.Emit(OperationCode.Callvirt, ResolveMethod(ResolveType(methodAmendment.Overrides.DeclaringType), methodAmendment.Overrides));
 				}
 
+				// Emit calls to raise the specified event
+				else if (methodAmendment.Raises != null)
+				{
+					// Get the event raise arguments
+					var invokeMethod = methodAmendment.Raises.Type.GetMethod("Invoke");
+					var thisFirstParam = invokeMethod.GetParameters()[0].ParameterType == typeof(object);
+					var eventArgsSecondParam = invokeMethod.GetParameters()[1].ParameterType == typeof(EventArgs);
+					var args = invokeMethod.GetParameters()
+						.SkipWhile((p, i) => (i == 0 && thisFirstParam) || (i == 1 && eventArgsSecondParam))
+						.Select(p => p.ParameterType).ToArray();
+					var backingField = GetCurrentType().Fields.Single(f => f.Name.Value == methodAmendment.Raises.Name);
+
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load event handler backing field onto stack
+					il.Emit(OperationCode.Ldfld, backingField);
+
+					// Load null onto stack
+					il.Emit(OperationCode.Ldnull);
+
+					// See if the field is null
+					il.Emit(OperationCode.Ceq);
+
+					// Create a branching label
+					var ifRaise = new ILGeneratorLabel();
+					il.Emit(OperationCode.Brtrue_S, ifRaise);
+
+					// Load this pointer onto stack
+					il.Emit(OperationCode.Ldarg_0);
+
+					// Load event handler backing field onto stack
+					il.Emit(OperationCode.Ldfld, backingField);
+
+					// Load this pointer onto stack if required
+					if (thisFirstParam)
+						il.Emit(OperationCode.Ldarg_0);
+
+					// Create event args if required
+					if (eventArgsSecondParam)
+						il.Emit(OperationCode.Newobj, ResolveConstructor(ResolveType(typeof(EventArgs)), typeof(EventArgs).GetConstructor(Type.EmptyTypes)));
+
+					// Load all method arguments
+					foreach (var arg in methodBody.MethodDefinition.Parameters)
+						il.Emit(OperationCode.Ldarg_S, arg);
+
+					// Invoke the delegate
+					il.Emit(OperationCode.Callvirt, ResolveMethod(ResolveType(invokeMethod.DeclaringType), invokeMethod));
+
+					// Finish the raise conditional block
+					il.MarkLabel(ifRaise);
+					il.Emit(OperationCode.Nop);
+				}
+
 				// Emit the original method operations if the method implementation was not overriden
 				if (methodAmendment.MethodInfo != null && methodAmendment.Implementation == null)
 					il.EmitUntilReturn();
@@ -1473,7 +1441,7 @@ namespace Afterthought.Amender
 				CallMethodDelegate(methodBody, methodAmendment.After, false, il, implement, MethodDelegateType.After);
 
 			// Or emit a return for new/overriden methods
-			if (methodAmendment.Implementation != null || methodAmendment.Overrides != null)
+			if (methodAmendment.Implementation != null || methodAmendment.Overrides != null || methodAmendment.Raises != null)
 				il.Emit(OperationCode.Ret);
 
 			// Update the method body

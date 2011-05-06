@@ -33,9 +33,5 @@ namespace Afterthought
 		MethodInfo AfterAdd { get; }
 
 		MethodInfo AfterRemove { get; }
-
-		string RaisedBy { get; }
-
-		MethodInfo RaisedByImplements { get; }
 	}
 }

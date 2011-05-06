@@ -27,7 +27,14 @@ namespace Afterthought.Amender
 	{
 		static int Main(string[] args)
 		{
-			Amend(args);
+			try
+			{
+				Amend(args);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
+			}
 			return 0;
 		} 
 

@@ -389,8 +389,18 @@ namespace Afterthought
 					{
 						var method = (Method)member;
 
+						// Verify that the method has an implementation or raises an event
+						if (method.ImplementationMethod == null && method.RaisesEvent == null)
+							throw new ArgumentException("The method must have an implementation in order to implement an interface.");
+
+						// Get the method arguments
+						var args = method.ImplementationMethod != null ? 
+							method.ImplementationMethod.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray() :
+							method.RaisesEvent.Type.GetMethod("Invoke").GetParameters()
+								.SkipWhile((p, i) => (i == 0 && p.ParameterType == typeof(object)) || (i == 1 && p.ParameterType == typeof(EventArgs)))
+								.Select(p => p.ParameterType).ToArray();
+
 						// Determine the method being implemented
-						var args = method.ImplementationMethod.GetParameters().Skip(1).Select(p => p.ParameterType).ToArray();
 						method.Implements = interfaceType.GetMethods()
 							.FirstOrDefault(m => m.Name == method.Name && m.GetParameters().Length == args.Length &&
 								m.GetParameters().All(p => args[p.Position] == p.ParameterType));
@@ -414,15 +424,6 @@ namespace Afterthought
 						// Verify that the event actually implements the specified interface
 						if (@event.Implements == null || @event.Implements.EventHandlerType != @event.Type)
 							throw new ArgumentException("The specified event, " + @event.Name + ", is not valid for interface " + interfaceType.FullName + ".");
-
-						// Determine if the raising method is specified and implements the target interface
-						if (@event.RaisedByMethod != null)
-						{
-							var args = @event.Type.GetMethod("Invoke").GetParameters()
-								.SkipWhile((p, i) => (i == 0 && p.ParameterType == typeof(object)) || (i == 1 && p.ParameterType == typeof(EventArgs)))
-								.Select(p => p.ParameterType).ToArray();
-							@event.RaisedByImplementsMethod = interfaceType.GetMethod(@event.RaisedByMethod, args);
-						}
 
 						// Add the new event
 						this.events.Add(@event);

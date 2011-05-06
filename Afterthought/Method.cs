@@ -60,6 +60,8 @@ namespace Afterthought
 
 			MethodInfo IMethodAmendment.After { get { return AfterMethod; } }
 
+			IEventAmendment IMethodAmendment.Raises { get { return RaisesEvent; } }
+
 			MethodInfo implements;
 			internal MethodInfo Implements
 			{
@@ -91,12 +93,15 @@ namespace Afterthought
 					overrideMethod = value;
 				}
 			}			
+
 			internal MethodInfo ImplementationMethod { get; set; }
 
 			internal MethodInfo BeforeMethod { get; set; }
 
 			internal MethodInfo AfterMethod { get; set; }
-		}
+
+			internal Event RaisesEvent { get; set; }
+	}
 	}
 
 	#endregion
@@ -266,6 +271,15 @@ namespace Afterthought
 			public static Method Override<P1, P2, P3, P4, P5, P6, P7, P8>(string name)
 			{
 				return new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8)) };
+			}
+
+			#endregion
+
+			#region Raise
+
+			internal static Method Raise(string name, Event @event)
+			{
+				return new Method(name) { RaisesEvent = @event };
 			}
 
 			#endregion

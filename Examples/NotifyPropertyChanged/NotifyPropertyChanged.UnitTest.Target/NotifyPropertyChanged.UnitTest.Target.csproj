@@ -42,8 +42,13 @@
   <ItemGroup>
     <Compile Include="Milk.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Soda.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Afterthought\Afterthought.csproj">
+      <Project>{0857EBD2-0AE9-4FE2-B9D9-E3D5F924F0F0}</Project>
+      <Name>Afterthought</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NotifyPropertyChanged\NotifyPropertyChanged.csproj">
       <Project>{91D3E48E-0CFC-4F86-8B1C-456428095B1C}</Project>
       <Name>NotifyPropertyChanged %28Examples\NotifyPropertyChanged\NotifyPropertyChanged%29</Name>
@@ -51,7 +56,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)Afterthought.Amender/bin/debug/Afterthought.Amender.exe "$(TargetPath)" "..\..\..\NotifyPropertyChanged\bin\debug\NotifyPropertyChanged.dll"</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)Afterthought.Amender/bin/debug/Afterthought.Amender.exe "$(TargetPath)" $(TargetDir)NotifyPropertyChanged.dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

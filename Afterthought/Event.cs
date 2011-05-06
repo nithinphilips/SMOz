@@ -29,9 +29,7 @@ namespace Afterthought
 		{
 			internal Event(string name)
 				: base(name)
-			{
-				RaisedByMethod = "On" + name;
-			}
+			{ }
 
 			internal Event(EventInfo eventInfo)
 				: base(eventInfo.Name)
@@ -66,10 +64,6 @@ namespace Afterthought
 
 			MethodInfo IEventAmendment.AfterRemove { get { return AfterRemoveMethod; } }
 
-			string IEventAmendment.RaisedBy { get { return RaisedByMethod; } }
-
-			MethodInfo IEventAmendment.RaisedByImplements { get { return RaisedByImplementsMethod; } }
-
 			EventInfo implements;
 			internal EventInfo Implements
 			{
@@ -99,10 +93,6 @@ namespace Afterthought
 
 			internal MethodInfo AfterRemoveMethod { get; set; }
 
-			internal string RaisedByMethod { get; set; }
-
-			internal MethodInfo RaisedByImplementsMethod { get; set; }
-
 			/// <summary>
 			/// Creates a concrete event with the specified instance type, event type, and name.
 			/// </summary>
@@ -123,7 +113,7 @@ namespace Afterthought
 			/// <param name="instanceType"></param>
 			/// <param name="interfaceEvent"></param>
 			/// <returns></returns>
-			public static Event Implement(Type instanceType, EventInfo interfaceEvent, MethodInfo raisedBy)
+			public static Event Implement(Type instanceType, EventInfo interfaceEvent)
 			{
 				// Ensure the event is declared on an interface
 				if (!interfaceEvent.DeclaringType.IsInterface)
@@ -131,13 +121,15 @@ namespace Afterthought
 
 				var evt = Create(instanceType, interfaceEvent.EventHandlerType, interfaceEvent.Name);
 				evt.Implements = interfaceEvent;
-				if (raisedBy != null)
-				{
-					evt.RaisedByMethod = raisedBy.Name;
-					evt.RaisedByImplementsMethod = raisedBy;
-				}
 				return evt;
 			}
+
+			/// <summary>
+			/// Creates a new method that will raise this event.
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns></returns>
+			public abstract Method RaisedBy(string name);
 		}
 	}
 
@@ -173,8 +165,6 @@ namespace Afterthought
 				}
 			}
 
-			public string RaisedBy { set { UnderlyingEvent.RaisedByMethod = value; } }
-
 			public EventAdder Adder { set { UnderlyingEvent.AdderMethod = value.Method; } }
 
 			public EventRemover Remover { set { UnderlyingEvent.RemoverMethod = value.Method; } }
@@ -191,18 +181,20 @@ namespace Afterthought
 
 			public delegate void EventRemover(TAmended instance, string eventName, TEvent value);
 
-			public delegate void MyStuff(int bob, int sue, int jane);
-
-			public event MyStuff Stuff;
-
 			public Event<TActual> OfType<TActual>()
 			{
 				return new Event<TEvent, TActual>(this);
 			}
 
-			void Event_Stuff(int bob, int sue, int jane)
+			/// <summary>
+			/// Creates a new method that will raise this event.
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns></returns>
+			public override Amendment.Method RaisedBy(string name)
 			{
-				throw new NotImplementedException();
+				Console.WriteLine("What!");
+				return Method.Raise(name, this);
 			}
 		}
 	}

@@ -33,5 +33,3 @@ if ($currentPostBuildCmds.Contains($buildCmd))
   # Update the build event with the cleaned values
   $project.Properties.Item("PostBuildEvent").Value = $cleanedCmds
 }
-
-## site throws error within VS $project.DTE.ItemOperations.Navigate($package.ProjectUrl)  

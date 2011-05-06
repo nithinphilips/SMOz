@@ -30,11 +30,16 @@ namespace NotifyPropertyChanged
 	{
 		public override void Amend()
 		{
-			// Implement INotifyPropertyChanged
-			ImplementInterface<INotifyPropertyChanged>();
+			// Create the PropertyChanged event
+			var propertyChanged = new Event<PropertyChangedEventHandler>("PropertyChanged");
 
-			// Implement INotifyPropertyChangedAmendment
-			ImplementInterface<INotifyPropertyChangedAmendment>();
+			// Implement INotifyPropertyChanged, specifying the PropertyChanged event
+			ImplementInterface<INotifyPropertyChanged>(propertyChanged);
+
+			// Implement INotifyPropertyChangedAmendment, specifying a method that raises the PropertyChanged event
+			ImplementInterface<INotifyPropertyChangedAmendment>(
+				propertyChanged.RaisedBy("OnPropertyChanged")
+			);
 		}
 
 		public override void Amend<TProperty>(Property<TProperty> property)

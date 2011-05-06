@@ -7,13 +7,19 @@
 	<authors>Jamie Thomas, VC3</authors>
 	<summary>An open source .NET compile-time code amender.</summary>
 	<description>
-	  Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added to the original source or is not convenient/efficient to do so.
-	  The current version of Afterthought only supports .NET 4.0 assemblies due to a problem with Microsoft.CCI libraries that has been reported.
+	  Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added 
+	  to the original source or is not convenient/efficient to do so. Afterthought runs as a post-build step 
+	  to process one or more assemblies. It discovers and processes amendments that you create or borrow from 
+	  others. The amendments allow you to add or modify the behavior of constructors, properties, methods, or 
+	  events, and add new fields and attributes. Amendments can also modify types to implement new interfaces. 
+	  The modified assembly just includes simple static calls into existing code that you write in a natural 
+	  and strongly-typed way when writing amendments. Assembly amendments support using Afterthought to modify 
+	  an assembly without introducing a runtime dependency on Afterthought.
 	</description>
-	<projectUrl>https://github.com/vc3/Afterthought</projectUrl>
-	<licenseUrl>https://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
-	<iconUrl>https://github.com/vc3/Afterthought/raw/master/Afterthought_Icon.png</iconUrl>
-	<tags>aop, aspect, postsharp, assembly, il, postcompile, injection, weaving, interception</tags>
+	<projectUrl>http://github.com/vc3/Afterthought</projectUrl>
+	<licenseUrl>http://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
+	<iconUrl>http://github.com/vc3/Afterthought/raw/master/Afterthought_Icon.png</iconUrl>
+	<tags>aop, ioc, di, aspect, postsharp, assembly, il, postcompile, injection, weaving, interception</tags>
   </metadata>
   <files>
 	<file src="..\bin\Debug\Afterthought.dll" target="lib"/>

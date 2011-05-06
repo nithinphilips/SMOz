@@ -14,7 +14,7 @@ namespace NotifyPropertyChanged
 	{
 		IEnumerable<ITypeAmendment> IAmendmentAttribute.GetAmendments(Type target)
 		{
-			if (target.GetCustomAttributes(typeof(NotifyPropertyChangedAttribute), true).Length > 0)
+			if (target.GetCustomAttributes(typeof(NotifyPropertyChangedAttribute), true).Length > 0 && target.GetInterface("System.ComponentModel.INotifyPropertyChanged") == null)
 				yield return (ITypeAmendment)typeof(NotificationAmendment<>).MakeGenericType(target).GetConstructor(Type.EmptyTypes).Invoke(new object[0]);
 
 		}
