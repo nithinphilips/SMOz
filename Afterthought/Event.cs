@@ -193,7 +193,6 @@ namespace Afterthought
 			/// <returns></returns>
 			public override Amendment.Method RaisedBy(string name)
 			{
-				Console.WriteLine("What!");
 				return Method.Raise(name, this);
 			}
 		}

@@ -1367,7 +1367,7 @@ namespace Afterthought.Amender
 						il.Emit(OperationCode.Ldarg_S, arg);
 
 					// Call the base method
-					il.Emit(OperationCode.Callvirt, ResolveMethod(ResolveType(methodAmendment.Overrides.DeclaringType), methodAmendment.Overrides));
+					il.Emit(OperationCode.Call, ResolveMethod(ResolveType(methodAmendment.Overrides.DeclaringType), methodAmendment.Overrides));
 				}
 
 				// Emit calls to raise the specified event
