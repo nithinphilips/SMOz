@@ -10,7 +10,7 @@
 # Get the current Post Build Event cmds
 $currentPostBuildCmds = $project.Properties.Item("PostBuildEvent").Value
 
-$buildCmd = 'Afterthought.Amender "$(TargetPath)"' 
+$buildCmd = '"$(SolutionDir)packages\Afterthought.{0}\Afterthought.Amender.exe" "$(TargetPath)"' -f $package.Version
 
 # Append our post build command if it's not already there
 if (!$currentPostBuildCmds.Contains($buildCmd))
@@ -24,7 +24,7 @@ if (!$currentPostBuildCmds.Contains($buildCmd))
 	# Walk each entry
 	foreach($line in $lines)
 	{
-		if( $line.Length -gt 0) # don't include empty lines
+		if( $line.Length -gt 0 -and !$line.Contains('Afterthought.Amender')) # don't include empty lines or the afterthought command
 		{
 			$cmds += $line + "`r`n"  # Creating a noramlized list of commands
 		}

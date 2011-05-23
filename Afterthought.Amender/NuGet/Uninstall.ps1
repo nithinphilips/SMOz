@@ -10,10 +10,8 @@
 # Get the current Post Build Event cmds
 $currentPostBuildCmds = $project.Properties.Item("PostBuildEvent").Value
 
-$buildCmd = 'Afterthought.Amender "$(TargetPath)"' 
-
 # Check to see if we need to delete anything
-if ($currentPostBuildCmds.Contains($buildCmd))
+if ($currentPostBuildCmds.Contains('Afterthought.Amender'))
 {
     $lines = [regex]::Split($currentPostBuildCmds,"\r\n")
     $cleanedCmds = ""
@@ -21,13 +19,10 @@ if ($currentPostBuildCmds.Contains($buildCmd))
    # Walk each entry
    foreach($line in $lines)
    {
-       if( $line -ne $buildCmd) # skip adding ourselves
-       {
-            if( $line.Length -gt 0) # don't include empty lines
-            {
-                $cleanedCmds += $line + "`r`n"  # Creating a cleaned list of commands
-            }
-       }
+        if($line.Length -gt 0 -and !$line.Contains('Afterthought.Amender')) # don't include empty lines or the afterthought command
+        {
+            $cleanedCmds += $line + "`r`n"  # Creating a cleaned list of commands
+        }
    }
 
   # Update the build event with the cleaned values
