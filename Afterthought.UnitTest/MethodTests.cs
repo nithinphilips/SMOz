@@ -160,5 +160,20 @@ namespace Afterthought.UnitTest
 			// Verify that the implementation has been corrected by the amendment
 			Assert.AreEqual(expected, Calculator.Square(4));
 		}
+
+		/// <summary>
+		/// Tests modifying an existing method to completely replace the implementation.
+		/// </summary>
+		[TestMethod]
+		public void BeforeAndAfterWithContext()
+		{
+			Calculator.Result = 0;
+
+			// Perform a slow calculation
+			Calculator.SlowSum(new int[] { 1, 2, 3, 4, 5 });
+
+			// Verify that the execution time was measured and saved to result
+			Assert.IsTrue(Calculator.Result >= 100);
+		}
 	}
 }

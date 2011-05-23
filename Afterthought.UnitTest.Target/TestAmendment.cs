@@ -14,6 +14,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Afterthought.UnitTest.Target
 {
@@ -239,6 +240,14 @@ namespace Afterthought.UnitTest.Target
 						for (int i = 1; i < ((int[])parameters[0]).Length; i++)
 							((int[])parameters[0])[i] = ((int[])parameters[0])[i - 1] + ((int[])parameters[0])[i];
 					});
+					break;
+
+				case "SlowSum":
+					method.Context<Stopwatch>()
+						.Before((T instance, string methodName, object[] parameters)
+							=> { var s = new Stopwatch(); s.Start(); return s; })
+						.After((T instance, string methodName, Stopwatch stopwatch, object[] parameters)
+							=> instance.Result = (int)stopwatch.ElapsedMilliseconds);
 					break;
 			}
 		}

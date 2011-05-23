@@ -187,5 +187,16 @@ namespace Afterthought.UnitTest.Target
 		{
 			return ((int[])parameters[0]).Sum();
 		}
+
+		/// <summary>
+		/// Takes over 100 milliseconds to sum the input values.  Will be amended to time this via a context.
+		/// </summary>
+		/// <param name="values"></param>
+		/// <returns></returns>
+		public int SlowSum(int[] values)
+		{
+			Thread.Sleep(100);
+			return values.Sum();
+		}
 	}
 }

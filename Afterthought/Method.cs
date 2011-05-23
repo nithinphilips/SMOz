@@ -687,6 +687,289 @@ namespace Afterthought
 			}
 
 			#endregion
+
+			#region Context
+
+			public Method<TContext> Context<TContext>()
+			{
+				return new Method<TContext>(this);
+			}
+
+			#endregion
+		}
+	}
+
+	#endregion
+
+	#region Amendment<TType, TAmended>.Method<TContext>
+
+	public partial class Amendment<TType, TAmended> : Amendment
+	{
+		/// <summary>
+		/// Represents an amendment for a new or existing method on a type that tracks
+		/// a context object created in the before delegate.
+		/// </summary>
+		public class Method<TContext> : Amendment.Method
+		{
+			Amendment.Method method;
+
+			internal Method(Method method)
+				: base(method.MethodInfo)
+			{
+				this.method = method;
+			}
+
+			#region Before
+
+			public delegate TContext BeforeMethodArray(TAmended instance, string method, object[] parameters);
+
+			public Method<TContext> Before(BeforeMethodArray before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public new delegate TContext BeforeMethod(TAmended instance);
+
+			public Method<TContext> Before(BeforeMethod before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1>(TAmended instance, ref P1 param1);
+
+			public Method<TContext> Before<P1>(BeforeMethod<P1> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2>(TAmended instance, ref P1 param1, ref P2 param2);
+
+			public Method<TContext> Before<P1, P2>(BeforeMethod<P1, P2> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2, P3>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3);
+
+			public Method<TContext> Before<P1, P2, P3>(BeforeMethod<P1, P2, P3> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2, P3, P4>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4);
+
+			public Method<TContext> Before<P1, P2, P3, P4>(BeforeMethod<P1, P2, P3, P4> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2, P3, P4, P5>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5);
+
+			public Method<TContext> Before<P1, P2, P3, P4, P5>(BeforeMethod<P1, P2, P3, P4, P5> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2, P3, P4, P5, P6>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6);
+
+			public Method<TContext> Before<P1, P2, P3, P4, P5, P6>(BeforeMethod<P1, P2, P3, P4, P5, P6> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7);
+
+			public Method<TContext> Before<P1, P2, P3, P4, P5, P6, P7>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7, ref P8 param8);
+
+			public Method<TContext> Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeMethod<P1, P2, P3, P4, P5, P6, P7, P8> before)
+			{
+				method.BeforeMethod = before.Method;
+				return this;
+			}
+
+			#endregion
+
+			#region After (Action)
+
+			public delegate void AfterMethodActionArray(TAmended instance, string method, TContext context, object[] parameters);
+
+			public Method<TContext> After(AfterMethodActionArray after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction(TAmended instance, TContext context);
+
+			public Method<TContext> After(AfterMethodAction after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1>(TAmended instance, TContext context, P1 param1);
+
+			public Method<TContext> After<P1>(AfterMethodAction<P1> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2>(TAmended instance, TContext context, P1 param1, P2 param2);
+
+			public Method<TContext> After<P1, P2>(AfterMethodAction<P1, P2> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2, P3>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3);
+
+			public Method<TContext> After<P1, P2, P3>(AfterMethodAction<P1, P2, P3> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2, P3, P4>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4);
+
+			public Method<TContext> After<P1, P2, P3, P4>(AfterMethodAction<P1, P2, P3, P4> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5>(AfterMethodAction<P1, P2, P3, P4, P5> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, P6>(AfterMethodAction<P1, P2, P3, P4, P5, P6> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, P6, P7>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterMethodAction<P1, P2, P3, P4, P5, P6, P7, P8> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			#endregion
+
+			#region After (Func)
+
+			public delegate object AfterMethodFuncArray(TAmended instance, string method, TContext context, object[] parameters, object result);
+
+			public Method<TContext> After(AfterMethodFuncArray after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<TResult>(TAmended instance, TContext context, TResult result);
+
+			public Method<TContext> After<TResult>(AfterMethodFunc<TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, TResult>(TAmended instance, TContext context, P1 param1, TResult result);
+
+			public Method<TContext> After<P1, TResult>(AfterMethodFunc<P1, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, TResult result);
+
+			public Method<TContext> After<P1, P2, TResult>(AfterMethodFunc<P1, P2, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, P3, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, TResult result);
+
+			public Method<TContext> After<P1, P2, P3, TResult>(AfterMethodFunc<P1, P2, P3, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, TResult result);
+
+			public Method<TContext> After<P1, P2, P3, P4, TResult>(AfterMethodFunc<P1, P2, P3, P4, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, TResult result);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, TResult result);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, P6, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, TResult result);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, P6, P7, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate TResult AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, TResult result);
+
+			public Method<TContext> After<P1, P2, P3, P4, P5, P6, P7, P8, TResult>(AfterMethodFunc<P1, P2, P3, P4, P5, P6, P7, P8, TResult> after)
+			{
+				method.AfterMethod = after.Method;
+				return this;
+			}
+
+			#endregion
 		}
 	}
 
