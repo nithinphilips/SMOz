@@ -80,7 +80,6 @@ namespace Afterthought
 				: base(constructor)
 			{ }
 
-
 			#region Create
 
 			public static Constructor Create(string name, ImplementConstructor implementation)
@@ -199,7 +198,7 @@ namespace Afterthought
 
 			#region Before
 
-			public delegate void BeforeConstructorArray(TAmended instance, string method, object[] parameters);
+			public delegate void BeforeConstructorArray(TAmended instance, string constructor, object[] parameters);
 
 			public void Before(BeforeConstructorArray before)
 			{
@@ -273,7 +272,7 @@ namespace Afterthought
 
 			#region After
 
-			public delegate void AfterConstructorArray(TAmended instance, string method, object[] parameters);
+			public delegate void AfterConstructorArray(TAmended instance, string constructor, object[] parameters);
 
 			public void After(AfterConstructorArray after)
 			{
@@ -341,6 +340,205 @@ namespace Afterthought
 			public void After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterConstructor<P1, P2, P3, P4, P5, P6, P7, P8> after)
 			{
 				AfterMethod = after.Method;
+			}
+
+			#endregion
+
+			#region Context
+
+			public Constructor<TContext> Context<TContext>()
+			{
+				return new Constructor<TContext>(this);
+			}
+
+			#endregion
+		}
+	}
+
+	#endregion
+
+	#region Amendment<TType, TAmended>.Method<TContext>
+
+	public partial class Amendment<TType, TAmended> : Amendment
+	{
+		/// <summary>
+		/// Represents an amendment for a new or existing constructor on a type that tracks
+		/// a context object created in the before delegate.
+		/// </summary>
+		public class Constructor<TContext> : Amendment.Constructor
+		{
+			Amendment.Constructor constructor;
+
+			internal Constructor(Constructor constructor)
+				: base(constructor.ConstructorInfo)
+			{
+				this.constructor = constructor;
+			}
+
+			#region Before
+
+			public delegate TContext BeforeConstructorArray(TAmended instance, string constructor, object[] parameters);
+
+			public Constructor<TContext> Before(BeforeConstructorArray before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public new delegate TContext BeforeConstructor(TAmended instance);
+
+			public Constructor<TContext> Before(BeforeConstructor before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1>(TAmended instance, ref P1 param1);
+
+			public Constructor<TContext> Before<P1>(BeforeConstructor<P1> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2>(TAmended instance, ref P1 param1, ref P2 param2);
+
+			public Constructor<TContext> Before<P1, P2>(BeforeConstructor<P1, P2> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2, P3>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3);
+
+			public Constructor<TContext> Before<P1, P2, P3>(BeforeConstructor<P1, P2, P3> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2, P3, P4>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4);
+
+			public Constructor<TContext> Before<P1, P2, P3, P4>(BeforeConstructor<P1, P2, P3, P4> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2, P3, P4, P5>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5);
+
+			public Constructor<TContext> Before<P1, P2, P3, P4, P5>(BeforeConstructor<P1, P2, P3, P4, P5> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2, P3, P4, P5, P6>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6);
+
+			public Constructor<TContext> Before<P1, P2, P3, P4, P5, P6>(BeforeConstructor<P1, P2, P3, P4, P5, P6> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7);
+
+			public Constructor<TContext> Before<P1, P2, P3, P4, P5, P6, P7>(BeforeConstructor<P1, P2, P3, P4, P5, P6, P7> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			public delegate TContext BeforeConstructor<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, ref P1 param1, ref P2 param2, ref P3 param3, ref P4 param4, ref P5 param5, ref P6 param6, ref P7 param7, ref P8 param8);
+
+			public Constructor<TContext> Before<P1, P2, P3, P4, P5, P6, P7, P8>(BeforeConstructor<P1, P2, P3, P4, P5, P6, P7, P8> before)
+			{
+				constructor.BeforeMethod = before.Method;
+				return this;
+			}
+
+			#endregion
+
+			#region After
+
+			public delegate void AfterConstructorArray(TAmended instance, string constructor, TContext context, object[] parameters);
+
+			public Constructor<TContext> After(AfterConstructorArray after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor(TAmended instance, TContext context);
+
+			public Constructor<TContext> After(AfterConstructor after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1>(TAmended instance, TContext context, P1 param1);
+
+			public Constructor<TContext> After<P1>(AfterConstructor<P1> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2>(TAmended instance, TContext context, P1 param1, P2 param2);
+
+			public Constructor<TContext> After<P1, P2>(AfterConstructor<P1, P2> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2, P3>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3);
+
+			public Constructor<TContext> After<P1, P2, P3>(AfterConstructor<P1, P2, P3> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2, P3, P4>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4);
+
+			public Constructor<TContext> After<P1, P2, P3, P4>(AfterConstructor<P1, P2, P3, P4> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2, P3, P4, P5>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
+
+			public Constructor<TContext> After<P1, P2, P3, P4, P5>(AfterConstructor<P1, P2, P3, P4, P5> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2, P3, P4, P5, P6>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
+
+			public Constructor<TContext> After<P1, P2, P3, P4, P5, P6>(AfterConstructor<P1, P2, P3, P4, P5, P6> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2, P3, P4, P5, P6, P7>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
+
+			public Constructor<TContext> After<P1, P2, P3, P4, P5, P6, P7>(AfterConstructor<P1, P2, P3, P4, P5, P6, P7> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
+			}
+
+			public delegate void AfterConstructor<P1, P2, P3, P4, P5, P6, P7, P8>(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
+
+			public Constructor<TContext> After<P1, P2, P3, P4, P5, P6, P7, P8>(AfterConstructor<P1, P2, P3, P4, P5, P6, P7, P8> after)
+			{
+				constructor.AfterMethod = after.Method;
+				return this;
 			}
 
 			#endregion

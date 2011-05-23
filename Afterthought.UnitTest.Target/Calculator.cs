@@ -195,7 +195,7 @@ namespace Afterthought.UnitTest.Target
 		/// <returns></returns>
 		public int SlowSum(int[] values)
 		{
-			Thread.Sleep(100);
+			Thread.Sleep(110);
 			return values.Sum();
 		}
 	}
