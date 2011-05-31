@@ -38,7 +38,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -49,6 +48,16 @@
     <Compile Include="Constructor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ConstructorList.cs" />
+    <Compile Include="ConstructorVariant.cs">
+      <DependentUpon>ConstructorVariant.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="AttributeList.cs" />
+    <Compile Include="FieldList.cs" />
+    <Compile Include="EventList.cs" />
+    <Compile Include="PropertyList.cs" />
     <Compile Include="IEventAmendment.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="IAmendmentAttribute.cs" />
@@ -63,12 +72,30 @@
     <Compile Include="IPropertyAmendment.cs" />
     <Compile Include="ITypeAmendment.cs" />
     <Compile Include="Method.cs" />
+    <Compile Include="MethodVariant.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MethodVariant.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MethodList.cs" />
     <Compile Include="Property.cs" />
     <Compile Include="AmendmentAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Amendment.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ConstructorVariant.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ConstructorVariant.cs</LastGenOutput>
+    </None>
+    <None Include="MethodVariant.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MethodVariant.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -21,241 +21,242 @@ namespace Afterthought.UnitTest.Target
 	public class TestAmendment<T> : Amendment<T,T>
 		where T : Calculator
 	{
-		public override void Amend()
+		public TestAmendment()
 		{
-			// public int Count { get; set; }
-			AddProperty(new Property<int>("Count"));
+			#region Methods
 
-			// public int DoubleCount { get { return Count * 2; } }
-			AddProperty(new Property<int>("Three")
-			{
-				Getter = (instance, property) => instance.One + instance.Two
-			});
+			// Modify Multiply to also set the Result property to the resulting value
+			Methods
+				.Named("Multiply")
+				.WithParams<int, int>()
+				.Before((T instance, ref int x, ref int y) => instance.Result = x * y);
 
-			// public string LazyRandomName { get { if (lazyRandomName == null) lazyRandomName = "r" + new Random().Next(); return lazyRandomName; } }
-			AddProperty(new Property<string>("LazyRandomName")
-			{
-				LazyInitializer = (instance, property) => "r" + new Random().Next()
-			});
+			// Modify SlowSum to measure the method execution time
+			Methods
+				.Named("SlowSum")
+				.WithParams<int[]>()
+				.Before((T instance, ref int[] values)
+					=> { var s = new Stopwatch(); s.Start(); return s; })
+				.After((instance, stopwatch, values)
+					=> instance.Result = (int)stopwatch.ElapsedMilliseconds);
 
-			// public int SetResult { set { Result = value; } }
-			AddProperty(new Property<int>("SetResult")
-			{
-				Setter = (instance, property, value) => instance.Result = value
-			});
+			// Modify Multiply to also set the Result property to the resulting value
+			Methods
+				.Named("Add")
+				.WithParams<int, int>()
+				.Implement((instance, x, y) => x + y);
 
-			// public int InitiallyTwelve { get; set; } = 12
-			AddProperty(new Property<int>("InitiallyTwelve")
-			{
-				Initializer = (instance, property) => 12
-			});
+			// Modify Multiply2 to also set the Result property to the resulting value
+			// Demonstrates use of array syntax
+			Methods
+				.Named("Multiply2")
+				.Before((instance, methodName, parameters)
+					=> instance.Result = (int)parameters[0] * (int)parameters[1]);
 
-			// Implement IMath interface
-			ImplementInterface<IMath>(
+			// Modify Divide to change the second parameter value to 1 every time
+			Methods
+				.Named("Divide")
+				.WithParams<int, int>()
+				.Before((T instance, ref int x, ref int y)
+					=> y = 1);
 
-				// Pi
-				new Property<decimal>("Pi") { Getter = (instance, property) => 3.14159m },
 
-				// Subtract()
-				Method.Create("Subtract", (T instance, decimal x, decimal y) => x - y)
-			);
+			// Modify Divide2 to change the second parameter value to 1 every time
+			Methods
+				.Named("Divide2")
+				.Before((instance, methodName, parameters)
+					=> parameters[1] = 1);
 
-			// Add attributes
-			AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
-			AddAttribute(Attribute<TestAttribute>.Create());
-			AddAttribute(Attribute<TestAttribute>.Create(5));
-			AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
-		}
+			// Replace implementation of Square to correct coding error
+			Methods
+				.Named("Square")
+				.WithParams<int>()
+				.Implement((instance, x) 
+					=> x * x);
 
-		public override void Amend<F>(Field<F> field)
-		{
-			switch (field.Name)
-			{
-				case "holding1":
-					field.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
-					field.AddAttribute(Attribute<TestAttribute>.Create());
-					field.AddAttribute(Attribute<TestAttribute>.Create(5));
-					field.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
-					break;
-			}
-		}
-
-		public override void Amend(Constructor constructor)
-		{
-			if (constructor.ConstructorInfo.GetParameters().Length == 0)
-			{
-				constructor.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
-				constructor.AddAttribute(Attribute<TestAttribute>.Create());
-				constructor.AddAttribute(Attribute<TestAttribute>.Create(5));
-				constructor.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
-			}
-		}
-
-		/// <summary>
-		/// Apply amendments to existing properties to implement the behavior being tested.
-		/// </summary>
-		/// <typeparam name="P"></typeparam>
-		/// <param name="property"></param>
-		public override void Amend<P>(Property<P> property)
-		{
-			switch (property.Name)
-			{
-				// Modify Random1 getter set value of Random1 to GetRandom(1) before returning the underlying property value
-				case "Random1":
-					property.BeforeGet = (instance, propertyName) => instance.Random1 = instance.GetRandom(1);
-					property.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
-					property.AddAttribute(Attribute<TestAttribute>.Create());
-					property.AddAttribute(Attribute<TestAttribute>.Create(5));
-					property.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
-					break;
-
-				// Modify Random2 to calculate a random number based on an assigned seed value
-				case "Random2":
-					property.OfType<int>().AfterGet = (instance, propertyName, result) => instance.GetRandom(result);
-					break;
-
-				// Modify ILog.e property
-				case "Afterthought.UnitTest.Target.ILog.e":
-					property.OfType<decimal>().Getter = (instance, propertyName) => 2.71828m;
-					break;
-
-				// Modify Random5 to be just a simple getter/setter using Result property as the backing store
-				case "Random5":
-					property.OfType<int>().Getter = (instance, propertyName) => instance.Result;
-					property.OfType<int>().Setter = (instance, propertyName, value) => instance.Result = value;
-					break;
-
-				// Update Result to equal the value assigned to CopyToResult
-				case "CopyToResult":
-					property.OfType<int>().BeforeSet = (instance, propertyName, oldValue, value) => { instance.Result = value; return value; };
-					break;
-
-				// Modify Add to add the old value to the value being assigned
-				case "Add":
-					property.OfType<int>().BeforeSet = (instance, propertyName, oldValue, value) => oldValue + value;
-					break;
-
-				// Initialize InitiallyThirteen to 13
-				case "InitiallyThirteen":
-					property.OfType<int>().Initializer = (instance, propertyName) => 13;
-					break;
-
-				// Initialize ExistingLazyRandomName
-				case "ExistingLazyRandomName":
-					property.OfType<string>().LazyInitializer = (instance, propertyName) => "r" + new Random().Next();
-					break;
-			}
-		}
-			
-		/// <summary>
-		/// Apply amendments to existing methods to implement the behavior being tested.
-		/// </summary>
-		/// <param name="method"></param>
-		public override void Amend(Method method)
-		{
-			switch (method.Name)
-			{
-				// Modify Multiply to also set the Result property to the resulting value
-				case "Multiply" :
-					method.Before((T instance, ref int x, ref int y) =>
-					{
-						instance.Result = x * y;
-					});
-
-					method.AddAttribute(Attribute<TestAttribute>.Create(typeof(string)));
-					method.AddAttribute(Attribute<TestAttribute>.Create());
-					method.AddAttribute(Attribute<TestAttribute>.Create(5));
-					method.AddAttribute(Attribute<TestAttribute>.Create(new string[] { "Testing", "Two" }));
-					break;
-
-				// Modify Multiply2 to also set the Result property to the resulting value
-				// Demonstrates use of array syntax
-				case "Multiply2":
-					method.Before((instance, methodName, parameters) =>
-					{
-						instance.Result = (int)parameters[0] * (int)parameters[1];
-					});
-					break;
-
-				// Modify Divide to change the second parameter value to 1 every time
-				case "Divide":
-				    method.Before((T instance, ref int x, ref int y) =>
-				    {
-				        y = 1;
-				    });
-				    break;
-
-				// Modify Divide2 to change the second parameter value to 1 every time
-				case "Divide2":
-					method.Before((instance, methodName, parameters) =>
-					{
-						parameters[1] = 1;
-					});
-					break;
-
-				// Replace implementation of Square to correct coding error
-				case "Square":
-					method.Implement((T instance, int x) => x * x);
-					break;
-
-				// Modify Double to double each of the input values
-				case "Double":
-					method.After((T instance, int[] set) =>
+			// Modify Double to double each of the input values
+			Methods
+				.Named("Double")
+				.WithParams<int[]>()
+				.After((instance, set) =>
 					{
 						for (int i = 0; i < set.Length; i++)
 							set[i] = set[i] * 2;
 					});
-					break;
 
 				// Modify Double to double each of the input values
-				case "Double2":
-					method.After((instance, methodName, parameters) =>
+			Methods
+				.Named("Double2")
+				.After((instance, methodName, parameters) =>
 					{
 						for (int i = 0; i < ((int[])parameters[0]).Length; i++)
 							((int[])parameters[0])[i] = ((int[])parameters[0])[i] * 2;
 					});
-					break;
 
-				// Modify Sum to return the sum of the input values
-				case "Sum":
-					method.After((T instance, int[] set, long result) =>
-					{
-						return set.Sum();
-					});
-					break;
+			// Modify Sum to return the sum of the input values
+			Methods
+				.Named("Sum")
+				.WithParams<int[]>()
+				.After<long>((instance, set, result) 
+					=> set.Sum());
 
+			// Modify Sum2 to return the sum of the input values
+			Methods
+				.Named("Sum2")
+				.After((instance, methodName, parameters, result) 
+					=> (long)((int[])parameters[0]).Sum());
+	
 
-				// Modify Sum to return the sum of the input values
-				case "Sum2":
-					method.After((instance, methodName, parameters, result) =>
-					{
-						return (long)((int[])parameters[0]).Sum();
-					});
-					break;
-
-				// Modify the input values but ignore the return value
-				case "Sum3":
-					method.After((instance, methodName, parameters) =>
+			// Modify the input values but ignore the return value
+			Methods
+				.Named("Sum3")
+				.After((instance, methodName, parameters) =>
 					{
 						for (int i = 1; i < ((int[])parameters[0]).Length; i++)
 							((int[])parameters[0])[i] = ((int[])parameters[0])[i - 1] + ((int[])parameters[0])[i];
 					});
-					break;
 
-				case "SlowSum":
-					method.Context<Stopwatch>()
-						.Before((T instance, string methodName, object[] parameters)
-							=> { var s = new Stopwatch(); s.Start(); return s; })
-						.After((T instance, string methodName, Stopwatch stopwatch, object[] parameters)
-							=> instance.Result = (int)stopwatch.ElapsedMilliseconds);
-					break;
-			}
+			#endregion
+
+			#region Properties
+
+			// public int Count { get; set; }
+			Properties
+				.Add<int>("Count");
+
+			// public int Three { get { return One + Two; } }
+			Properties
+				.Add<int>("Three")
+				.Get((instance, property) => instance.One + instance.Two);
+		
+			// public string LazyRandomName { get { if (lazyRandomName == null) lazyRandomName = "r" + new Random().Next(); return lazyRandomName; } }
+			Properties
+				.Add<string>("LazyRandomName", (instance, property) => "r" + new Random().Next());
+
+			// public int SetResult { set { Result = value; } }
+			Properties
+				.Add<int>("SetResult")
+				.Set((instance, property, value) => instance.Result = value);
+
+			// public int InitiallyTwelve { get; set; } = 12
+			Properties
+				.Add<int>("InitiallyTwelve")
+				.Initialize((instance, property) => 12);
+
+			// Modify Random1 getter set value of Random1 to GetRandom(1) before returning the underlying property value
+			Properties
+				.Named("Random1")
+				.BeforeGet((instance, propertyName) => instance.Random1 = instance.GetRandom(1));
+
+			// Modify Random2 to calculate a random number based on an assigned seed value
+			Properties
+				.Named("Random2")
+			    .OfType<int>()
+				.AfterGet((instance, propertyName, result) => instance.GetRandom(result));
+
+			// Modify ILog.e property
+			Properties
+				.Named("Afterthought.UnitTest.Target.ILog.e")
+				.OfType<decimal>()
+				.Get((instance, propertyName) => 2.71828m);
+
+			// Modify Random5 to be just a simple getter/setter using Result property as the backing store
+			Properties
+				.Named("Random5")
+				.OfType<int>()
+				.Get((instance, propertyName) => instance.Result)
+			    .Set((instance, propertyName, value) => instance.Result = value);
+
+			// Update Result to equal the value assigned to CopyToResult
+			Properties
+				.Named("CopyToResult")
+				.OfType<int>()
+				.BeforeSet((instance, propertyName, oldValue, value) => { instance.Result = value; return value; });
+
+			// Modify Add to add the old value to the value being assigned
+			Properties
+				.Named("Add")
+				.OfType<int>()
+				.BeforeSet((instance, propertyName, oldValue, value) => oldValue + value);
+
+			// Initialize InitiallyThirteen to 13
+			Properties
+				.Named("InitiallyThirteen")
+				.OfType<int>()
+				.Initialize((instance, propertyName) => 13);
+
+			// Initialize ExistingLazyRandomName
+			Properties
+				.Named("ExistingLazyRandomName")
+				.OfType<string>()
+				.LazyInitialize((instance, propertyName) => "r" + new Random().Next());
+
+			#endregion
+
+			#region Interfaces
+
+			// Implement IMath interface
+			Implement<IMath>(
+
+				// Pi
+				Properties.Add<decimal>("Pi").Get((instance, property) => 3.14159m),
+
+				// Subtract(x, y)
+				Methods.Add("Subtract", (T instance, decimal x, decimal y) => x - y)
+			);
+
+			#endregion
+
+			#region Attributes
+
+			// Type Attributes
+			Attributes.Add<TestAttribute, Type>(typeof(string));
+			Attributes.Add<TestAttribute>();
+			Attributes.Add<TestAttribute, int>(5);
+			Attributes.Add<TestAttribute, string[]>(new string[] { "Testing", "Two" });
+
+			// Field Attributes
+			Fields
+				.Named("holding1")
+				.AddAttribute<TestAttribute, Type>(typeof(string))
+				.AddAttribute<TestAttribute>()
+				.AddAttribute<TestAttribute, int>(5)
+				.AddAttribute<TestAttribute, string[]>(new string[] { "Testing", "Two" });
+
+			// Constructor Attributes
+			Constructors
+				.WithParams()
+				.AddAttribute<TestAttribute, Type>(typeof(string))
+				.AddAttribute<TestAttribute>()
+				.AddAttribute<TestAttribute, int>(5)
+				.AddAttribute<TestAttribute, string[]>(new string[] { "Testing", "Two" });
+
+			// Property Attributes
+			Properties
+				.Named("Random1")
+				.AddAttribute<TestAttribute, Type>(typeof(string))
+				.AddAttribute<TestAttribute>()
+				.AddAttribute<TestAttribute, int>(5)
+				.AddAttribute<TestAttribute, string[]>(new string[] { "Testing", "Two" });
+
+			// Method Attributes
+			Methods
+				.Named("Multiply")
+				.AddAttribute<TestAttribute, Type>(typeof(string))
+				.AddAttribute<TestAttribute>()
+				.AddAttribute<TestAttribute, int>(5)
+				.AddAttribute<TestAttribute, string[]>(new string[] { "Testing", "Two" });
+
+			// EventAttributes
+			Events
+				.Named("Calculate")
+				.AddAttribute<TestAttribute, Type>(typeof(string))
+				.AddAttribute<TestAttribute>()
+				.AddAttribute<TestAttribute, int>(5)
+				.AddAttribute<TestAttribute, string[]>(new string[] { "Testing", "Two" });
+
+			#endregion
 		}
-	}
-
-	public class LogTracker
-	{
-		public DateTime Split { get; set; }
 	}
 
 	public class TestAttribute : System.Attribute

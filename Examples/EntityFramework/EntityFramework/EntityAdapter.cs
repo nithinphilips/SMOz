@@ -44,11 +44,10 @@ namespace EntityFramework
 		/// <param name="instance"></param>
 		/// <param name="property"></param>
 		/// <returns></returns>
-		public static TRef GetReference<TRef>(IEntityType instance, string property)
-			where TRef : class
+		public static object GetReference(IEntityType instance, string property)
 		{
 			// Return the property reference
-			return ((EntityReference<TRef>)getRelatedEnd.Invoke(instance.RelationshipManager, new object[] { property })).Value;
+			return ((EntityReference<IEntityType>)getRelatedEnd.Invoke(instance.RelationshipManager, new object[] { property })).Value;
 		}
 
 		/// <summary>
@@ -58,7 +57,7 @@ namespace EntityFramework
 		/// <param name="instance"></param>
 		/// <param name="property"></param>
 		/// <returns></returns>
-		public static TList GetList<TList>(IEntityType instance, string property)
+		public static object GetList(IEntityType instance, string property)
 		{
 			// Get the property reference
 			var reference = (IRelatedEnd)getRelatedEnd.Invoke(instance.RelationshipManager, new object[] { property });
@@ -68,38 +67,35 @@ namespace EntityFramework
 				reference.Load();
 
 			// Return the reference
-			return (TList)reference;
+			return reference;
 		}
 
 		/// <summary>
 		/// Sets a navigation property reference for the specified property.
 		/// </summary>
-		/// <typeparam name="TRef"></typeparam>
 		/// <param name="instance"></param>
 		/// <param name="property"></param>
 		/// <param name="value"></param>
-		public static void SetReference<TRef>(IEntityType instance, string property, TRef value)
-			where TRef : class
+		public static void SetReference(IEntityType instance, string property, object value)
 		{
 			// Ignore reference setting before the instance is initialized
 			if (!instance.IsInitialized)
 				return;
 
 			// Get the entity reference
-			var reference = (EntityReference<TRef>)getRelatedEnd.Invoke(instance.RelationshipManager, new object[] { property });
+			var reference = (EntityReference<IEntityType>)getRelatedEnd.Invoke(instance.RelationshipManager, new object[] { property });
 
 			// Track the current value
 			var oldValue = reference.Value;
 
 			// Update the reference if it is being assigned a different value
 			if ((oldValue == null ^ value == null) || (oldValue != null && !oldValue.Equals(value)))
-				reference.Value = value;
+				reference.Value = (IEntityType)value;
 		}
 
 		/// <summary>
 		/// Raises member changing events before a value property is set.
 		/// </summary>
-		/// <typeparam name="TProperty"></typeparam>
 		/// <param name="instance"></param>
 		/// <param name="property"></param>
 		/// <param name="oldValue"></param>
@@ -117,7 +113,6 @@ namespace EntityFramework
 		/// <summary>
 		/// Raise member changed events and property change notifications after a property is set.
 		/// </summary>
-		/// <typeparam name="TProperty"></typeparam>
 		/// <param name="instance"></param>
 		/// <param name="property"></param>
 		/// <param name="oldValue"></param>

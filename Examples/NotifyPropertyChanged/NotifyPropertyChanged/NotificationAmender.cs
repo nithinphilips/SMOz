@@ -28,25 +28,24 @@ namespace NotifyPropertyChanged
 	/// <typeparam name="T"></typeparam>
 	public class NotificationAmendment<T> : Afterthought.Amendment<T, INotifyPropertyChangedAmendment>
 	{
-		public override void Amend()
+		public NotificationAmendment()
 		{
-			// Create the PropertyChanged event
-			var propertyChanged = new Event<PropertyChangedEventHandler>("PropertyChanged");
+			var propertyChanged = Events.Add<PropertyChangedEventHandler>("PropertyChanged");
 
 			// Implement INotifyPropertyChanged, specifying the PropertyChanged event
-			ImplementInterface<INotifyPropertyChanged>(propertyChanged);
+			Implement<INotifyPropertyChanged>(
+				propertyChanged
+			);
 
 			// Implement INotifyPropertyChangedAmendment, specifying a method that raises the PropertyChanged event
-			ImplementInterface<INotifyPropertyChangedAmendment>(
-				propertyChanged.RaisedBy("OnPropertyChanged")
+			Implement<INotifyPropertyChangedAmendment>(
+				Methods.Raise(propertyChanged, "OnPropertyChanged")
 			);
-		}
 
-		public override void Amend<TProperty>(Property<TProperty> property)
-		{
-			// Raise property change notifications
-			if (property.PropertyInfo.CanRead && property.PropertyInfo.CanWrite && property.PropertyInfo.GetSetMethod().IsPublic)
-				property.AfterSet = NotificationAmender<T>.OnPropertyChanged<TProperty>;
+			// Raise Property Changed
+			Properties
+				.Where(p => p.PropertyInfo.CanRead && p.PropertyInfo.CanWrite && p.PropertyInfo.GetSetMethod().IsPublic)
+				.AfterSet(NotificationAmender<T>.OnPropertyChanged);
 		}
 	}
 }

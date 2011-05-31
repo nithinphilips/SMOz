@@ -33,6 +33,10 @@ namespace Afterthought
 
 		MethodInfo After { get; }
 
+		MethodInfo Catch { get; }
+
+		MethodInfo Finally { get; }
+
 		IEventAmendment Raises { get; }
 	}
 }

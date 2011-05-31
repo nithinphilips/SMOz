@@ -12,25 +12,6 @@ namespace Afterthought.UnitTest
 	public class AttributeTests
 	{
 		/// <summary>
-		/// Tests creating an invalid
-		/// </summary>
-		[TestMethod]
-		public void CreateAttribute()
-		{
-			Exception ex = null;
-			try
-			{
-				var attr = Amendment<object, object>.Attribute<DefaultValueAttribute>.Create(new object());
-			}
-			catch (Exception creationEx)
-			{
-				ex = creationEx;
-			}
-
-			Assert.IsNotNull(ex, "Attribute.Create allowed creation of invalid attribute");
-		}
-
-		/// <summary>
 		/// Tests adding attributes to a type
 		/// </summary>
 		[TestMethod]

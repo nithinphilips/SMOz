@@ -307,8 +307,8 @@ namespace Afterthought.Amender
 							.Select(p => p.ParameterType).ToArray();
 						var evt = Afterthought.Amendment.Event.Implement(typeAmendment.Type, eventInfo);
 						AddEvent(type, evt);
-						if (interfaceType.GetMethod("On" + eventInfo.Name, args) != null)
-							AddMethod(type, evt.RaisedBy("On" + eventInfo.Name));
+						//if (interfaceType.GetMethod("On" + eventInfo.Name, args) != null)
+						//	AddMethod(type, evt.RaisedBy("On" + eventInfo.Name));
 					}
 				}
 
@@ -1367,6 +1367,10 @@ namespace Afterthought.Amender
 				}
 			}
 
+			// Optionally start try catch finally block
+			if (methodAmendment.Catch != null || methodAmendment.Finally != null)
+				il.BeginTryBody();
+
 			// Implementation
 			Action implement = () =>
 			{
@@ -1465,6 +1469,17 @@ namespace Afterthought.Amender
 			// Or emit a return for new/overriden methods
 			if (methodAmendment.Implementation != null || methodAmendment.Overrides != null || methodAmendment.Raises != null)
 				il.Emit(OperationCode.Ret);
+
+			// Emit the remaining operations
+			il.EmitOperations(il.Operations.Count);
+
+			// Finally
+			if (methodAmendment.Finally != null)
+			{
+				il.BeginFinallyBlock();
+
+				CallMethodDelegate(methodBody, methodAmendment.Finally, false, il, null, MethodDelegateType.Finally, context);
+			}
 
 			// Update the method body
 			il.UpdateMethodBody(6);
@@ -1862,7 +1877,7 @@ namespace Afterthought.Amender
 			{
 				// Optionally load the method context
 				if (context != null)
-					il.Emit(OperationCode.Ldfld, context);
+					il.Emit(OperationCode.Ldloc, context);
 
 				// Determine whether to load the argument value or argument references
 				var ldArg = methodDef.ParameterCount > 0 && targetMethodDef.Parameters.Last().IsByReference ? OperationCode.Ldarga_S : OperationCode.Ldarg_S;
@@ -2198,19 +2213,21 @@ namespace Afterthought.Amender
 			// Perform additional checks for explicit delegates
 			if (delegateType.HasFlag(MethodDelegateType.ExplicitSyntax))
 			{
+				int contextParam = delegateType.HasFlag(MethodDelegateType.WithContext) && !delegateType.HasFlag(MethodDelegateType.Before) ? 1 : 0;
+
 				// Return false if the target method does not have the correct number of parameters
 				// It should always have one more than the method being amended to support the instance parameter
 				// and will have one more parameter if the delegate has a return value
 				if (methodDef.ParameterCount != 
 					targetMethodDef.ParameterCount - 
 					1 - // Instance
-					(delegateType.HasFlag(MethodDelegateType.WithContext) && delegateType.HasFlag(MethodDelegateType.After) ? 1 : 0) - // Context
+					contextParam - // Context
 					(delegateType.HasFlag(MethodDelegateType.HasResultParameter) ? 1 : 0)) // Result
 					throw new ArgumentException("The specified explicit method delegate does not have the correct number of parameters.");
 
 				// Verify that the parameter types are compatible
 				var paramDefs = targetMethodDef.Parameters.ToArray();
-				if (!methodDef.Parameters.All(p => TypeHelper.TypesAreEquivalent(p.Type, paramDefs[p.Index + 1].Type)))
+				if (!methodDef.Parameters.Skip(contextParam).All(p => TypeHelper.TypesAreEquivalent(p.Type, paramDefs[p.Index + 1].Type)))
 					throw new ArgumentException("The specified explicit method delegate does not have the correct parameter types.");
 
 				// Verify that the result parameter is compatible
@@ -2218,7 +2235,7 @@ namespace Afterthought.Amender
 					throw new ArgumentException("The specified result parameter is not valid.");
 
 				// Verify that the return type is compatible
-				if (delegateType.HasFlag(MethodDelegateType.Function) && !TypeHelper.TypesAreEquivalent(methodDef.Type, targetMethodDef.Type))
+				if (delegateType.HasFlag(MethodDelegateType.Function) && !delegateType.HasFlag(MethodDelegateType.Before) && !TypeHelper.TypesAreEquivalent(methodDef.Type, targetMethodDef.Type))
 					throw new ArgumentException("The specified return type is not valid.");
 			}
 

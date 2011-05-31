@@ -21,7 +21,7 @@ namespace Afterthought
 	/// implementation to create to describe the ammendments.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class)]
-	public class AmendmentAttribute : Attribute, IAmendmentAttribute
+	public class AmendmentAttribute : System.Attribute, IAmendmentAttribute
 	{
 		Type amendmentType;
 
@@ -58,8 +58,6 @@ namespace Afterthought
 						type.GetCustomAttributes(true).OfType<IAmendmentAttribute>().SelectMany(attr => attr.GetAmendments(type))
 						.Concat(assemblyAmenders.SelectMany(a => a.GetAmendments(type))))
 					{
-						if (amendment is Amendment)
-							((Amendment)amendment).Initialize();
 						yield return amendment;
 					}
 				}

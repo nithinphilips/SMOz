@@ -104,7 +104,7 @@ namespace Afterthought
 			{
 				Type amendmentType = typeof(Amendment<,>).MakeGenericType(instanceType, instanceType);
 				Type eventAmendmentType = amendmentType.GetNestedType("Event`1").MakeGenericType(instanceType, instanceType, eventType);
-				return (Event)eventAmendmentType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null).Invoke(new object[] { name });
+				return (Event)eventAmendmentType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(string) }, null).Invoke(new object[] { name });
 			}
 
 			/// <summary>
@@ -123,13 +123,6 @@ namespace Afterthought
 				evt.Implements = interfaceEvent;
 				return evt;
 			}
-
-			/// <summary>
-			/// Creates a new method that will raise this event.
-			/// </summary>
-			/// <param name="name"></param>
-			/// <returns></returns>
-			public abstract Method RaisedBy(string name);
 		}
 	}
 
@@ -141,21 +134,13 @@ namespace Afterthought
 	{
 		public class Event<TEvent> : Event
 		{
-			public Event(string name)
+			internal Event(string name)
 				: base(name)
 			{ }
 
 			internal Event(EventInfo prop)
 				: base(prop)
 			{ }
-
-			protected virtual Event UnderlyingEvent
-			{
-				get
-				{
-					return this;
-				}
-			}
 
 			public override Type Type
 			{
@@ -165,65 +150,55 @@ namespace Afterthought
 				}
 			}
 
-			public EventAdder Adder { set { UnderlyingEvent.AdderMethod = value.Method; } }
-
-			public EventRemover Remover { set { UnderlyingEvent.RemoverMethod = value.Method; } }
-
-			public EventAdder BeforeAdd { set { UnderlyingEvent.BeforeAddMethod = value.Method; } }
-
-			public EventAdder AfterAdd { set { UnderlyingEvent.AfterAddMethod = value.Method; } }
-
-			public EventRemover BeforeRemove { set { UnderlyingEvent.BeforeRemoveMethod = value.Method; } }
-
-			public EventRemover AfterRemove { set { UnderlyingEvent.AfterRemoveMethod = value.Method; } }
+			#region Delegates
 
 			public delegate void EventAdder(TAmended instance, string eventName, TEvent value);
 
 			public delegate void EventRemover(TAmended instance, string eventName, TEvent value);
 
-			public Event<TActual> OfType<TActual>()
+			#endregion
+
+			#region Methods
+
+			public Event<TEvent> Add(EventAdder adder)
 			{
-				return new Event<TEvent, TActual>(this);
+				base.AdderMethod = adder.Method;
+				return this;
 			}
 
-			/// <summary>
-			/// Creates a new method that will raise this event.
-			/// </summary>
-			/// <param name="name"></param>
-			/// <returns></returns>
-			public override Amendment.Method RaisedBy(string name)
+			public Event<TEvent> Remove(EventRemover remover)
 			{
-				return Method.Raise(name, this);
+				base.RemoverMethod = remover.Method;
+				return this;
 			}
+
+			public Event<TEvent> BeforeAdd(EventAdder beforeAdd)
+			{
+				base.BeforeAddMethod = beforeAdd.Method;
+				return this;
+			}
+
+			public Event<TEvent> AfterAdd(EventAdder afterAdd)
+			{
+				base.AfterAddMethod = afterAdd.Method;
+				return this;
+			}
+
+			public Event<TEvent> BeforeRemove(EventRemover beforeRemove)
+			{
+				base.BeforeRemoveMethod = beforeRemove.Method;
+				return this;
+			}
+
+			public Event<TEvent> AfterRemove(EventRemover afterRemove)
+			{
+				base.AfterRemoveMethod = afterRemove.Method;
+				return this;
+			}
+
+			#endregion
 		}
 	}
 
 	#endregion
-
-	#region Amendment<TType, TAmended>.Event<TEvent, TAmended>
-
-	public partial class Amendment<TType, TAmended> : Amendment
-	{
-		internal class Event<TEvent, TAmended> : Event<TAmended>
-		{
-			Event<TEvent> underlyingEvent;
-
-			internal Event(Event<TEvent> underlyingEvent)
-				: base(underlyingEvent.EventInfo)
-			{
-				this.underlyingEvent = underlyingEvent;
-			}
-
-			protected override Event UnderlyingEvent
-			{
-				get
-				{
-					return underlyingEvent;
-				}
-			}
-		}
-	}
-
-	#endregion
-
 }

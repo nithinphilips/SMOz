@@ -198,5 +198,7 @@ namespace Afterthought.UnitTest.Target
 			Thread.Sleep(110);
 			return values.Sum();
 		}
+
+		public event EventHandler Calculate;
 	}
 }

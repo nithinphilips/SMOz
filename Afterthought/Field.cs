@@ -23,7 +23,7 @@ namespace Afterthought
 	/// Abstract base class for concrete <see cref="Amendment<TType, TAmended>"/> which supports amending code into 
 	/// a specific <see cref="Type"/> during compilation.
 	/// </summary>
-	public abstract partial class Amendment
+	public abstract partial class Amendment 
 	{
 		public abstract class Field : Member, IFieldAmendment
 		{
@@ -67,7 +67,7 @@ namespace Afterthought
 
 	public partial class Amendment<TType, TAmended> : Amendment
 	{
-		public class Field<F> : Field
+		public class Field<TField> : Field
 		{
 			public Field(string name)
 				: base(name)
@@ -81,16 +81,16 @@ namespace Afterthought
 			{
 				get
 				{
-					return typeof(F);
+					return typeof(TField);
 				}
 			}
 
-			public Func<F> Initializer
+			public delegate TField FieldInitializer(TAmended instance, string fieldName);
+
+			public Field<TField> Initialize(FieldInitializer initializer)
 			{
-				set
-				{
-					InitializerMethod = value.Method;
-				}
+				base.InitializerMethod = initializer.Method;
+				return this;
 			}
 		}
 	}

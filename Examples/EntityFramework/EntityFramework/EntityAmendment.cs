@@ -17,64 +17,59 @@ namespace EntityFramework
 	{
 		HashSet<Type> entityTypes;
 
-		public EntityAmendment(HashSet<Type> entityTypes)
-		{
-			this.entityTypes = entityTypes;
-		}
-
 		/// <summary>
 		/// Amend the type to implement <see cref="IGraphEntity"/> and related interfaces.
 		/// </summary>
-		public override void Amend()
+		public EntityAmendment(HashSet<Type> entityTypes)
 		{
+			this.entityTypes = entityTypes;
+
 			// IEntityType
-			ImplementInterface<IEntityType>();
+			Implement<IEntityType>();
 
 			// IEntityWithKey
-			ImplementInterface<IEntityWithKey>();
+			Implement<IEntityWithKey>();
 
 			// IEntityWithRelationships
-			ImplementInterface<IEntityWithRelationships>(
-				new Property<RelationshipManager>("RelationshipManager") { LazyInitializer = EntityAdapter.InitializeRelationshipManager }
+			Implement<IEntityWithRelationships>(
+				Properties.Add<RelationshipManager>("RelationshipManager",  EntityAdapter.InitializeRelationshipManager)
 			);
 
 			// IEntityChangeTracker
-			ImplementInterface<IEntityWithChangeTracker>(
-				Method.Create<IEntityChangeTracker>("SetChangeTracker", EntityAdapter.SetChangeTracker)
+			Implement<IEntityWithChangeTracker>(
+				Methods.Add<IEntityChangeTracker>("SetChangeTracker", EntityAdapter.SetChangeTracker)
 			);
-		}
 
-		/// <summary>
-		/// Amend public properties to support the entity framework.
-		/// </summary>
-		/// <typeparam name="TProperty"></typeparam>
-		/// <param name="property"></param>
-		public override void Amend<TProperty>(Property<TProperty> property)
-		{
-			// Only amend public writable properties
-			if (property.PropertyInfo.GetGetMethod() == null || property.PropertyInfo.GetSetMethod() == null || !property.PropertyInfo.GetGetMethod().IsPublic)
-				return;
+			// Entity Properties
+			Properties
+				.Where(p =>
+					// Public Read/Write
+					p.PropertyInfo.CanRead && p.PropertyInfo.CanWrite && p.PropertyInfo.GetGetMethod().IsPublic &&
+					// Reference
+					entityTypes.Contains(p.Type))
+				.Get(EntityAdapter.GetReference)
+				.Set(EntityAdapter.SetReference);
 
-			// Amend entity properties
-			if (entityTypes.Contains(typeof(TProperty)))
-			{
-				property.OfType<IEntityType>().Getter = EntityAdapter.GetReference<IEntityType>;
-				property.OfType<IEntityType>().Setter = EntityAdapter.SetReference<IEntityType>;
-			}
+			// List Properties
+			Properties
+				.Where(p =>
+					// Public Read/Write
+					p.PropertyInfo.CanRead && p.PropertyInfo.CanWrite && p.PropertyInfo.GetGetMethod().IsPublic &&
+						// List
+					(p.Type.IsGenericType && p.Type.GetGenericTypeDefinition() == typeof(ICollection<>) && entityTypes.Contains(p.Type.GetGenericArguments()[0])))
+				.Get(EntityAdapter.GetList);
 
-			// Amend entity list properties
-			else if ((typeof(TProperty).IsGenericType && typeof(TProperty).GetGenericTypeDefinition() == typeof(ICollection<>) && entityTypes.Contains(typeof(TProperty).GetGenericArguments()[0])))
-			{
-				property.Getter = EntityAdapter.GetList<TProperty>;
-				property.OfType<ICollection<IEntityType>>().Setter = EntityAdapter.SetReference<ICollection<IEntityType>>;
-			}
-
-			// Amend value properties
-			else
-			{
-				property.BeforeSet = EntityAdapter.BeforeSetValue<TProperty>;
-				property.AfterSet = EntityAdapter.AfterSetValue<TProperty>;
-			}
+			// Value Properties
+			Properties
+				.Where(p =>
+					// Public Read/Write
+					p.PropertyInfo.CanRead && p.PropertyInfo.CanWrite && p.PropertyInfo.GetGetMethod().IsPublic &&
+						// Not Reference
+					!entityTypes.Contains(p.Type) &&
+						// Not List
+					!(p.Type.IsGenericType && p.Type.GetGenericTypeDefinition() == typeof(ICollection<>) && entityTypes.Contains(p.Type.GetGenericArguments()[0])))
+				.BeforeSet(EntityAdapter.BeforeSetValue)
+				.AfterSet(EntityAdapter.AfterSetValue);
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace Afterthought
 			{
 				get
 				{
-					return base.IsAmended || LazyInitializerMethod != null || InitializerMethod != null || GetterMethod != null || SetterMethod != null ||
+					return base.IsAmended || PropertyInfo == null || LazyInitializerMethod != null || InitializerMethod != null || GetterMethod != null || SetterMethod != null ||
 						BeforeGetMethod != null || AfterGetMethod != null || BeforeSetMethod != null || AfterSetMethod != null;
 				}
 			}
@@ -112,7 +112,7 @@ namespace Afterthought
 			{
 				Type amendmentType = typeof(Amendment<,>).MakeGenericType(instanceType, instanceType);
 				Type propertyAmendmentType = amendmentType.GetNestedType("Property`1").MakeGenericType(instanceType, instanceType, propertyType);
-				return (Property)propertyAmendmentType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string) }, null).Invoke(new object[] { name });
+				return (Property)propertyAmendmentType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(string) }, null).Invoke(new object[] { name });
 			}
 
 			/// <summary>
@@ -142,21 +142,13 @@ namespace Afterthought
 	{
 		public class Property<TProperty> : Property
 		{
-			public Property(string name)
+			internal Property(string name)
 				: base(name)
 			{ }
 
 			internal Property(PropertyInfo prop)
 				: base(prop)
 			{ }
-
-			protected virtual Property UnderlyingProperty
-			{
-				get
-				{
-					return this;
-				}
-			}
 
 			public override Type Type
 			{
@@ -166,21 +158,7 @@ namespace Afterthought
 				}
 			}
 
-			public PropertyGetter Getter { set { UnderlyingProperty.GetterMethod = value.Method; } }
-
-			public PropertySetter Setter { set { UnderlyingProperty.SetterMethod = value.Method; } }
-
-			public PropertyInitializer Initializer { set { UnderlyingProperty.InitializerMethod = value.Method; } }
-
-			public PropertyInitializer LazyInitializer { set { UnderlyingProperty.LazyInitializerMethod = value.Method; } }
-
-			public BeforePropertyGet BeforeGet { set { UnderlyingProperty.BeforeGetMethod = value.Method; } }
-
-			public AfterPropertyGet AfterGet { set { UnderlyingProperty.AfterGetMethod = value.Method; } }
-
-			public BeforePropertySet BeforeSet { set { UnderlyingProperty.BeforeSetMethod = value.Method; } }
-
-			public AfterPropertySet AfterSet { set { UnderlyingProperty.AfterSetMethod = value.Method; } }
+			#region Delegates
 
 			public delegate TProperty PropertyInitializer(TAmended instance, string propertyName);
 
@@ -196,39 +174,61 @@ namespace Afterthought
 
 			public delegate void AfterPropertySet(TAmended instance, string propertyName, TProperty oldValue, TProperty value, TProperty newValue);
 
-			public Property<TActual> OfType<TActual>()
+			#endregion
+
+			#region Methods
+
+			public Property<TProperty> Get(PropertyGetter getter)
 			{
-				return new Property<TProperty, TActual>(this);
+				base.GetterMethod = getter.Method;
+				return this;
 			}
+
+			public Property<TProperty> Set(PropertySetter setter)
+			{
+				base.SetterMethod = setter.Method;
+				return this;
+			}
+
+			public Property<TProperty> Initialize(PropertyInitializer initializer)
+			{
+				base.InitializerMethod = initializer.Method;
+				return this;
+			}
+
+			public Property<TProperty> LazyInitialize(PropertyInitializer lazyInitializer)
+			{
+				base.LazyInitializerMethod = lazyInitializer.Method;
+				return this;
+			}
+
+			public Property<TProperty> BeforeGet(BeforePropertyGet beforeGet)
+			{
+				base.BeforeGetMethod = beforeGet.Method;
+				return this;
+			}
+
+			public Property<TProperty> AfterGet(AfterPropertyGet afterGet)
+			{
+				base.AfterGetMethod = afterGet.Method;
+				return this;
+			}
+
+			public Property<TProperty> BeforeSet(BeforePropertySet beforeSet)
+			{
+				base.BeforeSetMethod = beforeSet.Method;
+				return this;
+			}
+
+			public Property<TProperty> AfterSet(AfterPropertySet afterSet)
+			{
+				base.AfterSetMethod = afterSet.Method;
+				return this;
+			}
+
+			#endregion
 		}
 	}
 
 	#endregion
-
-	#region Amendment<TType, TAmended>.Property<TProperty, TAmended>
-
-	public partial class Amendment<TType, TAmended> : Amendment
-	{
-		internal class Property<TProperty, TAmended> : Property<TAmended>
-		{
-			Property<TProperty> property;
-
-			internal Property(Property<TProperty> property)
-				: base(property.PropertyInfo)
-			{
-				this.property = property;
-			}
-
-			protected override Property UnderlyingProperty
-			{
-				get
-				{
-					return property;
-				}
-			}
-		}
-	}
-
-	#endregion
-
 }

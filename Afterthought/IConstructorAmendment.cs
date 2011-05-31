@@ -26,5 +26,9 @@ namespace Afterthought
 		MethodInfo Before { get; }
 
 		MethodInfo After { get; }
+
+		MethodInfo Catch { get; }
+
+		MethodInfo Finally { get; }
 	}
 }
