@@ -54,7 +54,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance);
@@ -201,7 +201,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context);
@@ -457,7 +457,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1);
@@ -604,7 +604,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1);
@@ -815,9 +815,9 @@ namespace Afterthought
 				return Add(new Method<P1>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1>(string name)
+			public Method<P1> Override<P1>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1)) });
+				return Add(new Method<P1>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1)) });
 			}
 		}
 	}
@@ -860,7 +860,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2);
@@ -1007,7 +1007,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2);
@@ -1218,9 +1218,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2>(string name)
+			public Method<P1, P2> Override<P1, P2>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2)) });
+				return Add(new Method<P1, P2>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2)) });
 			}
 		}
 	}
@@ -1263,7 +1263,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3);
@@ -1410,7 +1410,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3);
@@ -1621,9 +1621,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3>(string name)
+			public Method<P1, P2, P3> Override<P1, P2, P3>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3)) });
+				return Add(new Method<P1, P2, P3>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3)) });
 			}
 		}
 	}
@@ -1666,7 +1666,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4);
@@ -1813,7 +1813,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4);
@@ -2024,9 +2024,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4>(string name)
+			public Method<P1, P2, P3, P4> Override<P1, P2, P3, P4>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4)) });
+				return Add(new Method<P1, P2, P3, P4>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4)) });
 			}
 		}
 	}
@@ -2069,7 +2069,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
@@ -2216,7 +2216,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5);
@@ -2427,9 +2427,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4, P5>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4, P5>(string name)
+			public Method<P1, P2, P3, P4, P5> Override<P1, P2, P3, P4, P5>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5)) });
+				return Add(new Method<P1, P2, P3, P4, P5>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5)) });
 			}
 		}
 	}
@@ -2472,7 +2472,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
@@ -2619,7 +2619,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6);
@@ -2830,9 +2830,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4, P5, P6>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4, P5, P6>(string name)
+			public Method<P1, P2, P3, P4, P5, P6> Override<P1, P2, P3, P4, P5, P6>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6)) });
+				return Add(new Method<P1, P2, P3, P4, P5, P6>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6)) });
 			}
 		}
 	}
@@ -2875,7 +2875,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
@@ -3022,7 +3022,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7);
@@ -3233,9 +3233,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4, P5, P6, P7>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4, P5, P6, P7>(string name)
+			public Method<P1, P2, P3, P4, P5, P6, P7> Override<P1, P2, P3, P4, P5, P6, P7>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7)) });
+				return Add(new Method<P1, P2, P3, P4, P5, P6, P7>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7)) });
 			}
 		}
 	}
@@ -3278,7 +3278,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
@@ -3425,7 +3425,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8);
@@ -3636,9 +3636,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4, P5, P6, P7, P8>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4, P5, P6, P7, P8>(string name)
+			public Method<P1, P2, P3, P4, P5, P6, P7, P8> Override<P1, P2, P3, P4, P5, P6, P7, P8>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8)) });
+				return Add(new Method<P1, P2, P3, P4, P5, P6, P7, P8>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8)) });
 			}
 		}
 	}
@@ -3681,7 +3681,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9);
@@ -3828,7 +3828,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9);
@@ -4039,9 +4039,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4, P5, P6, P7, P8, P9>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4, P5, P6, P7, P8, P9>(string name)
+			public Method<P1, P2, P3, P4, P5, P6, P7, P8, P9> Override<P1, P2, P3, P4, P5, P6, P7, P8, P9>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8), typeof(P9)) });
+				return Add(new Method<P1, P2, P3, P4, P5, P6, P7, P8, P9>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8), typeof(P9)) });
 			}
 		}
 	}
@@ -4084,7 +4084,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10);
@@ -4231,7 +4231,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context, P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6, P7 param7, P8 param8, P9 param9, P10 param10);
@@ -4442,9 +4442,9 @@ namespace Afterthought
 				return Add(new Method<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(string name)
+			public Method<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> Override<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8), typeof(P9), typeof(P10)) });
+				return Add(new Method<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10>(name) { OverrideMethod = GetOverrideMethod(name, typeof(P1), typeof(P2), typeof(P3), typeof(P4), typeof(P5), typeof(P6), typeof(P7), typeof(P8), typeof(P9), typeof(P10)) });
 			}
 		}
 	}

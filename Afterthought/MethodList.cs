@@ -61,9 +61,9 @@ namespace Afterthought
 			
 			public delegate object AfterMethodFunc(TAmended instance, string method, object[] parameters, object result);
 			
-			public delegate void CatchMethodAction(TAmended instance, string method, object[] parameters);
-			
-			public delegate object CatchMethodFunc(TAmended instance, string method, object[] parameters, object result);
+			public delegate void CatchMethodAction<TException>(TAmended instance, string method, TException exception, object[] parameters);
+
+			public delegate object CatchMethodFunc<TException>(TAmended instance, string method, TException exception, object[] parameters);
 
 			#endregion
 
@@ -111,14 +111,14 @@ namespace Afterthought
 				return this;
 			}
 
-			public MethodEnumeration Catch(CatchMethodAction @catch)
+			public MethodEnumeration Catch<TException>(CatchMethodAction<TException> @catch)
 			{
 				foreach (Amendment.Method method in this)
 					method.CatchMethod = @catch.Method;
 				return this;
 			}
 
-			public MethodEnumeration Catch(CatchMethodFunc @catch)
+			public MethodEnumeration Catch<TException>(CatchMethodFunc<TException> @catch)
 			{
 				foreach (Amendment.Method method in this)
 					method.CatchMethod = @catch.Method;

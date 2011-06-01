@@ -37,7 +37,8 @@ namespace Afterthought.UnitTest.Target
 				.WithParams<int[]>()
 				.Before((T instance, ref int[] values)
 					=> { var s = new Stopwatch(); s.Start(); return s; })
-				.After((instance, stopwatch, values)
+				.Catch<Exception>((instance, exception, stopwatch, values) => values.Sum())
+				.Finally((instance, stopwatch, values)
 					=> instance.Result = (int)stopwatch.ElapsedMilliseconds);
 
 			// Modify Multiply to also set the Result property to the resulting value
@@ -256,6 +257,24 @@ namespace Afterthought.UnitTest.Target
 				.AddAttribute<TestAttribute, string[]>(new string[] { "Testing", "Two" });
 
 			#endregion
+		}
+
+		internal static Stopwatch BeforeSlowSum2(T instance, ref int[] values)
+		{
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
+			return stopwatch;
+		}
+
+		internal static int CatchSlowSum2(T instance, Stopwatch stopwatch, int[] values)
+		{
+			instance.Result = (int)stopwatch.ElapsedMilliseconds;
+			return instance.Result;
+		}
+
+		internal static void FinallySlowSum2(T instance, Stopwatch stopwatch, int[] values)
+		{
+			instance.Result = (int)stopwatch.ElapsedMilliseconds;
 		}
 	}
 

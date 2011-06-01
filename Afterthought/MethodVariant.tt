@@ -80,7 +80,7 @@ namespace Afterthought
 			public delegate void CatchMethod<TException>(TAmended instance, TException exception<#= args #>)
 				where TException : Exception;
 
-			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception<#= args #>, TResult result)
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception<#= args #>)
 				where TException : Exception;
 
 			public delegate void FinallyMethod(TAmended instance<#= args #>);
@@ -227,7 +227,7 @@ namespace Afterthought
 				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception<#= args #>)
 					where TException : Exception;
 
-				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception<#= args #>, TResult result)
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception<#= args #>)
 					where TException : Exception;
 
 				public new delegate void FinallyMethod(TAmended instance, TContext context<#= args #>);
@@ -438,9 +438,9 @@ namespace Afterthought
 				return Add(new Method<#= typeParams #>(name) { ImplementationMethod = implementation.Method });
 			}
 
-			public Method Override<#= typeParams #>(string name)
+			public Method<#= typeParams #> Override<#= typeParams #>(string name)
 			{
-				return Add(new Method(name) { OverrideMethod = GetOverrideMethod(name<#= typeSet #>) });
+				return Add(new Method<#= typeParams #>(name) { OverrideMethod = GetOverrideMethod(name<#= typeSet #>) });
 			}
 		}
 	}

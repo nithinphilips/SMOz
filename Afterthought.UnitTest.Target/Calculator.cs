@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 
 namespace Afterthought.UnitTest.Target
 {
@@ -198,6 +199,27 @@ namespace Afterthought.UnitTest.Target
 			Thread.Sleep(110);
 			return values.Sum();
 		}
+
+		public int SlowSum2(int[] values)
+		{
+			Stopwatch stopwatch = TestAmendment<Calculator>.BeforeSlowSum2(this, ref values);
+			try
+			{
+				Thread.Sleep(110);
+				return values.Sum();
+			}
+			catch (ApplicationException e)
+			{
+				return TestAmendment<Calculator>.CatchSlowSum2(this, stopwatch, values);
+			}
+			finally
+			{
+				TestAmendment<Calculator>.FinallySlowSum2(this, stopwatch, values);
+			}
+		}
+
+ 
+
 
 		public event EventHandler Calculate;
 	}
