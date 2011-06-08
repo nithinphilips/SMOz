@@ -34,7 +34,7 @@ namespace Microsoft.Cci {
     /// <summary>
     /// A reference to the type for which this is an alias.
     /// </summary>
-    ITypeReference AliasedType { get; }
+    INamedTypeReference AliasedType { get; }
 
     /// <summary>
     /// The collection of member objects comprising the type.
@@ -46,9 +46,9 @@ namespace Microsoft.Cci {
 
   [ContractClassFor(typeof(IAliasForType))]
   abstract class IAliasForTypeContract : IAliasForType {
-    public ITypeReference AliasedType {
+    public INamedTypeReference AliasedType {
       get {
-        Contract.Ensures(Contract.Result<ITypeReference>() != null);
+        Contract.Ensures(Contract.Result<INamedTypeReference>() != null);
         throw new NotImplementedException();
       }
     }
@@ -382,6 +382,10 @@ namespace Microsoft.Cci {
     }
 
     public bool IsValueType {
+      get { throw new NotImplementedException(); }
+    }
+
+    public bool IsStatic {
       get { throw new NotImplementedException(); }
     }
 
@@ -2053,7 +2057,7 @@ namespace Microsoft.Cci {
   }
 
   /// <summary>
-  /// Models an explicit implemenation or override of a base class virtual method or an explicit implementation of an interface method.
+  /// Models an explicit implementation or override of a base class virtual method or an explicit implementation of an interface method.
   /// </summary>
   public interface IMethodImplementation {
 

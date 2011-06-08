@@ -15,6 +15,7 @@ using Microsoft.Cci;
 using System.Configuration.Assemblies;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using Microsoft.Cci.UtilityDataStructures;
 
 //^ using Microsoft.Contracts;
 
@@ -44,7 +45,7 @@ namespace Microsoft.Cci {
       this.sizeOfImportAddressTable = this.emitRuntimeStartupStub ? (!this.module.Requires64bits ? 8u : 16u) : 0;
     }
 
-    Dictionary<AssemblyIdentity, uint> assemblyRefIndex = new Dictionary<AssemblyIdentity, uint>();
+    HashtableForUintValues<AssemblyIdentity> assemblyRefIndex = new HashtableForUintValues<AssemblyIdentity>();
     List<IAssemblyReference> assemblyRefList = new List<IAssemblyReference>();
     Dictionary<byte[], uint> blobIndex = new Dictionary<byte[], uint>(new ByteArrayComparer());
     BinaryWriter blobWriter = new BinaryWriter(new MemoryStream(1024), true);
@@ -52,44 +53,44 @@ namespace Microsoft.Cci {
     //List<IMetadataConstantContainer> constantList = new List<IMetadataConstantContainer>();
     BinaryWriter coverageDataWriter = new BinaryWriter(new MemoryStream());
     SectionHeader coverSection = new SectionHeader();
-    Dictionary<ICustomAttribute, uint> customAtributeSignatureIndex = new Dictionary<ICustomAttribute, uint>();
+    HashtableForUintValues<ICustomAttribute> customAtributeSignatureIndex = new HashtableForUintValues<ICustomAttribute>();
     PeDebugDirectory/*?*/ debugDirectory;
     bool emitRuntimeStartupStub;
     List<IEventDefinition> eventDefList = new List<IEventDefinition>();
     MemoryStream emptyStream = new MemoryStream(0);
-    Dictionary<uint, uint> exportedTypeIndex = new Dictionary<uint, uint>();
+    Hashtable exportedTypeIndex = new Hashtable();
     List<ITypeReference> exportedTypeList = new List<ITypeReference>();
-    Dictionary<uint, uint> fieldDefIndex = new Dictionary<uint, uint>();
+    Hashtable fieldDefIndex = new Hashtable();
     List<IFieldDefinition> fieldDefList = new List<IFieldDefinition>();
     //List<IFieldReference> fieldRefList = new List<IFieldReference>();
-    Dictionary<IFieldReference, uint> fieldSignatureIndex = new Dictionary<IFieldReference, uint>();
-    Dictionary<int, uint> fileRefIndex = new Dictionary<int, uint>();
+    HashtableForUintValues<IFieldReference> fieldSignatureIndex = new HashtableForUintValues<IFieldReference>();
+    Hashtable fileRefIndex = new Hashtable();
     List<IFileReference> fileRefList = new List<IFileReference>();
     List<IGenericParameter> genericParameterList = new List<IGenericParameter>();
     MemoryStream headerStream = new MemoryStream(1024);
     IMetadataHost host;
     uint localDefSignatureToken;
-    Dictionary<ILocalDefinition, ushort> localDefIndex = new Dictionary<ILocalDefinition, ushort>();
+    HashtableForUintValues<ILocalDefinition> localDefIndex = new HashtableForUintValues<ILocalDefinition>();
     ILocalScopeProvider/*?*/ localScopeProvider;
-    Dictionary<IMarshallingInformation, uint> marshallingDescriptorIndex = new Dictionary<IMarshallingInformation, uint>();
-    Dictionary<ITypeMemberReference, uint> memberRefInstanceIndex = new Dictionary<ITypeMemberReference, uint>();
+    HashtableForUintValues<IMarshallingInformation> marshallingDescriptorIndex = new HashtableForUintValues<IMarshallingInformation>();
+    HashtableForUintValues<ITypeMemberReference> memberRefInstanceIndex = new HashtableForUintValues<ITypeMemberReference>();
     Dictionary<ITypeMemberReference, uint> memberRefStructuralIndex;
     internal List<ITypeMemberReference> memberRefList = new List<ITypeMemberReference>();
     MemoryStream metadataStream = new MemoryStream(16*1024);
-    Dictionary<IMethodDefinition, uint> methodBodyIndex = new Dictionary<IMethodDefinition, uint>();
-    Dictionary<uint, uint> methodDefIndex = new Dictionary<uint, uint>();
+    HashtableForUintValues<IMethodDefinition> methodBodyIndex = new HashtableForUintValues<IMethodDefinition>();
+    Hashtable methodDefIndex = new Hashtable();
     internal List<IMethodDefinition> methodDefList = new List<IMethodDefinition>();
     List<IMethodImplementation> methodImplList = new List<IMethodImplementation>();
-    Dictionary<IGenericMethodInstanceReference, uint> methodInstanceSignatureIndex = new Dictionary<IGenericMethodInstanceReference, uint>();
-    Dictionary<IGenericMethodInstanceReference, uint> methodSpecInstanceIndex = new Dictionary<IGenericMethodInstanceReference, uint>();
+    HashtableForUintValues<IGenericMethodInstanceReference> methodInstanceSignatureIndex = new HashtableForUintValues<IGenericMethodInstanceReference>();
+    HashtableForUintValues<IGenericMethodInstanceReference> methodSpecInstanceIndex = new HashtableForUintValues<IGenericMethodInstanceReference>();
     Dictionary<IGenericMethodInstanceReference, uint> methodSpecStructuralIndex;
     List<IGenericMethodInstanceReference> methodSpecList = new List<IGenericMethodInstanceReference>();
     MemoryStream methodStream = new MemoryStream(32*1024);
     IModule module;
-    Dictionary<ModuleIdentity, uint> moduleRefIndex = new Dictionary<ModuleIdentity, uint>();
+    HashtableForUintValues<ModuleIdentity> moduleRefIndex = new HashtableForUintValues<ModuleIdentity>();
     List<ModuleIdentity> moduleRefList = new List<ModuleIdentity>();
     NtHeader ntHeader = new NtHeader();
-    Dictionary<ISignature, uint> parameterListIndex = new Dictionary<ISignature, uint>();
+    HashtableForUintValues<ISignature> parameterListIndex = new HashtableForUintValues<ISignature>();
     List<IParameterDefinition> parameterDefList = new List<IParameterDefinition>();
     IPdbWriter pdbWriter;
     System.IO.Stream peStream;
@@ -101,14 +102,14 @@ namespace Microsoft.Cci {
     BinaryWriter sdataWriter = new BinaryWriter(new MemoryStream());
     SectionHeader rdataSection = new SectionHeader();
     SectionHeader sdataSection = new SectionHeader();
-    Dictionary<ISignature, uint> signatureIndex = new Dictionary<ISignature, uint>();
-    Dictionary<uint, uint> signatureStructuralIndex = new Dictionary<uint, uint>();
+    HashtableForUintValues<ISignature> signatureIndex = new HashtableForUintValues<ISignature>();
+    Hashtable signatureStructuralIndex = new Hashtable();
     uint sizeOfImportAddressTable;
     ISourceLocationProvider/*?*/ sourceLocationProvider;
     List<uint> standAloneSignatureList = new List<uint>();
     bool streamsAreComplete;
     Dictionary<string, uint> stringIndex = new Dictionary<string, uint>();
-    Dictionary<uint, uint> stringIndexMap;
+    Hashtable stringIndexMap;
     BinaryWriter stringWriter = new BinaryWriter(new MemoryStream(1024));
     bool tableIndicesAreComplete;
     uint[] tableSizes = new uint[(uint)TableIndices.Count];
@@ -121,12 +122,12 @@ namespace Microsoft.Cci {
     BinaryWriter tlsDataWriter = new BinaryWriter(new MemoryStream());
     uint tokenOfFirstMethodWithDebugInfo;
     uint tokenOfLastMethodWithUsingInfo;
-    Dictionary<uint, uint> typeDefIndex = new Dictionary<uint, uint>();
+    Hashtable typeDefIndex = new Hashtable();
     internal List<ITypeDefinition> typeDefList = new List<ITypeDefinition>();
-    Dictionary<uint, uint> typeRefIndex = new Dictionary<uint, uint>();
+    Hashtable typeRefIndex = new Hashtable();
     List<ITypeReference> typeRefList = new List<ITypeReference>();
-    Dictionary<ITypeReference, uint> typeSpecSignatureIndex = new Dictionary<ITypeReference, uint>();
-    Dictionary<ITypeReference, uint> typeSpecInstanceIndex = new Dictionary<ITypeReference, uint>();
+    HashtableForUintValues<ITypeReference> typeSpecSignatureIndex = new HashtableForUintValues<ITypeReference>();
+    HashtableForUintValues<ITypeReference> typeSpecInstanceIndex = new HashtableForUintValues<ITypeReference>();
     Dictionary<ITypeReference, uint> typeSpecStructuralIndex;
     internal List<ITypeReference> typeSpecList = new List<ITypeReference>();
     Dictionary<string, uint> userStringIndex = new Dictionary<string, uint>();
@@ -165,7 +166,7 @@ namespace Microsoft.Cci {
         this.virtIdx = virtIdx;
       }
 
-      internal uint Resolve(IDictionary<uint, uint> map) {
+      internal uint Resolve(Hashtable map) {
         return map[this.virtIdx];
       }
 
@@ -181,7 +182,7 @@ namespace Microsoft.Cci {
       this.stringIndex = null;
 
       // Create VirtIdx to Idx map and add entry for empty string
-      this.stringIndexMap = new Dictionary<uint, uint>(sorted.Count);
+      this.stringIndexMap = new Hashtable((uint)sorted.Count);
       this.stringIndexMap.Add(0, 0);
 
       // Find strings that can be folded
@@ -599,7 +600,7 @@ namespace Microsoft.Cci {
       IAssembly/*?*/ assembly = this.module as IAssembly;
       if (assembly == null) return;
       foreach (IFileReference fileRef in assembly.Files) {
-        int key = fileRef.FileName.UniqueKey;
+        var key = (uint)fileRef.FileName.UniqueKey;
         if (!this.fileRefIndex.ContainsKey(key)) {
           this.fileRefList.Add(fileRef);
           this.fileRefIndex.Add(key, (uint)this.fileRefList.Count);
@@ -951,7 +952,7 @@ namespace Microsoft.Cci {
     }
 
     internal uint GetFileRefIndex(IFileReference fileReference) {
-      int key = fileReference.FileName.UniqueKey;
+      var key = (uint)fileReference.FileName.UniqueKey;
       uint result;
       if (this.fileRefIndex.TryGetValue(key, out result)) return result;
       Debug.Assert(!this.tableIndicesAreComplete);
@@ -961,7 +962,7 @@ namespace Microsoft.Cci {
     }
 
     private uint GetFileRefIndex(IModuleReference mref) {
-      int key = mref.Name.UniqueKey;
+      var key = (uint)mref.Name.UniqueKey;
       uint result = 0;
       if (this.fileRefIndex.TryGetValue(key, out result)) return result;
       Debug.Assert(false);
@@ -1146,6 +1147,7 @@ namespace Microsoft.Cci {
       if (methodDef.IsSynchronized) result |= 0x0020;
       if (methodDef.IsNeverOptimized) result |= 0x0040;
       if (methodDef.PreserveSignature) result |= 0x0080;
+      if (methodDef.IsAggressivelyInlined) result |= 0x0100;
       if (methodDef.IsRuntimeInternal) result |= 0x1000;
       return result;
     }
@@ -1170,8 +1172,7 @@ namespace Microsoft.Cci {
 
     private static ushort GetParameterIndex(IParameterDefinition parameterDefinition) {
       ushort parameterIndex = (ushort)parameterDefinition.Index;
-      if ((parameterDefinition.ContainingSignature.CallingConvention & CallingConvention.HasThis) != 0)
-        parameterIndex++;
+      if (!parameterDefinition.ContainingSignature.IsStatic) parameterIndex++;
       return parameterIndex;
     }
 
@@ -1826,22 +1827,33 @@ namespace Microsoft.Cci {
 
     private void PopulateAssemblyRefTableRows() {
       foreach (var assemblyRef in this.assemblyRefList) {
+        bool isAssemblyDef = assemblyRef is IAssembly;
         AssemblyRefTableRow r = new AssemblyRefTableRow();
         r.Version = assemblyRef.Version;
-        if (IteratorHelper.EnumerableIsNotEmpty(assemblyRef.PublicKeyToken))
-          r.PublicKeyToken = this.GetBlobIndex(new List<byte>(assemblyRef.PublicKeyToken).ToArray());
+        if (!isAssemblyDef && IteratorHelper.EnumerableIsNotEmpty(assemblyRef.PublicKey)) {
+          r.HasPublicKey = true;
+          r.PublicKeyOrToken = this.GetBlobIndex(new List<byte>(assemblyRef.PublicKey).ToArray());
+        } else if (IteratorHelper.EnumerableIsNotEmpty(assemblyRef.PublicKeyToken))
+          r.PublicKeyOrToken = this.GetBlobIndex(new List<byte>(assemblyRef.PublicKeyToken).ToArray());
         else
-          r.PublicKeyToken = 0;
+          r.PublicKeyOrToken = 0;
         r.Name = this.GetStringIndex(assemblyRef.Name.Value);
         r.Culture = this.GetStringIndex(assemblyRef.Culture);
         r.IsRetargetable = assemblyRef.IsRetargetable;
         r.ContainsForeignTypes = assemblyRef.ContainsForeignTypes;
+        if (!isAssemblyDef && IteratorHelper.EnumerableIsNotEmpty(assemblyRef.HashValue))
+          r.HashValue = this.GetBlobIndex(new List<byte>(assemblyRef.HashValue).ToArray());
+        else
+          r.HashValue = 0;
         this.assemblyRefTable.Add(r);
       }
       this.tableSizes[(uint)TableIndices.AssemblyRef] = (uint)this.assemblyRefTable.Count;
     }
 
-    struct AssemblyRefTableRow { public Version Version; public uint PublicKeyToken; public StringIdx Name; public StringIdx Culture; public bool IsRetargetable; public bool ContainsForeignTypes; }
+    struct AssemblyRefTableRow {
+      public Version Version; public uint PublicKeyOrToken; public StringIdx Name; public StringIdx Culture;
+      public uint HashValue; public bool HasPublicKey; public bool IsRetargetable; public bool ContainsForeignTypes;
+    }
     List<AssemblyRefTableRow> assemblyRefTable = new List<AssemblyRefTableRow>();
 
     private void PopulateAssemblyTableRows() {
@@ -2125,8 +2137,8 @@ namespace Microsoft.Cci {
       var module = TypeHelper.GetDefiningUnit(typeDefinition) as IModule;
       if (module == null) return 0;
       if (this.moduleToMap == null)
-        this.moduleToMap = new Dictionary<object, Dictionary<uint, uint>>();
-      Dictionary<uint, uint> typeToToken;
+        this.moduleToMap = new Hashtable<object, Hashtable>();
+      Hashtable typeToToken;
       if (!this.moduleToMap.TryGetValue(module, out typeToToken)) {
         typeToToken = GetTypeTokenMapFor(module);
         this.moduleToMap.Add(module, typeToToken);
@@ -2135,10 +2147,10 @@ namespace Microsoft.Cci {
       typeToToken.TryGetValue(typeDefinition.InternedKey, out result);
       return result;
     }
-    Dictionary<object, Dictionary<uint, uint>>/*?*/ moduleToMap;
+    Hashtable<object, Hashtable>/*?*/ moduleToMap;
 
-    private Dictionary<uint, uint> GetTypeTokenMapFor(IModule module) {
-      var map = new Dictionary<uint, uint>();
+    private Hashtable GetTypeTokenMapFor(IModule module) {
+      var map = new Hashtable();
       var i = 0x02000001u;
       foreach (var type in module.GetAllTypes()) map.Add(type.InternedKey, i++);
       return map;
@@ -2930,17 +2942,16 @@ namespace Microsoft.Cci {
         writer.WriteUshort((ushort)assemblyRef.Version.Minor);
         writer.WriteUshort((ushort)assemblyRef.Version.Build);
         writer.WriteUshort((ushort)assemblyRef.Version.Revision);
-        //flags: reference has token, not full public key
-        uint flags = 0;
+        uint flags = assemblyRef.HasPublicKey ? 1u : 0u;
         if (assemblyRef.IsRetargetable)
           flags |= 0x100;
         if (assemblyRef.ContainsForeignTypes)
           flags |= 0x200;
         writer.WriteUint(flags);
-        SerializeIndex(writer, assemblyRef.PublicKeyToken, this.blobIndexSize);
+        SerializeIndex(writer, assemblyRef.PublicKeyOrToken, this.blobIndexSize);
         this.SerializeIndex(writer, assemblyRef.Name, this.stringIndexSize);
         this.SerializeIndex(writer, assemblyRef.Culture, this.stringIndexSize);
-        SerializeIndex(writer, 0, this.blobIndexSize); //hash of referenced assembly. Omitted.
+        SerializeIndex(writer, assemblyRef.HashValue, this.blobIndexSize);
       }
     }
 
@@ -3261,7 +3272,7 @@ namespace Microsoft.Cci {
           case OperationCode.Brfalse:
           case OperationCode.Brtrue:
           case OperationCode.Leave:
-            //^ assume operation.Value is int;
+            //^ assume operation.Value is uint;
             writer.WriteInt((int)((uint)operation.Value-mbody.Position-4)); break;
           case OperationCode.Beq_S:
           case OperationCode.Bge_S:
@@ -3277,7 +3288,7 @@ namespace Microsoft.Cci {
           case OperationCode.Brfalse_S:
           case OperationCode.Brtrue_S:
           case OperationCode.Leave_S:
-            //^ assume operation.Value is int;
+            //^ assume operation.Value is uint;
             writer.WriteSbyte((sbyte)((uint)operation.Value-mbody.Position-1)); break;
           case OperationCode.Box:
           case OperationCode.Castclass:
@@ -3355,7 +3366,7 @@ namespace Microsoft.Cci {
           case OperationCode.Ldloca:
           case OperationCode.Stloc:
             //^ assume operation.Value is ILocalDefinition;
-            writer.WriteUshort(this.localDefIndex[(ILocalDefinition)operation.Value]); break;
+            writer.WriteUshort((ushort)this.localDefIndex[(ILocalDefinition)operation.Value]); break;
           case OperationCode.Ldloc_S:
           case OperationCode.Ldloca_S:
           case OperationCode.Stloc_S:
@@ -3433,7 +3444,7 @@ namespace Microsoft.Cci {
         this.pdbWriter.DefineLocalConstant(scopeConstant.Name.Value, scopeConstant.CompileTimeValue.Value, token);
       }
       foreach (ILocalDefinition scopeLocal in this.localScopeProvider.GetVariablesInScope(currentScope)) {
-        ushort index = this.localDefIndex[scopeLocal];
+        ushort index = (ushort)this.localDefIndex[scopeLocal];
         bool isCompilerGenerated = true;
         string localName = scopeLocal.Name.Value;
         if (this.sourceLocationProvider != null)
@@ -4568,6 +4579,10 @@ namespace Microsoft.Cci {
       get { return false; }
     }
 
+    public bool IsStatic {
+      get { return false; }
+    }
+
     public IMethodDefinition ResolvedMethod {
       get { return Dummy.Method; }
     }
@@ -5195,8 +5210,8 @@ namespace Microsoft.Cci {
     // Non primitive namespace as well as nested types always need tokens, and structural types that are referred to from tables need tokens.
     // However, types that are inside custom attributes and structural types that are never referred to from a table don't need tokens.
 
-    Dictionary<object, bool> alreadyHasToken = new Dictionary<object, bool>();
-    Dictionary<ITypeReference, bool> alreadyHasBeenTaversed = new Dictionary<ITypeReference, bool>();
+    SetOfObjects alreadyHasToken = new SetOfObjects();
+    SetOfObjects alreadyHasBeenTaversed = new SetOfObjects();
     PeWriter peWriter;
     bool traverseAttributes;
     /// <summary>
@@ -5274,7 +5289,6 @@ namespace Microsoft.Cci {
     }
 
     public override void TraverseChildren(IGenericMethodInstanceReference genericMethodInstanceReference) {
-      this.TraverseChildren((IMethodReference)genericMethodInstanceReference);
       this.Traverse(genericMethodInstanceReference.GenericArguments);
       this.Traverse(genericMethodInstanceReference.GenericMethod);
     }
@@ -5288,10 +5302,8 @@ namespace Microsoft.Cci {
     public override void TraverseChildren(IGenericTypeInstanceReference genericTypeInstanceReference) {
       if (this.typeReferenceNeedsToken) {
         this.typeReferenceNeedsToken = false;
-        if (!this.alreadyHasToken.ContainsKey(genericTypeInstanceReference.InternedKey)) {
+        if (this.alreadyHasToken.Add(genericTypeInstanceReference.InternedKey))
           this.peWriter.RecordTypeReference(genericTypeInstanceReference);
-          this.alreadyHasToken.Add(genericTypeInstanceReference.InternedKey, true);
-        }
       }
       this.TraverseChildren((ITypeReference)genericTypeInstanceReference);
       this.Traverse(genericTypeInstanceReference.GenericType);
@@ -5461,10 +5473,8 @@ namespace Microsoft.Cci {
 
     public override void TraverseChildren(ITypeReference typeReference) {
       if (this.typeReferenceNeedsToken) {
-        if (!this.alreadyHasToken.ContainsKey(typeReference.InternedKey)) {
+        if (this.alreadyHasToken.Add(typeReference.InternedKey))
           this.peWriter.RecordTypeReference(typeReference);
-          this.alreadyHasToken.Add(typeReference.InternedKey, true);
-        }
       } else {
         //since this traversal of the reference did not need the reference to have a token
         //we have to make sure that we taverse this reference again, in case another traversal
@@ -5472,10 +5482,8 @@ namespace Microsoft.Cci {
         this.objectsThatHaveAlreadyBeenTraversed.Remove(typeReference);
       }
       if (this.traverseAttributes && !(typeReference is ITypeDefinition)) {
-        if (!this.alreadyHasBeenTaversed.ContainsKey(typeReference)) {
+        if (this.alreadyHasBeenTaversed.Add(typeReference))
           this.Traverse(typeReference.Attributes);
-          this.alreadyHasBeenTaversed.Add(typeReference, true);
-        }
       }
       this.typeReferenceNeedsToken = false;
     }

@@ -146,7 +146,7 @@ namespace Microsoft.Cci {
         sb.Append(", Culture=neutral");
       sb.AppendFormat(CultureInfo.InvariantCulture, ", PublicKeyToken=");
       if (IteratorHelper.EnumerableIsNotEmpty(assemblyReference.PublicKeyToken)) {
-        foreach (byte b in assemblyReference.PublicKeyToken) sb.Append(b.ToString("x2"));
+        foreach (byte b in assemblyReference.PublicKeyToken) sb.Append(b.ToString("x2", CultureInfo.InvariantCulture));
       } else {
         sb.Append("null");
       }
@@ -391,6 +391,9 @@ namespace Microsoft.Cci {
     }
 
   }
+}
+
+namespace Microsoft.Cci.Immutable {
 
   /// <summary>
   /// A set of units that all contribute to a unified root namespace. For example the set of assemblies referenced by a C# project.
@@ -490,6 +493,16 @@ namespace Microsoft.Cci {
     /// The dispatch method does nothing else.
     /// </summary>
     public abstract void DispatchAsReference(IMetadataVisitor visitor);
+
+    #region IContainer<ITypeDefinitionMember>
+
+    IEnumerable<INamespaceMember> IContainer<INamespaceMember>.Members {
+      get {
+        return this.Members;
+      }
+    }
+
+    #endregion
 
     #region INamespace Members
 

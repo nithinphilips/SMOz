@@ -925,7 +925,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// Resolves the reference to find the method being referred to.
     /// </summary>
     protected override IMethodDefinition Resolve() {
-      return new GenericMethodInstance(this.GenericMethod.ResolvedMethod, ((IGenericMethodInstanceReference)this).GenericArguments, this.InternFactory);
+      return new Immutable.GenericMethodInstance(this.GenericMethod.ResolvedMethod, ((IGenericMethodInstanceReference)this).GenericArguments, this.InternFactory);
     }
 
     #region IGenericMethodInstanceReference Members
@@ -1421,6 +1421,7 @@ namespace Microsoft.Cci.MutableCodeModel {
       this.IsNativeCode = methodDefinition.IsNativeCode;
       this.IsNewSlot = methodDefinition.IsNewSlot;
       this.IsNeverInlined = methodDefinition.IsNeverInlined;
+      this.IsAggressivelyInlined = methodDefinition.IsAggressivelyInlined;
       this.IsNeverOptimized = methodDefinition.IsNeverOptimized;
       this.IsPlatformInvoke = methodDefinition.IsPlatformInvoke;
       this.IsRuntimeImplemented = methodDefinition.IsRuntimeImplemented;
@@ -1593,16 +1594,30 @@ namespace Microsoft.Cci.MutableCodeModel {
     }
 
     /// <summary>
-    /// True if the method is implemented in the CLI Common Intermediate Language.
+    /// True if the the runtime is asked to inline this method.
     /// </summary>
     /// <value></value>
-    public bool IsCil {
+    public bool IsAggressivelyInlined {
       get { return (this.flags & 0x02000000) != 0; }
       set {
         if (value)
           this.flags |= 0x02000000;
         else
           this.flags &= ~0x02000000;
+      }
+    }
+
+    /// <summary>
+    /// True if the method is implemented in the CLI Common Intermediate Language.
+    /// </summary>
+    /// <value></value>
+    public bool IsCil {
+      get { return (this.flags & 0x01000000) != 0; }
+      set {
+        if (value)
+          this.flags |= 0x01000000;
+        else
+          this.flags &= ~0x01000000;
       }
     }
 
@@ -2298,6 +2313,13 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <value></value>
     public bool IsGeneric {
       get { return this.genericParameterCount > 0; }
+    }
+
+    /// <summary>
+    /// True if the referenced method does not require an instance of its declaring type as its first argument.
+    /// </summary>
+    public bool IsStatic {
+      get { return (this.CallingConvention & CallingConvention.HasThis) == 0; }
     }
 
     /// <summary>
@@ -3055,6 +3077,13 @@ namespace Microsoft.Cci.MutableCodeModel {
     }
 
     /// <summary>
+    /// True if the referenced property does not require an instance of its declaring type as its first argument.
+    /// </summary>
+    public bool IsStatic {
+      get { return (this.CallingConvention & CallingConvention.HasThis) == 0; }
+    }
+
+    /// <summary>
     /// The parameters forming part of this signature.
     /// </summary>
     /// <value></value>
@@ -3222,6 +3251,13 @@ namespace Microsoft.Cci.MutableCodeModel {
       set { this.callingConvention = value; }
     }
     CallingConvention callingConvention;
+
+    /// <summary>
+    /// True if the referenced method or property does not require an instance of its declaring type as its first argument.
+    /// </summary>
+    public bool IsStatic {
+      get { return (this.CallingConvention & CallingConvention.HasThis) == 0; }
+    }
 
     /// <summary>
     /// The parameters forming part of this signature.

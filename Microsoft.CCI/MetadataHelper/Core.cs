@@ -10,15 +10,11 @@
 //-----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using System.IO;
-using System.Globalization;
-using Microsoft.Cci.UtilityDataStructures;
 using System.Diagnostics.Contracts;
-
-//^ using Microsoft.Contracts;
+using System.IO;
+using System.Threading;
+using Microsoft.Cci.Immutable;
+using Microsoft.Cci.UtilityDataStructures;
 
 namespace Microsoft.Cci {
 
@@ -260,7 +256,7 @@ namespace Microsoft.Cci {
     public static string GetLocalPath(System.Reflection.AssemblyName assemblyName) {
       var loc = assemblyName.CodeBase;
       if (loc == null) loc = "";
-      if (loc.StartsWith("file://")) {
+      if (loc.StartsWith("file://", StringComparison.OrdinalIgnoreCase)) {
         Uri u = new Uri(loc, UriKind.Absolute);
         loc = u.LocalPath;
       }
@@ -650,6 +646,33 @@ namespace Microsoft.Cci {
     IBinaryDocumentMemoryBlock/*?*/ OpenBinaryDocument(IBinaryDocument parentSourceDocument, string childDocumentName);
 
     /// <summary>
+    /// Provides the host with an opportunity to substitute one type reference for another during metadata reading.
+    /// This avoids the cost of rewriting the entire unit in order to make such changes.
+    /// </summary>
+    /// <param name="referringUnit">The unit that is referencing the type.</param>
+    /// <param name="typeReference">A type reference encountered during metadata reading.</param>
+    /// <returns>Usually the value in typeReference, but occassionally something else.</returns>
+    ITypeReference Redirect(IUnit referringUnit, ITypeReference typeReference);
+
+    /// <summary>
+    /// Provides the host with an opportunity to substitute a custom attribute with another during metadata reading.
+    /// This avoids the cost of rewriting the entire unit in order to make such changes.
+    /// </summary>
+    /// <param name="containingUnit">The unit that contains the custom attribute.</param>
+    /// <param name="customAttribute">The custom attribute to rewrite (fix up).</param>
+    /// <returns>Usually the value in customAttribute, but occassionally another custom attribute.</returns>
+    ICustomAttribute Rewrite(IUnit containingUnit, ICustomAttribute customAttribute);
+
+    /// <summary>
+    /// Provides the host with an opportunity to substitute one method definition for another during metadata reading.
+    /// This avoids the cost of rewriting the entire unit in order to make such changes.
+    /// </summary>
+    /// <param name="containingUnit">The unit that is defines the method.</param>
+    /// <param name="methodDefinition">A method definition encountered during metadata reading.</param>
+    /// <returns>Usually the value in methodDefinition, but occassionally something else.</returns>
+    IMethodDefinition Rewrite(IUnit containingUnit, IMethodDefinition methodDefinition);
+
+    /// <summary>
     /// This method is called when the assembly reference is being resolved and its not already loaded by the host.
     /// </summary>
     /// <param name="referringUnit">The unit that is referencing the assembly.</param>
@@ -811,6 +834,45 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// Provides the host with an opportunity to substitute one type reference for another during metadata reading.
+    /// This avoids the cost of rewriting the entire unit in order to make such changes.
+    /// </summary>
+    /// <param name="referringUnit">The unit that is referencing the type.</param>
+    /// <param name="typeReference">A type reference encountered during metadata reading.</param>
+    /// <returns>
+    /// Usually the value in typeReference, but occassionally something else.
+    /// </returns>
+    public virtual ITypeReference Redirect(IUnit referringUnit, ITypeReference typeReference) {
+      return typeReference;
+    }
+
+    /// <summary>
+    /// Provides the host with an opportunity to substitute a custom attribute with another during metadata reading.
+    /// This avoids the cost of rewriting the entire unit in order to make such changes.
+    /// </summary>
+    /// <param name="containingUnit">The unit that contains the custom attribute.</param>
+    /// <param name="customAttribute">The custom attribute to rewrite (fix up).</param>
+    /// <returns>
+    /// Usually the value in customAttribute, but occassionally another custom attribute.
+    /// </returns>
+    public virtual ICustomAttribute Rewrite(IUnit containingUnit, ICustomAttribute customAttribute) {
+      return customAttribute;
+    }
+
+    /// <summary>
+    /// Provides the host with an opportunity to substitute one method definition for another during metadata reading.
+    /// This avoids the cost of rewriting the entire unit in order to make such changes.
+    /// </summary>
+    /// <param name="containingUnit">The unit that is defines the method.</param>
+    /// <param name="methodDefinition">A method definition encountered during metadata reading.</param>
+    /// <returns>
+    /// Usually the value in methodDefinition, but occassionally something else.
+    /// </returns>
+    public virtual IMethodDefinition Rewrite(IUnit containingUnit, IMethodDefinition methodDefinition) {
+      return methodDefinition;
+    }
+
+    /// <summary>
     /// This method is called when the assembly reference is being resolved and its not already loaded by the Read/Write host.
     /// </summary>
     /// <param name="referringUnit">The unit that is referencing the assembly.</param>
@@ -919,6 +981,7 @@ namespace Microsoft.Cci {
     Dictionary<uint, byte> successfulGuesses;
     Dictionary<uint, byte> currentWildGuesses;
     Dictionary<uint, byte> currentGoodGuesses;
+
   }
 
   /// <summary>
@@ -1764,10 +1827,10 @@ namespace Microsoft.Cci {
   /// </summary>
   public sealed class NameTable : INameTable {
     //TODO: replace BCL Dictionary with a private implementation that is thread safe and does not need a new list to be allocated for each name
-    Dictionary<string, int> caseInsensitiveTable = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    Dictionary<string, int> caseInsensitiveTable = new Dictionary<string, int>(1024*16, StringComparer.OrdinalIgnoreCase);
     //^ invariant forall{int i in caseInsensitiveTable.Values; i > 0};
 
-    Dictionary<string, IName> caseSensitiveTable = new Dictionary<string, IName>();
+    Dictionary<string, IName> caseSensitiveTable = new Dictionary<string, IName>(1024*16);
 
     int caseInsensitiveCounter = 1; //^ invariant caseInsensitiveCounter >= 0;
     int caseSensitiveCounter = 3; //^ invariant caseSensitiveCounter >= 0;

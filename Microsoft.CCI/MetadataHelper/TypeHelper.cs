@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics.Contracts;
+using Microsoft.Cci.Immutable;
 
 //^ using Microsoft.Contracts;
 
@@ -421,12 +422,14 @@ namespace Microsoft.Cci {
     Signature=ReturnType << 1,
 
     /// <summary>
-    /// Inlcude the name of the containing type only if it is needed becuase of ambiguity or hiding. Include only as much as is needed to resolve this.
+    /// Include the name of the containing type only if it is needed because of ambiguity or hiding. Include only as much as is needed to resolve this.
+    /// Please note: this needs source level information to implement. The default formatters in MetdataHelper ignore this bit.
     /// </summary>
     SmartTypeName=Signature << 1,
 
     /// <summary>
-    /// Inlcude the name of the containing namespace only if it is needed becuase of ambiguity or hiding. Include only as much as is needed to resolve this.
+    /// Include the name of the containing namespace only if it is needed because of ambiguity or hiding. Include only as much as is needed to resolve this.
+    /// Please note: this needs source level information to implement. The default formatters in MetdataHelper ignore this bit.
     /// </summary>
     SmartNamespaceName=SmartTypeName << 1,
 
@@ -451,19 +454,25 @@ namespace Microsoft.Cci {
     UseGenericTypeNameSuffix=TypeParameters << 1,
 
     /// <summary>
-    /// Use '+' instead of '.' to delimit the boundary between a containing type name and a nested type name.
+    /// Prepend "global::" to all namespace type names whose containing namespace is not omitted, including the case where the namespace type name qualifies a nested type name.
     /// </summary>
-    UseReflectionStyleForNestedTypeNames=UseGenericTypeNameSuffix << 1,
+    UseGlobalPrefix=UseGenericTypeNameSuffix << 1,
 
     /// <summary>
-    /// Include the visibility of the member in its name.
+    /// Use '+' instead of '.' to delimit the boundary between a containing type name and a nested type name.
     /// </summary>
-    Visibility=UseReflectionStyleForNestedTypeNames << 1,
+    UseReflectionStyleForNestedTypeNames=UseGlobalPrefix << 1,
 
     /// <summary>
     /// If the type corresponds to a keyword use the keyword rather than the type name.
     /// </summary>
-    UseTypeKeywords=Visibility << 1,
+    UseTypeKeywords=UseReflectionStyleForNestedTypeNames << 1,
+
+    /// <summary>
+    /// Include the visibility of the member in its name.
+    /// </summary>
+    Visibility=UseTypeKeywords << 1,
+
   }
 
   /// <summary>
@@ -880,6 +889,15 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// If the given type is a specialized nested type, return its unspecialized version. Otherwise just return the type itself.
+    /// </summary>
+    public static INestedTypeReference Unspecialize(INestedTypeReference nestedType) {
+      var specializedNestedType = nestedType as ISpecializedNestedTypeReference;
+      if (specializedNestedType != null) return specializedNestedType.UnspecializedVersion;
+      return nestedType;
+    }
+
+    /// <summary>
     /// Returns a TypeMemberVisibility value that is as accessible as possible while being no more accessible than either of the two given visibilities.
     /// </summary>
     [Pure]
@@ -1031,6 +1049,23 @@ namespace Microsoft.Cci {
       IArrayTypeReference/*?*/ arrayTypeReference = typeReference as IArrayTypeReference;
       if (arrayTypeReference != null) return TypeHelper.GetDefiningUnitReference(arrayTypeReference.ElementType);
       return null;
+    }
+
+    /// <summary>
+    /// Returns an event of the given declaring type that has the given name.
+    /// If no such event can be found, Dummy.Event is returned.
+    /// </summary>
+    /// <param name="declaringType">The type thats declares the field.</param>
+    /// <param name="eventName">The name of the event.</param>
+    public static IEventDefinition GetEvent(ITypeDefinition declaringType, IName eventName) {
+      Contract.Requires(declaringType != null);
+      Contract.Requires(eventName != null);
+
+      foreach (ITypeDefinitionMember member in declaringType.GetMembersNamed(eventName, false)) {
+        IEventDefinition/*?*/ eventDef = member as IEventDefinition;
+        if (eventDef != null) return eventDef;
+      }
+      return Dummy.Event;
     }
 
     /// <summary>
@@ -1911,6 +1946,53 @@ namespace Microsoft.Cci {
         && TypeHelper.TypesAreEquivalent(nstType1.ContainingType, nstType2.ContainingType);
     }
 
+    internal static ITypeReference SpecializeTypeReference(ITypeReference typeReference, ITypeReference context, IInternFactory internFactory) {
+      var arrayType = typeReference as IArrayTypeReference;
+      if (arrayType != null) {
+        if (arrayType.IsVector) return Vector.SpecializeTypeReference(arrayType, context, internFactory);
+        return Matrix.SpecializeTypeReference(arrayType, context, internFactory);
+      }
+      var genericTypeParameter = typeReference as IGenericTypeParameterReference;
+      if (genericTypeParameter != null) return GenericParameter.SpecializeTypeReference(genericTypeParameter, context);
+      var genericTypeInstance = typeReference as IGenericTypeInstanceReference;
+      if (genericTypeInstance != null) return GenericTypeInstance.SpecializeTypeReference(genericTypeInstance, context, internFactory);
+      var managedPointerType = typeReference as IManagedPointerTypeReference;
+      if (managedPointerType != null) return ManagedPointerType.SpecializeTypeReference(managedPointerType, context, internFactory);
+      var modifiedPointer = typeReference as ModifiedPointerType;
+      if (modifiedPointer != null) return ModifiedPointerType.SpecializeTypeReference(modifiedPointer, context, internFactory);
+      var modifiedType = typeReference as IModifiedTypeReference;
+      if (modifiedType != null) return ModifiedTypeReference.SpecializeTypeReference(modifiedType, context, internFactory);
+      var nestedType = typeReference as INestedTypeReference;
+      if (nestedType != null) return SpecializedNestedTypeDefinition.SpecializeTypeReference(nestedType, context, internFactory);
+      var pointerType = typeReference as IPointerTypeReference;
+      if (pointerType != null) return PointerType.SpecializeTypeReference(pointerType, context, internFactory);
+      return typeReference;
+    }
+
+    internal static ITypeReference SpecializeTypeReference(ITypeReference typeReference, IMethodReference context, IInternFactory internFactory) {
+      var arrayType = typeReference as IArrayTypeReference;
+      if (arrayType != null) {
+        if (arrayType.IsVector) return Vector.SpecializeTypeReference(arrayType, context, internFactory);
+        return Matrix.SpecializeTypeReference(arrayType, context, internFactory);
+      }
+      var genericTypeParameter = typeReference as IGenericTypeParameterReference;
+      if (genericTypeParameter != null) return GenericParameter.SpecializeTypeReference(genericTypeParameter, context);
+      var genericMethodTypeParameter = typeReference as IGenericMethodParameterReference;
+      if (genericMethodTypeParameter != null) return GenericParameter.SpecializeTypeReference(genericMethodTypeParameter, context, internFactory);
+      var genericTypeInstance = typeReference as IGenericTypeInstanceReference;
+      if (genericTypeInstance != null) return GenericTypeInstance.SpecializeTypeReference(genericTypeInstance, context, internFactory);
+      var managedPointerType = typeReference as IManagedPointerTypeReference;
+      if (managedPointerType != null) return ManagedPointerType.SpecializeTypeReference(managedPointerType, context, internFactory);
+      var modifiedPointer = typeReference as ModifiedPointerType;
+      if (modifiedPointer != null) return ModifiedPointerType.SpecializeTypeReference(modifiedPointer, context, internFactory);
+      var modifiedType = typeReference as IModifiedTypeReference;
+      if (modifiedType != null) return ModifiedTypeReference.SpecializeTypeReference(modifiedType, context, internFactory);
+      var nestedType = typeReference as INestedTypeReference;
+      if (nestedType != null) return SpecializedNestedTypeDefinition.SpecializeTypeReference(nestedType, context, internFactory);
+      var pointerType = typeReference as IPointerTypeReference;
+      if (pointerType != null) return PointerType.SpecializeTypeReference(pointerType, context, internFactory);
+      return typeReference;
+    }
 
     /// <summary>
     /// Returns true if the given two types are to be considered equivalent for the purpose of signature matching and so on.
@@ -2135,19 +2217,39 @@ namespace Microsoft.Cci {
       Contract.Requires(typeName != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
+      string delim = ((formattingOptions & NameFormattingOptions.OmitWhiteSpaceAfterListDelimiter) == 0) ? ", " : ",";
       if ((formattingOptions & NameFormattingOptions.TypeParameters) != 0 && (formattingOptions & NameFormattingOptions.FormattingForDocumentationId) == 0 && genericParameterCount > 0 && type.ResolvedType != Dummy.Type) {
         StringBuilder sb = new StringBuilder(typeName);
         sb.Append("<");
         if ((formattingOptions & NameFormattingOptions.EmptyTypeParameterList) == 0) {
           bool first = true;
-          foreach (ITypeReference parameter in type.ResolvedType.GenericParameters) {
-            if (!first) sb.Append(","); first = false;
+          foreach (var parameter in type.ResolvedType.GenericParameters) {
+            if (first) first = false; else sb.Append(delim);
             sb.Append(this.GetTypeName(parameter, formattingOptions));
           }
         } else {
           sb.Append(',', genericParameterCount - 1);
         }
         sb.Append(">");
+        if ((formattingOptions & NameFormattingOptions.TypeConstraints) != 0) {
+          foreach (var parameter in type.ResolvedType.GenericParameters) {
+            if (!parameter.MustBeReferenceType && !parameter.MustBeValueType && !parameter.MustHaveDefaultConstructor && IteratorHelper.EnumerableIsEmpty(parameter.Constraints)) continue;
+            sb.Append(" where ");
+            sb.Append(parameter.Name.Value);
+            sb.Append(" : ");
+            bool first = true;
+            if (parameter.MustBeReferenceType) { sb.Append("class"); first = false; }
+            if (parameter.MustBeValueType) { sb.Append("struct"); first = false; }
+            foreach (var constraint in parameter.Constraints) {
+              if (first) first = false; else sb.Append(delim);
+              sb.Append(this.GetTypeName(constraint, NameFormattingOptions.None));
+            }
+            if (parameter.MustHaveDefaultConstructor) {
+              if (!first) { sb.Append(delim); }
+              sb.Append("new ()");
+            }
+          }
+        }
         typeName = sb.ToString();
       } else if ((formattingOptions & NameFormattingOptions.UseGenericTypeNameSuffix) != 0 && genericParameterCount > 0) {
         typeName = typeName + "`" + genericParameterCount;
@@ -2215,6 +2317,91 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// If the name matches a C# keyword, return "@"+name
+    /// </summary>
+    public virtual string EscapeKeyword(string name) {
+      switch (name) {
+        case "abstract": return "@abstract";
+        case "as": return "@as";
+        case "base": return "@base";
+        case "bool": return "@bool";
+        case "break": return "@break";
+        case "byte": return "@byte";
+        case "case": return "@case";
+        case "catch": return "@catch";
+        case "char": return "@char";
+        case "checked": return "@checked";
+        case "class": return "@class";
+        case "const": return "@const";
+        case "continue": return "@continue";
+        case "decimal": return "@decimal";
+        case "default": return "@default";
+        case "delegate": return "@delegate";
+        case "do": return "@do";
+        case "double": return "@double";
+        case "explicit": return "@explicit";
+        case "event": return "@event";
+        case "extern": return "@extern";
+        case "else": return "@else";
+        case "enum": return "@enum";
+        case "false": return "@false";
+        case "finally": return "@finally";
+        case "fixed": return "@fixed";
+        case "float": return "@float";
+        case "for": return "@for";
+        case "foreach": return "@foreach";
+        case "goto": return "@goto";
+        case "if": return "@if";
+        case "in": return "@in";
+        case "int": return "@int";
+        case "interface": return "@interface";
+        case "internal": return "@internal";
+        case "is": return "@is";
+        case "lock": return "@lock";
+        case "long": return "@long";
+        case "new": return "@new";
+        case "null": return "@null";
+        case "namespace": return "@namespace";
+        case "object": return "@object";
+        case "operator": return "@operator";
+        case "out": return "@out";
+        case "override": return "@override";
+        case "params": return "@params";
+        case "private": return "@private";
+        case "protected": return "@protected";
+        case "public": return "@public";
+        case "readonly": return "@readonly";
+        case "ref": return "@ref";
+        case "return": return "@return";
+        case "switch": return "@switch";
+        case "struct": return "@struct";
+        case "sbyte": return "@sbyte";
+        case "sealed": return "@sealed";
+        case "short": return "@short";
+        case "sizeof": return "@sizeof";
+        case "stackalloc": return "@stackalloc";
+        case "static": return "@static";
+        case "string": return "@string";
+        case "this": return "@this";
+        case "throw": return "@throw";
+        case "true": return "@true";
+        case "try": return "@try";
+        case "typeof": return "@typeof";
+        case "uint": return "@uint";
+        case "ulong": return "@ulong";
+        case "unchecked": return "@unchecked";
+        case "unsafe": return "@unsafe";
+        case "ushort": return "@ushort";
+        case "using": return "@using";
+        case "virtual": return "@virtual";
+        case "volatile": return "@volatile";
+        case "void": return "@void";
+        case "while": return "@while";
+      }
+      return name;
+    }
+
+    /// <summary>
     /// Returns a C#-like string that corresponds to the given type definition and that conforms to the specified formatting options.
     /// </summary>
     [Pure]
@@ -2276,13 +2463,20 @@ namespace Microsoft.Cci {
       Contract.Requires(nsType != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      string tname = this.AddGenericParametersIfNeeded(nsType, nsType.GenericParameterCount, formattingOptions, nsType.Name.Value);
+      var tname = nsType.Name.Value;
+      if ((formattingOptions & NameFormattingOptions.EscapeKeyword) != 0) tname = this.EscapeKeyword(tname);
+      if ((formattingOptions & NameFormattingOptions.SupressAttributeSuffix) != 0 &&
+      AttributeHelper.IsAttributeType(nsType.ResolvedType) & tname.EndsWith("Attribute"))
+        tname = tname.Substring(0, tname.Length-9);
+      tname = this.AddGenericParametersIfNeeded(nsType, nsType.GenericParameterCount, formattingOptions, tname);
       if ((formattingOptions & NameFormattingOptions.OmitContainingNamespace) == 0 && !(nsType.ContainingUnitNamespace is IRootUnitNamespaceReference))
         tname = this.GetNamespaceName(nsType.ContainingUnitNamespace, formattingOptions) + "." + tname;
       if ((formattingOptions & NameFormattingOptions.DocumentationIdMemberKind) != 0)
         tname = "T:" + tname;
-      if ((formattingOptions & NameFormattingOptions.MemberKind) != 0)
+      else if ((formattingOptions & NameFormattingOptions.MemberKind) != 0)
         tname = this.GetTypeKind(nsType) + " " + tname;
+      if ((formattingOptions & NameFormattingOptions.Visibility) != 0)
+        tname = (nsType.ResolvedType.IsPublic ? "public " : "internal ") + tname;
       return tname;
     }
 
@@ -2296,9 +2490,12 @@ namespace Microsoft.Cci {
 
       INestedUnitSetNamespace/*?*/ nestedUnitSetNamespace = namespaceDefinition as INestedUnitSetNamespace;
       if (nestedUnitSetNamespace != null) {
-        if (nestedUnitSetNamespace.ContainingNamespace.Name.Value.Length == 0 || (formattingOptions & NameFormattingOptions.OmitContainingNamespace) != 0)
-          return nestedUnitSetNamespace.Name.Value;
-        else
+        if (nestedUnitSetNamespace.ContainingNamespace.Name.Value.Length == 0 || (formattingOptions & NameFormattingOptions.OmitContainingNamespace) != 0) {
+          if ((formattingOptions & NameFormattingOptions.UseGlobalPrefix) != 0)
+            return "global::"+nestedUnitSetNamespace.Name.Value;
+          else
+            return nestedUnitSetNamespace.Name.Value;
+        } else
           return this.GetNamespaceName(nestedUnitSetNamespace.ContainingUnitSetNamespace, formattingOptions) + "." + nestedUnitSetNamespace.Name.Value;
       }
       return namespaceDefinition.Name.Value;
@@ -2314,9 +2511,12 @@ namespace Microsoft.Cci {
 
       INestedUnitNamespaceReference/*?*/ nestedUnitNamespace = unitNamespace as INestedUnitNamespaceReference;
       if (nestedUnitNamespace != null) {
-        if (nestedUnitNamespace.ContainingUnitNamespace is IRootUnitNamespaceReference || (formattingOptions & NameFormattingOptions.OmitContainingNamespace) != 0)
-          return nestedUnitNamespace.Name.Value;
-        else
+        if (nestedUnitNamespace.ContainingUnitNamespace is IRootUnitNamespaceReference || (formattingOptions & NameFormattingOptions.OmitContainingNamespace) != 0) {
+          if ((formattingOptions & NameFormattingOptions.UseGlobalPrefix) != 0)
+            return "global::"+nestedUnitNamespace.Name.Value;
+          else
+            return nestedUnitNamespace.Name.Value;
+        } else
           return this.GetNamespaceName(nestedUnitNamespace.ContainingUnitNamespace, formattingOptions) + "." + nestedUnitNamespace.Name.Value;
       }
       return string.Empty;
@@ -2330,13 +2530,20 @@ namespace Microsoft.Cci {
       Contract.Requires(nestedType != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      string tname = this.AddGenericParametersIfNeeded(nestedType, nestedType.GenericParameterCount, formattingOptions, nestedType.Name.Value);
+      var tname = nestedType.Name.Value;
+      if ((formattingOptions & NameFormattingOptions.EscapeKeyword) != 0) tname = this.EscapeKeyword(tname);
+      if ((formattingOptions & NameFormattingOptions.SupressAttributeSuffix) != 0 &&
+      AttributeHelper.IsAttributeType(nestedType.ResolvedType) & tname.EndsWith("Attribute"))
+        tname = tname.Substring(0, tname.Length-9);
+      tname = this.AddGenericParametersIfNeeded(nestedType, nestedType.GenericParameterCount, formattingOptions, tname);
       if ((formattingOptions & NameFormattingOptions.OmitContainingType) == 0) {
         string delim = ((formattingOptions & NameFormattingOptions.UseReflectionStyleForNestedTypeNames) == 0) ? "." : "+";
-        tname = this.GetTypeName(nestedType.ContainingType, formattingOptions & ~NameFormattingOptions.MemberKind) + delim + tname;
+        tname = this.GetTypeName(nestedType.ContainingType, formattingOptions & ~(NameFormattingOptions.MemberKind|NameFormattingOptions.Visibility|NameFormattingOptions.TypeConstraints)) + delim + tname;
       }
       if ((formattingOptions & NameFormattingOptions.MemberKind) != 0)
         tname = this.GetTypeKind(nestedType) + " " + tname;
+      if ((formattingOptions & NameFormattingOptions.Visibility) != 0)
+        tname = this.GetVisibility(nestedType.ResolvedType) + " " + tname;
       return tname;
     }
 
@@ -2409,16 +2616,31 @@ namespace Microsoft.Cci {
     /// Returns a C#-like string that identifies the kind of the given type definition. For example, "class" or "delegate".
     /// </summary>
     [Pure]
-    protected virtual string GetTypeKind(ITypeReference type) {
-      Contract.Requires(type != null);
+    protected virtual string GetTypeKind(ITypeReference typeReference) {
+      Contract.Requires(typeReference != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      ITypeDefinition typeDefinition = type.ResolvedType;
+      if (typeReference.IsEnum) return "enum";
+      if (typeReference.IsValueType) return "struct";
+      ITypeDefinition typeDefinition = typeReference.ResolvedType;
       if (typeDefinition.IsDelegate) return "delegate";
-      if (typeDefinition.IsEnum) return "enum";
       if (typeDefinition.IsInterface) return "interface";
-      if (type.IsValueType) return "struct";
-      return "class";
+      if (typeDefinition.IsClass) return "class";
+      return "type";
+    }
+
+    /// <summary>
+    /// Returns a C#-like string that corresponds to the visibilty of the type (i.e. "public", "protected", "private" and so on).
+    /// </summary>
+    public virtual string GetVisibility(INestedTypeDefinition nestedType) {
+      switch (nestedType.Visibility) {
+        case TypeMemberVisibility.Assembly: return "internal";
+        case TypeMemberVisibility.Family: return "protected";
+        case TypeMemberVisibility.FamilyAndAssembly: return "protected and internal";
+        case TypeMemberVisibility.FamilyOrAssembly: return "protected internal";
+        case TypeMemberVisibility.Public: return "public";
+        default: return "private";
+      }
     }
 
     /// <summary>
@@ -2469,8 +2691,7 @@ namespace Microsoft.Cci {
         string delim = ((formattingOptions & NameFormattingOptions.OmitWhiteSpaceAfterListDelimiter) == 0) ? ", " : ",";
         foreach (ITypeReference argument in genericTypeInstance.GenericArguments) {
           if (first) first = false; else sb.Append(delim);
-          // The member kind suffix should not be applied to generic arguments.
-          sb.Append(this.GetTypeName(argument, formattingOptions & ~NameFormattingOptions.DocumentationIdMemberKind));
+          sb.Append(this.GetTypeName(argument, formattingOptions & ~(NameFormattingOptions.MemberKind|NameFormattingOptions.DocumentationIdMemberKind)));
         }
         if ((formattingOptions & NameFormattingOptions.FormattingForDocumentationId) != 0) sb.Append("}"); else sb.Append(">");
         return sb.ToString();

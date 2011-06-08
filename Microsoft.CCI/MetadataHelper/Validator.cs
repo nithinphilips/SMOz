@@ -345,8 +345,7 @@ namespace Microsoft.Cci {
         this.Visit((ITypeReference)functionPointerTypeReference);
         if (functionPointerTypeReference.Type is Dummy)
           this.ReportError(MetadataError.IncompleteNode, functionPointerTypeReference, "Type");
-        if ((functionPointerTypeReference.CallingConvention & CallingConvention.ExplicitThis) != 0 && 
-        (functionPointerTypeReference.CallingConvention & CallingConvention.HasThis) == 0)
+        if ((functionPointerTypeReference.CallingConvention & CallingConvention.ExplicitThis) != 0 && functionPointerTypeReference.IsStatic)
           this.ReportError(MetadataError.MethodsCalledWithExplicitThisParametersMustNotBeStatic, functionPointerTypeReference);
       }
 
@@ -725,7 +724,7 @@ namespace Microsoft.Cci {
             this.ReportError(MetadataError.MethodCannotBeAnOverride, resolvedImplementedMethod, methodImplementation);
         }
 
-        if (resolvedImplementedMethod.IsGeneric) {
+        if (methodImplementation.ImplementingMethod.IsGeneric) {
           if (!MemberHelper.GenericMethodSignaturesAreEqual(methodImplementation.ImplementedMethod, methodImplementation.ImplementingMethod))
             this.ReportError(MetadataError.ExplicitOverrideDoesNotMatchSignatureOfOverriddenMethod, methodImplementation);
         } else {

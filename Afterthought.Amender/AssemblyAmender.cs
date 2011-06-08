@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Cci.MutableCodeModel;
 using Microsoft.Cci;
+using Microsoft.Cci.Immutable;
 using System.Runtime.Serialization;
 using System.IO;
 using Afterthought;

@@ -209,7 +209,9 @@ namespace Microsoft.Cci {
     /// Begins a lexical scope.
     /// </summary>
     public void BeginScope() {
-      ILGeneratorScope scope = new ILGeneratorScope(this.offset, this.host.NameTable, this.method);
+      var startLabel = new ILGeneratorLabel();
+      this.MarkLabel(startLabel);
+      ILGeneratorScope scope = new ILGeneratorScope(startLabel, this.host.NameTable, this.method);
       this.scopeStack.Push(scope);
       this.scopes.Add(scope);
     }
@@ -218,7 +220,9 @@ namespace Microsoft.Cci {
     /// Begins a lexical scope.
     /// </summary>
     public void BeginScope(uint numberOfIteratorLocalsInScope) {
-      ILGeneratorScope scope = new ILGeneratorScope(this.offset, this.host.NameTable, this.method);
+      var startLabel = new ILGeneratorLabel();
+      this.MarkLabel(startLabel);
+      ILGeneratorScope scope = new ILGeneratorScope(startLabel, this.host.NameTable, this.method);
       this.scopeStack.Push(scope);
       this.scopes.Add(scope);
       if (numberOfIteratorLocalsInScope == 0) return;
@@ -468,8 +472,11 @@ namespace Microsoft.Cci {
     /// Ends a lexical scope.
     /// </summary>
     public void EndScope() {
-      if (this.scopeStack.Count > 0)
-        this.scopeStack.Pop().CloseScope(this.offset);
+      if (this.scopeStack.Count > 0) {
+        var endLabel = new ILGeneratorLabel();
+        this.MarkLabel(endLabel);
+        this.scopeStack.Pop().CloseScope(endLabel);
+      }
     }
 
     private ILocation GetCurrentSequencePoint() {
@@ -603,6 +610,19 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// Returns zero or more namespace scopes into which the namespace type containing the given method body has been nested.
+    /// These scopes determine how simple names are looked up inside the method body. There is a separate scope for each dotted
+    /// component in the namespace type name. For istance namespace type x.y.z will have two namespace scopes, the first is for the x and the second
+    /// is for the y.
+    /// </summary>
+    public IEnumerable<INamespaceScope> GetNamespaceScopes() {
+      foreach (var generatorScope in this.scopes) {
+        if (generatorScope.usedNamespaces.Count > 0)
+          yield return generatorScope;
+      }
+    }
+
+    /// <summary>
     /// Returns a sequence of all of the IL operations that make up this method body.
     /// </summary>
     public IEnumerable<IOperation> GetOperations() {
@@ -617,6 +637,99 @@ namespace Microsoft.Cci {
     /// </summary>
     public IEnumerable<IOperationExceptionInformation> GetOperationExceptionInformation() {
       return IteratorHelper.GetConversionEnumerable<ExceptionHandler, IOperationExceptionInformation>(this.handlers);
+    }
+
+    /// <summary>
+    /// An object that can provide information about the local scopes of a method.
+    /// </summary>
+    public class LocalScopeProvider : ILocalScopeProvider {
+
+      /// <summary>
+      /// An object that can provide information about the local scopes of a method.
+      /// </summary>
+      /// <param name="originalLocalScopeProvider">The local scope provider to use for methods that have not been decompiled.</param>
+      public LocalScopeProvider(ILocalScopeProvider originalLocalScopeProvider) {
+        this.originalLocalScopeProvider = originalLocalScopeProvider;
+      }
+
+      ILocalScopeProvider originalLocalScopeProvider;
+
+      #region ILocalScopeProvider Members
+
+      /// <summary>
+      /// Returns zero or more local (block) scopes, each defining an IL range in which an iterator local is defined.
+      /// The scopes are returned by the MoveNext method of the object returned by the iterator method.
+      /// The index of the scope corresponds to the index of the local. Specifically local scope i corresponds
+      /// to the local stored in field &lt;localName&gt;x_i of the class used to store the local values in between
+      /// calls to MoveNext.
+      /// </summary>
+      /// <param name="methodBody"></param>
+      /// <returns></returns>
+      public IEnumerable<ILocalScope> GetIteratorScopes(IMethodBody methodBody) {
+        var sourceMethodBody = methodBody as ILGeneratorMethodBody;
+        if (sourceMethodBody == null) return this.originalLocalScopeProvider.GetIteratorScopes(methodBody);
+        return Enumerable<ILocalScope>.Empty;
+      }
+
+      /// <summary>
+      /// Returns zero or more local (block) scopes into which the CLR IL operations in the given method body is organized.
+      /// </summary>
+      /// <param name="methodBody"></param>
+      /// <returns></returns>
+      public IEnumerable<ILocalScope> GetLocalScopes(IMethodBody methodBody) {
+        var sourceMethodBody = methodBody as ILGeneratorMethodBody;
+        if (sourceMethodBody == null) return this.originalLocalScopeProvider.GetLocalScopes(methodBody);
+        return sourceMethodBody.GetLocalScopes();
+      }
+
+      /// <summary>
+      /// Returns zero or more namespace scopes into which the namespace type containing the given method body has been nested.
+      /// These scopes determine how simple names are looked up inside the method body. There is a separate scope for each dotted
+      /// component in the namespace type name. For istance namespace type x.y.z will have two namespace scopes, the first is for the x and the second
+      /// is for the y.
+      /// </summary>
+      /// <param name="methodBody"></param>
+      /// <returns></returns>
+      public IEnumerable<INamespaceScope> GetNamespaceScopes(IMethodBody methodBody) {
+        var sourceMethodBody = methodBody as ILGeneratorMethodBody;
+        if (sourceMethodBody == null) return this.originalLocalScopeProvider.GetNamespaceScopes(methodBody);
+        return sourceMethodBody.GetNamespaceScopes();
+      }
+
+      /// <summary>
+      /// Returns zero or more local constant definitions that are local to the given scope.
+      /// </summary>
+      /// <param name="scope"></param>
+      /// <returns></returns>
+      public IEnumerable<ILocalDefinition> GetConstantsInScope(ILocalScope scope) {
+        var generatorScope = scope as ILGeneratorScope;
+        if (generatorScope == null) return this.originalLocalScopeProvider.GetConstantsInScope(scope);
+        return generatorScope.Constants;
+      }
+
+      /// <summary>
+      /// Returns zero or more local variable definitions that are local to the given scope.
+      /// </summary>
+      /// <param name="scope"></param>
+      /// <returns></returns>
+      public IEnumerable<ILocalDefinition> GetVariablesInScope(ILocalScope scope) {
+        var generatorScope = scope as ILGeneratorScope;
+        if (generatorScope == null) return this.originalLocalScopeProvider.GetVariablesInScope(scope);
+        return generatorScope.Locals;
+      }
+
+      /// <summary>
+      /// Returns true if the method body is an iterator.
+      /// </summary>
+      /// <param name="methodBody"></param>
+      /// <returns></returns>
+      public bool IsIterator(IMethodBody methodBody) {
+        var sourceMethodBody = methodBody as ILGeneratorMethodBody;
+        if (sourceMethodBody == null) return this.originalLocalScopeProvider.IsIterator(methodBody);
+        return false;
+      }
+
+      #endregion
     }
 
   }
@@ -863,16 +976,18 @@ namespace Microsoft.Cci {
   /// </summary>
   public class ILGeneratorScope : ILocalScope, INamespaceScope {
 
-    internal ILGeneratorScope(uint offset, INameTable nameTable, IMethodDefinition containingMethod) {
-      this.offset = offset;
+    internal ILGeneratorScope(ILGeneratorLabel startLabel, INameTable nameTable, IMethodDefinition containingMethod) {
+      this.startLabel = startLabel;
       this.nameTable = nameTable;
       this.methodDefinition = containingMethod;
     }
 
-    internal void CloseScope(uint offset) {
-      this.length = offset - this.offset;
+    internal void CloseScope(ILGeneratorLabel endLabel) {
+      this.endLabel = endLabel;
     }
 
+    ILGeneratorLabel startLabel;
+    ILGeneratorLabel endLabel;
 
     /// <summary>
     /// The local definitions (constants) defined in the source code corresponding to this scope.(A debugger can use this when evaluating expressions in a program
@@ -888,9 +1003,8 @@ namespace Microsoft.Cci {
     /// </summary>
     /// <value></value>
     public uint Length {
-      get { return this.length; }
+      get { return this.endLabel.Offset - this.startLabel.Offset; }
     }
-    uint length;
 
     /// <summary>
     /// The local definitions (variables) defined in the source code corresponding to this scope.(A debugger can use this when evaluating expressions in a program
@@ -915,9 +1029,8 @@ namespace Microsoft.Cci {
     /// The offset of the first operation in the scope.
     /// </summary>
     public uint Offset {
-      get { return this.offset; }
+      get { return this.startLabel.Offset; }
     }
-    readonly uint offset;
 
     /// <summary>
     /// The namespaces that are used (imported) into this scope. (A debugger can use this when evaluating expressions in a program

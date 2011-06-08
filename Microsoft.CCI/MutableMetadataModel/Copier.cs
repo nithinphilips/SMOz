@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics.Contracts;
+using Microsoft.Cci.UtilityDataStructures;
 
 namespace Microsoft.Cci.MutableCodeModel {
 
@@ -1106,13 +1107,13 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// </summary>
     class Populator : IMetadataVisitor {
 
-      internal Populator(MetadataShallowCopier shallowCopier, Dictionary<object, object> definitionCache) {
+      internal Populator(MetadataShallowCopier shallowCopier, Hashtable<object, object> definitionCache) {
         this.shallowCopier = shallowCopier;
         this.definitionCache = definitionCache;
       }
 
       MetadataShallowCopier shallowCopier;
-      Dictionary<object, object> definitionCache;
+      Hashtable<object, object> definitionCache;
 
 #pragma warning disable 1591
 
@@ -1388,26 +1389,26 @@ namespace Microsoft.Cci.MutableCodeModel {
       /// Unless a definition is outside the cone to be copied, it must have an entry in this table.
       /// Consult this to find containing definitions.
       /// </summary>
-      internal Dictionary<object, object> DefinitionCache {
+      internal Hashtable<object, object> DefinitionCache {
         get {
           if (this.definitionCache == null)
-            this.definitionCache = new Dictionary<object, object>();
+            this.definitionCache = new Hashtable<object, object>();
           return this.definitionCache;
         }
       }
-      Dictionary<object, object> definitionCache;
+      Hashtable<object, object> definitionCache;
 
       /// <summary>
       /// A cache of references that have already been encountered and copied. Once in the cache, the cached value is just returned unchanged.
       /// </summary>
-      Dictionary<object, object> ReferenceCache {
+      Hashtable<object, object> ReferenceCache {
         get {
           if (this.referenceCache == null)
-            this.referenceCache = new Dictionary<object, object>();
+            this.referenceCache = new Hashtable<object, object>();
           return this.referenceCache;
         }
       }
-      Dictionary<object, object> referenceCache;
+      Hashtable<object, object> referenceCache;
 
       /// <summary>
       /// 
@@ -2931,7 +2932,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// Returns a deep copy of the given method definition.
     /// </summary>
     public MethodDefinition Copy(IMethodDefinition method) {
-      Contract.Requires(!(method is Dummy || method is SpecializedMethodDefinition));
+      Contract.Requires(!(method is Dummy || method is ISpecializedMethodDefinition));
       this.TraverseAndPopulateDefinitionCacheWithCopies.Traverse(method);
       return (MethodDefinition)this.SubstituteCopiesForOriginals.Substitute(method);
     }
@@ -4327,7 +4328,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <param name="aliasForType"></param>
     /// <returns></returns>
     protected virtual AliasForType DeepCopy(AliasForType aliasForType) {
-      aliasForType.AliasedType = this.DeepCopy(aliasForType.AliasedType);
+      aliasForType.AliasedType = (INamedTypeReference)this.DeepCopy(aliasForType.AliasedType);
       aliasForType.Members = this.DeepCopy(aliasForType.Members);
       return aliasForType;
     }
@@ -5451,7 +5452,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <param name="namespaceAliasForType">Type of the namespace alias for.</param>
     /// <returns></returns>
     protected virtual NamespaceAliasForType DeepCopy(NamespaceAliasForType namespaceAliasForType) {
-      namespaceAliasForType.AliasedType = this.DeepCopy(namespaceAliasForType.AliasedType);
+      namespaceAliasForType.AliasedType = (INamedTypeReference)this.DeepCopy(namespaceAliasForType.AliasedType);
       namespaceAliasForType.Attributes = this.DeepCopy(namespaceAliasForType.Attributes);
       namespaceAliasForType.Locations = this.DeepCopy(namespaceAliasForType.Locations);
       namespaceAliasForType.Members = this.DeepCopy(namespaceAliasForType.Members);
@@ -5486,7 +5487,7 @@ namespace Microsoft.Cci.MutableCodeModel {
     /// <param name="nestedAliasForType">Type of the nested alias for.</param>
     /// <returns></returns>
     protected virtual NestedAliasForType DeepCopy(NestedAliasForType nestedAliasForType) {
-      nestedAliasForType.AliasedType = this.DeepCopy(nestedAliasForType.AliasedType);
+      nestedAliasForType.AliasedType = (INamedTypeReference)this.DeepCopy(nestedAliasForType.AliasedType);
       nestedAliasForType.Attributes = this.DeepCopy(nestedAliasForType.Attributes);
       nestedAliasForType.Locations = this.DeepCopy(nestedAliasForType.Locations);
       nestedAliasForType.ContainingAlias = this.GetMutableShallowCopy(nestedAliasForType.ContainingAlias);

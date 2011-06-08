@@ -69,15 +69,9 @@ namespace Microsoft.Cci {
     internal readonly IName RuntimeTypeHandle;
     internal readonly IName ArgIterator;
     internal readonly IName IList;
-    internal readonly IName IEnumerable;
-    internal readonly IName IList1;
-    internal readonly IName ICollection1;
-    internal readonly IName IEnumerable1;
     internal readonly IName Mscorlib;
-    internal readonly IName System_Collections_Generic;
     internal readonly IName System_Runtime;
     internal readonly IName _Deleted_;
-    internal readonly IName _Module_;
 
     /*^
     #pragma warning disable 2669
@@ -108,15 +102,9 @@ namespace Microsoft.Cci {
       this.RuntimeTypeHandle = nameTable.GetNameFor("RuntimeTypeHandle");
       this.ArgIterator = nameTable.GetNameFor("ArgIterator");
       this.IList = nameTable.GetNameFor("IList");
-      this.IEnumerable = nameTable.GetNameFor("IEnumerable");
-      this.IList1 = nameTable.GetNameFor("IList`1");
-      this.ICollection1 = nameTable.GetNameFor("ICollection`1");
-      this.IEnumerable1 = nameTable.GetNameFor("IEnumerable`1");
       this.Mscorlib = nameTable.GetNameFor("mscorlib");
-      this.System_Collections_Generic = nameTable.GetNameFor("System.Collections.Generic");
       this.System_Runtime = nameTable.GetNameFor("System.Runtime");
       this._Deleted_ = nameTable.GetNameFor("_Deleted*");
-      this._Module_ = nameTable.GetNameFor("<Module>");
     }
     /*^
     #pragma warning restore 2669
@@ -478,7 +466,7 @@ namespace Microsoft.Cci {
       if (internalAssembly == null) {
         return Dummy.Type;
       }
-      IMetadataReaderTypeReference/*?*/ moduleTypeRef = internalAssembly.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeName);
+      ITypeReference/*?*/ moduleTypeRef = internalAssembly.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeName);
       if (moduleTypeRef == null) {
         return Dummy.Type;
       }

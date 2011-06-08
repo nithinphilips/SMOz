@@ -11,18 +11,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Cci.UtilityDataStructures;
-using System.Diagnostics;
-using Microsoft.Cci.MetadataReader.PEFileFlags;
-using Microsoft.Cci.MetadataReader.Errors;
+using Microsoft.Cci.Immutable;
 using Microsoft.Cci.MetadataReader.ObjectModelImplementation;
-
-//^ using Microsoft.Contracts;
+using Microsoft.Cci.MetadataReader.PEFileFlags;
+using Microsoft.Cci.UtilityDataStructures;
 
 namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
 
   internal abstract class ExpressionBase : IMetadataExpression {
-    internal abstract IMetadataReaderTypeReference/*?*/ ModuleTypeReference { get; }
+    internal abstract ITypeReference/*?*/ ModuleTypeReference { get; }
 
     #region IExpression Members
 
@@ -46,18 +43,18 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
   }
 
   internal sealed class ConstantExpression : ExpressionBase, IMetadataConstant {
-    readonly IMetadataReaderTypeReference TypeReference;
-    readonly object/*?*/ value;
+    readonly ITypeReference TypeReference;
+    internal object/*?*/ value;
 
     internal ConstantExpression(
-      IMetadataReaderTypeReference typeReference,
+      ITypeReference typeReference,
       object/*?*/ value
     ) {
       this.TypeReference = typeReference;
       this.value = value;
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ ModuleTypeReference {
+    internal override ITypeReference/*?*/ ModuleTypeReference {
       get { return this.TypeReference; }
     }
 
@@ -75,18 +72,18 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
   }
 
   internal sealed class ArrayExpression : ExpressionBase, IMetadataCreateArray {
-    internal readonly VectorType VectorType;
+    internal readonly IArrayTypeReference VectorType;
     internal readonly EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> Elements;
 
     internal ArrayExpression(
-      VectorType vectorType,
+      IArrayTypeReference vectorType,
       EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> elements
     ) {
       this.VectorType = vectorType;
       this.Elements = elements;
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ ModuleTypeReference {
+    internal override ITypeReference/*?*/ ModuleTypeReference {
       get { return this.VectorType; }
     }
 
@@ -98,7 +95,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
 
     public ITypeReference ElementType {
       get {
-        IMetadataReaderTypeReference/*?*/ moduleTypeRef = this.VectorType.ElementType;
+        ITypeReference/*?*/ moduleTypeRef = this.VectorType.ElementType;
         if (moduleTypeRef == null)
           return Dummy.TypeReference;
         return moduleTypeRef;
@@ -126,18 +123,18 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
 
   internal sealed class TypeOfExpression : ExpressionBase, IMetadataTypeOf {
     readonly PEFileToObjectModel PEFileToObjectModel;
-    readonly IMetadataReaderTypeReference/*?*/ TypeExpression;
+    readonly ITypeReference/*?*/ TypeExpression;
 
     internal TypeOfExpression(
       PEFileToObjectModel peFileToObjectModel,
-      IMetadataReaderTypeReference/*?*/ typeExpression
+      ITypeReference/*?*/ typeExpression
     ) {
       this.PEFileToObjectModel = peFileToObjectModel;
       this.TypeExpression = typeExpression;
     }
 
 
-    internal override IMetadataReaderTypeReference/*?*/ ModuleTypeReference {
+    internal override ITypeReference/*?*/ ModuleTypeReference {
       get { return this.PEFileToObjectModel.SystemType; }
     }
 
@@ -163,7 +160,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
     readonly IName Name;
     readonly ITypeReference ContainingType;
     int Flags;
-    readonly IMetadataReaderTypeReference fieldOrPropTypeReference;
+    readonly ITypeReference fieldOrPropTypeReference;
     object/*?*/ resolvedFieldOrProperty;
     internal readonly ExpressionBase ExpressionValue;
 
@@ -171,7 +168,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       IName name,
       ITypeReference containingType,
       bool isField,
-      IMetadataReaderTypeReference fieldOrPropTypeReference,
+      ITypeReference fieldOrPropTypeReference,
       ExpressionBase expressionValue
     ) {
       this.Name = name;
@@ -188,7 +185,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       }
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ ModuleTypeReference {
+    internal override ITypeReference/*?*/ ModuleTypeReference {
       get { return this.fieldOrPropTypeReference; }
     }
 
@@ -216,7 +213,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
               IFieldDefinition/*?*/ fd = tdm as IFieldDefinition;
               if (fd == null)
                 continue;
-              IMetadataReaderTypeReference/*?*/ fmtr = fd.Type as IMetadataReaderTypeReference;
+              ITypeReference/*?*/ fmtr = fd.Type as ITypeReference;
               if (fmtr == null)
                 continue;
               if (fmtr.InternedKey == this.fieldOrPropTypeReference.InternedKey) {
@@ -229,7 +226,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
               IPropertyDefinition/*?*/ pd = tdm as IPropertyDefinition;
               if (pd == null)
                 continue;
-              IMetadataReaderTypeReference/*?*/ pmtr = pd.Type as IMetadataReaderTypeReference;
+              ITypeReference/*?*/ pmtr = pd.Type as ITypeReference;
               if (pmtr == null)
                 continue;
               if (pmtr.InternedKey == this.fieldOrPropTypeReference.InternedKey) {
@@ -248,15 +245,15 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
   }
 
   internal sealed class CustomAttribute : MetadataObject, ICustomAttribute {
-    internal readonly IMetadataReaderMethodReference Constructor;
+    internal readonly IMethodReference Constructor;
     internal readonly EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> Arguments;
-    internal readonly EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> NamedArguments;
+    internal EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> NamedArguments;
     internal readonly uint AttributeRowId;
 
     internal CustomAttribute(
       PEFileToObjectModel peFileToObjectModel,
       uint attributeRowId,
-      IMetadataReaderMethodReference constructor,
+      IMethodReference constructor,
       EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> arguments,
       EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> namedArguments
     )
@@ -299,7 +296,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
 
     public ITypeReference Type {
       get {
-        IMetadataReaderTypeReference/*?*/ moduleTypeRef = this.Constructor.OwningTypeReference;
+        ITypeReference/*?*/ moduleTypeRef = this.Constructor.ContainingType;
         if (moduleTypeRef == null)
           return Dummy.TypeReference;
         return moduleTypeRef;
@@ -312,18 +309,15 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
   internal sealed class SecurityCustomAttribute : ICustomAttribute {
     internal readonly SecurityAttribute ContainingSecurityAttribute;
     internal readonly IMethodReference ConstructorReference;
-    internal readonly EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> Arguments;
     internal readonly EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> NamedArguments;
 
     internal SecurityCustomAttribute(
       SecurityAttribute containingSecurityAttribute,
       IMethodReference constructorReference,
-      EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> arguments,
       EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> namedArguments
     ) {
       this.ContainingSecurityAttribute = containingSecurityAttribute;
       this.ConstructorReference = constructorReference;
-      this.Arguments = arguments;
       this.NamedArguments = namedArguments;
     }
 
@@ -331,7 +325,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
     #region ICustomAttribute Members
 
     IEnumerable<IMetadataExpression> ICustomAttribute.Arguments {
-      get { return this.Arguments; }
+      get { return Enumerable<IMetadataExpression>.Empty; }
     }
 
     public IMethodReference Constructor {
@@ -356,7 +350,6 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
   internal sealed class SecurityAttribute : MetadataObject, ISecurityAttribute {
     internal readonly SecurityAction Action;
     internal readonly uint DeclSecurityRowId;
-    EnumerableArrayWrapper<SecurityCustomAttribute, ICustomAttribute>/*?*/ SecurityCustomAttributes;
 
     internal SecurityAttribute(
       PEFileToObjectModel peFileToObjectModel,
@@ -380,19 +373,14 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       get { return TokenTypeIds.Permission | this.DeclSecurityRowId; }
     }
 
+    protected override IEnumerable<ICustomAttribute> GetAttributes() {
+      return this.PEFileToObjectModel.GetSecurityAttributeData(this);
+    }
+
     #region ISecurityAttribute Members
 
     SecurityAction ISecurityAttribute.Action {
       get { return this.Action; }
-    }
-
-    IEnumerable<ICustomAttribute> ISecurityAttribute.Attributes {
-      get {
-        if (this.SecurityCustomAttributes == null) {
-          this.SecurityCustomAttributes = this.PEFileToObjectModel.GetSecurityAttributeData(this);
-        }
-        return this.SecurityCustomAttributes;
-      }
     }
 
     #endregion
@@ -423,7 +411,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
 
   internal abstract class TypeName {
 
-    internal abstract IMetadataReaderTypeReference/*?*/ GetAsTypeReference(
+    internal abstract ITypeReference/*?*/ GetAsTypeReference(
       PEFileToObjectModel peFileToObjectModel,
       IMetadataReaderModuleReference module
     );
@@ -439,7 +427,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       IMetadataReaderModuleReference module
     );
 
-    internal override IMetadataReaderTypeReference GetAsTypeReference(
+    internal override ITypeReference GetAsTypeReference(
       PEFileToObjectModel peFileToObjectModel, IMetadataReaderModuleReference module
     ) {
       return this.GetAsNomimalType(peFileToObjectModel, module);
@@ -464,17 +452,21 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
     internal readonly IName Name;
     internal readonly IName unmanagledTypeName;
 
-    internal NamespaceTypeName(
-      INameTable nameTable,
-      NamespaceName/*?*/ namespaceName,
-      IName name
-    ) {
+    internal NamespaceTypeName(INameTable nameTable, NamespaceName/*?*/ namespaceName, IName name) {
       this.NamespaceName = namespaceName;
       this.Name = name;
-      this.unmanagledTypeName = name;
       string nameStr = null;
       TypeCache.SplitMangledTypeName(name.Value, out nameStr, out this.genericParameterCount);
-      this.unmanagledTypeName = nameTable.GetNameFor(nameStr);
+      if (this.genericParameterCount > 0)
+        this.unmanagledTypeName = nameTable.GetNameFor(nameStr);
+      else
+        this.unmanagledTypeName = name;
+    }
+
+    private NamespaceTypeName(INameTable nameTable, NamespaceName/*?*/ namespaceName, IName name, IName unmangledTypeName) {
+      this.NamespaceName = namespaceName;
+      this.Name = name;
+      this.unmanagledTypeName = unmangledTypeName;
     }
 
     internal override uint GenericParameterCount {
@@ -485,7 +477,23 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       PEFileToObjectModel peFileToObjectModel,
       IMetadataReaderModuleReference module
     ) {
-      return new NamespaceTypeNameTypeReference(module, this, peFileToObjectModel);
+      var typeRef = new NamespaceTypeNameTypeReference(module, this, peFileToObjectModel);
+      var redirectedTypeRef = peFileToObjectModel.ModuleReader.metadataReaderHost.Redirect(peFileToObjectModel.Module, typeRef) as INamespaceTypeReference;
+      if (redirectedTypeRef != typeRef && redirectedTypeRef != null) {
+        var namespaceName = this.GetNamespaceName(peFileToObjectModel.NameTable, redirectedTypeRef.ContainingUnitNamespace as INestedUnitNamespaceReference);
+        var mangledName = redirectedTypeRef.Name;
+        if (redirectedTypeRef.GenericParameterCount > 0)
+          mangledName = peFileToObjectModel.NameTable.GetNameFor(redirectedTypeRef.Name.Value+"`"+redirectedTypeRef.GenericParameterCount);
+        var redirectedNamespaceTypeName = new NamespaceTypeName(peFileToObjectModel.NameTable, namespaceName, mangledName, redirectedTypeRef.Name);
+        return new NamespaceTypeNameTypeReference(module, redirectedNamespaceTypeName, peFileToObjectModel);
+      }
+      return typeRef;
+    }
+
+    private NamespaceName/*?*/ GetNamespaceName(INameTable nameTable, INestedUnitNamespaceReference/*?*/ nestedUnitNamespaceReference) {
+      if (nestedUnitNamespaceReference == null) return null;
+      var parentNamespaceName = this.GetNamespaceName(nameTable, nestedUnitNamespaceReference.ContainingUnitNamespace as INestedUnitNamespaceReference);
+      return new NamespaceName(nameTable, parentNamespaceName, nestedUnitNamespaceReference.Name);
     }
 
     internal override IName UnmangledTypeName {
@@ -571,69 +579,55 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
   internal sealed class GenericTypeName : TypeName {
     internal readonly NominalTypeName GenericTemplate;
     internal readonly List<TypeName> GenericArguments;
-    internal GenericTypeName(
-      NominalTypeName genericTemplate,
-      List<TypeName> genericArguments
-    ) {
+
+    internal GenericTypeName(NominalTypeName genericTemplate, List<TypeName> genericArguments) {
       this.GenericTemplate = genericTemplate;
       this.GenericArguments = genericArguments;
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ GetAsTypeReference(
-      PEFileToObjectModel peFileToObjectModel,
-      IMetadataReaderModuleReference module
-    ) {
-      IMetadataReaderNamedTypeReference/*?*/ nominalType = this.GenericTemplate.GetAsNomimalType(peFileToObjectModel, module);
-      if (nominalType == null)
-        return null;
+    internal override ITypeReference/*?*/ GetAsTypeReference(PEFileToObjectModel peFileToObjectModel, IMetadataReaderModuleReference module) {
+      var nominalType = this.GenericTemplate.GetAsNomimalType(peFileToObjectModel, module);
+      if (nominalType == null) return null;
+      int argumentUsed;
+      return this.GetSpecializedTypeReference(peFileToObjectModel, nominalType, out argumentUsed, mostNested: true);
+    }
+
+    private ITypeReference GetSpecializedTypeReference(PEFileToObjectModel peFileToObjectModel, INamedTypeReference nominalType, out int argumentUsed, bool mostNested) {
+      argumentUsed = 0;
       int len = this.GenericArguments.Count;
-      IMetadataReaderTypeReference/*?*/[] moduleTypeReferenceList = new IMetadataReaderTypeReference/*?*/[len];
-      for (int i = 0; i < len; ++i) {
-        moduleTypeReferenceList[i] = this.GenericArguments[i].GetAsTypeReference(peFileToObjectModel, peFileToObjectModel.Module);
+      var nestedType = nominalType as INestedTypeReference;
+      if (nestedType != null) {
+        var parentTemplate = this.GetSpecializedTypeReference(peFileToObjectModel, (INamedTypeReference)nestedType.ContainingType, out argumentUsed, mostNested: false);
+        if (parentTemplate != nestedType.ContainingType)
+          nominalType = new SpecializedNestedTypeReference(nestedType, parentTemplate, peFileToObjectModel.InternFactory);
       }
-      return peFileToObjectModel.typeCache.GetGenericTypeInstanceReference(
-        0xFFFFFFFF,
-        nominalType,
-        moduleTypeReferenceList
-      );
+      var argsToUse = mostNested ? len-argumentUsed : nominalType.GenericParameterCount;
+      if (argsToUse == 0) return nominalType;
+      var genericArgumentsReferences = new ITypeReference[argsToUse];
+      for (int i = 0; i < argsToUse; ++i)
+        genericArgumentsReferences[i] = this.GenericArguments[i+argumentUsed].GetAsTypeReference(peFileToObjectModel, peFileToObjectModel.Module)??Dummy.TypeReference;
+      argumentUsed += argsToUse;
+      return new GenericTypeInstanceReference(nominalType, IteratorHelper.GetReadonly(genericArgumentsReferences), peFileToObjectModel.InternFactory);
     }
 
   }
 
   internal sealed class ArrayTypeName : TypeName {
-    internal readonly TypeName ElementType;
-    internal readonly int Rank; //  0 is SZArray
-    internal ArrayTypeName(
-      TypeName elementType,
-      int rank
-    ) {
+    readonly TypeName ElementType;
+    readonly uint Rank; //  0 is SZArray
+
+    internal ArrayTypeName(TypeName elementType, uint rank) {
       this.ElementType = elementType;
       this.Rank = rank;
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ GetAsTypeReference(
-      PEFileToObjectModel peFileToObjectModel,
-      IMetadataReaderModuleReference module
-    ) {
-      IMetadataReaderTypeReference/*?*/ elementType = this.ElementType.GetAsTypeReference(peFileToObjectModel, module);
-      if (elementType == null)
-        return null;
-      if (this.Rank == 0) {
-        return new VectorType(
-          peFileToObjectModel,
-          0xFFFFFFFF,
-          elementType
-        );
-      } else {
-        return new MatrixType(
-          peFileToObjectModel,
-          0xFFFFFFFF,
-          elementType,
-          this.Rank,
-          TypeCache.EmptyUlongArray,
-          TypeCache.EmptyIntArray
-        );
-      }
+    internal override ITypeReference/*?*/ GetAsTypeReference(PEFileToObjectModel peFileToObjectModel, IMetadataReaderModuleReference module) {
+      ITypeReference/*?*/ elementType = this.ElementType.GetAsTypeReference(peFileToObjectModel, module);
+      if (elementType == null) return null;
+      if (this.Rank == 0)
+        return Vector.GetVector(elementType, peFileToObjectModel.InternFactory);
+      else
+        return Matrix.GetMatrix(elementType, this.Rank, peFileToObjectModel.InternFactory);
     }
 
   }
@@ -646,18 +640,13 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       this.TargetType = targetType;
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ GetAsTypeReference(
+    internal override ITypeReference/*?*/ GetAsTypeReference(
       PEFileToObjectModel peFileToObjectModel,
       IMetadataReaderModuleReference module
     ) {
-      IMetadataReaderTypeReference/*?*/ targetType = this.TargetType.GetAsTypeReference(peFileToObjectModel, module);
-      if (targetType == null)
-        return null;
-      return new PointerType(
-        peFileToObjectModel,
-        0xFFFFFFFF,
-        targetType
-      );
+      var targetType = this.TargetType.GetAsTypeReference(peFileToObjectModel, module);
+      if (targetType == null) return null;
+      return PointerType.GetPointerType(targetType, peFileToObjectModel.InternFactory);
     }
 
   }
@@ -670,18 +659,13 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       this.TargetType = targetType;
     }
 
-    internal override IMetadataReaderTypeReference GetAsTypeReference(
+    internal override ITypeReference GetAsTypeReference(
       PEFileToObjectModel peFileToObjectModel,
       IMetadataReaderModuleReference module
     ) {
-      IMetadataReaderTypeReference/*?*/ targetType = this.TargetType.GetAsTypeReference(peFileToObjectModel, module);
-      if (targetType == null)
-        return null;
-      return new ManagedPointerType(
-        peFileToObjectModel,
-        0xFFFFFFFF,
-        targetType
-      );
+      ITypeReference/*?*/ targetType = this.TargetType.GetAsTypeReference(peFileToObjectModel, module);
+      if (targetType == null) return null;
+      return ManagedPointerType.GetManagedPointerType(targetType, peFileToObjectModel.InternFactory);
     }
 
   }
@@ -701,7 +685,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       this.Retargetable = retargetable;
     }
 
-    internal override IMetadataReaderTypeReference/*?*/ GetAsTypeReference(
+    internal override ITypeReference/*?*/ GetAsTypeReference(
       PEFileToObjectModel peFileToObjectModel,
       IMetadataReaderModuleReference module
     ) {
@@ -943,7 +927,6 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       return typeNameTokenKind == TypeNameTokenKind.Identifier
         || typeNameTokenKind == TypeNameTokenKind.OpenBracket;
     }
-    //^ [NotDelayed]
     internal TypeNameParser(
       INameTable nameTable,
       string typeName
@@ -957,7 +940,6 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
       this.Culture = nameTable.GetNameFor("Culture");
       this.neutral = nameTable.GetNameFor("neutral");
       this.CurrentIdentifierInfo = nameTable.EmptyName;
-      //^ base();
       this.NextToken(false);
     }
     NamespaceTypeName/*?*/ ParseNamespaceTypeName() {
@@ -1048,7 +1030,7 @@ namespace Microsoft.Cci.MetadataReader.ObjectModelImplementation {
           typeName = new PointerTypeName(typeName);
         } else if (this.CurrentTypeNameTokenKind == TypeNameTokenKind.OpenBracket) {
           this.NextToken(false);
-          int rank;
+          uint rank;
           if (this.CurrentTypeNameTokenKind == TypeNameTokenKind.Astrix) {
             rank = 1;
           } else if (this.CurrentTypeNameTokenKind == TypeNameTokenKind.Comma) {
@@ -1167,71 +1149,69 @@ namespace Microsoft.Cci.MetadataReader {
     internal bool morePermutationsArePossible;
     readonly protected PEFileToObjectModel PEFileToObjectModel;
     protected MemoryReader SignatureMemoryReader;
-    protected object/*?*/ GetPrimitiveValue(
-      IMetadataReaderTypeReference type
-    ) {
-      switch (type.SignatureTypeCode) {
-        case MetadataReaderSignatureTypeCode.SByte:
+    protected object/*?*/ GetPrimitiveValue(ITypeReference type) {
+      switch (type.TypeCode) {
+        case PrimitiveTypeCode.Int8:
           if (this.SignatureMemoryReader.Offset+1 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (sbyte)0;
           }
           return this.SignatureMemoryReader.ReadSByte();
-        case MetadataReaderSignatureTypeCode.Int16:
+        case PrimitiveTypeCode.Int16:
           if (this.SignatureMemoryReader.Offset+2 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (short)0;
           }
           return this.SignatureMemoryReader.ReadInt16();
-        case MetadataReaderSignatureTypeCode.Int32:
+        case PrimitiveTypeCode.Int32:
           if (this.SignatureMemoryReader.Offset+4 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (int)0;
           }
           return this.SignatureMemoryReader.ReadInt32();
-        case MetadataReaderSignatureTypeCode.Int64:
+        case PrimitiveTypeCode.Int64:
           if (this.SignatureMemoryReader.Offset+8 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (long)0;
           }
           return this.SignatureMemoryReader.ReadInt64();
-        case MetadataReaderSignatureTypeCode.Byte:
+        case PrimitiveTypeCode.UInt8:
           if (this.SignatureMemoryReader.Offset+1 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (byte)0;
           }
           return this.SignatureMemoryReader.ReadByte();
-        case MetadataReaderSignatureTypeCode.UInt16:
+        case PrimitiveTypeCode.UInt16:
           if (this.SignatureMemoryReader.Offset+2 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (ushort)0;
           }
           return this.SignatureMemoryReader.ReadUInt16();
-        case MetadataReaderSignatureTypeCode.UInt32:
+        case PrimitiveTypeCode.UInt32:
           if (this.SignatureMemoryReader.Offset+4 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (uint)0;
           }
           return this.SignatureMemoryReader.ReadUInt32();
-        case MetadataReaderSignatureTypeCode.UInt64:
+        case PrimitiveTypeCode.UInt64:
           if (this.SignatureMemoryReader.Offset+8 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (ulong)0;
           }
           return this.SignatureMemoryReader.ReadUInt64();
-        case MetadataReaderSignatureTypeCode.Single:
+        case PrimitiveTypeCode.Float32:
           if (this.SignatureMemoryReader.Offset+4 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (float)0;
           }
           return this.SignatureMemoryReader.ReadSingle();
-        case MetadataReaderSignatureTypeCode.Double:
+        case PrimitiveTypeCode.Float64:
           if (this.SignatureMemoryReader.Offset+8 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (double)0;
           }
           return this.SignatureMemoryReader.ReadDouble();
-        case MetadataReaderSignatureTypeCode.Boolean: {
+        case PrimitiveTypeCode.Boolean: {
             if (this.SignatureMemoryReader.Offset+1 > this.SignatureMemoryReader.Length) {
               this.decodeFailed = true;
               return false;
@@ -1239,7 +1219,7 @@ namespace Microsoft.Cci.MetadataReader {
             byte val = this.SignatureMemoryReader.ReadByte();
             return val == 1;
           }
-        case MetadataReaderSignatureTypeCode.Char:
+        case PrimitiveTypeCode.Char:
           if (this.SignatureMemoryReader.Offset+2 > this.SignatureMemoryReader.Length) {
             this.decodeFailed = true;
             return (char)0;
@@ -1261,7 +1241,7 @@ namespace Microsoft.Cci.MetadataReader {
       }
       return this.SignatureMemoryReader.ReadUTF8WithSize(byteLen);
     }
-    protected IMetadataReaderTypeReference/*?*/ GetFieldOrPropType() {
+    protected ITypeReference/*?*/ GetFieldOrPropType() {
       if (this.SignatureMemoryReader.Offset+1 > this.SignatureMemoryReader.Length) {
         this.decodeFailed = true;
         return null;
@@ -1295,10 +1275,9 @@ namespace Microsoft.Cci.MetadataReader {
         case SerializationType.String:
           return this.PEFileToObjectModel.SystemString;
         case SerializationType.SZArray: {
-            IMetadataReaderTypeReference/*?*/ elementType = this.GetFieldOrPropType();
-            if (elementType == null)
-              return null;
-            return new VectorType(this.PEFileToObjectModel, 0xFFFFFFFF, elementType);
+            ITypeReference/*?*/ elementType = this.GetFieldOrPropType();
+            if (elementType == null) return null;
+            return Vector.GetVector(elementType, this.PEFileToObjectModel.InternFactory);
           }
         case SerializationType.Type:
           return this.PEFileToObjectModel.SystemType;
@@ -1308,7 +1287,9 @@ namespace Microsoft.Cci.MetadataReader {
             string/*?*/ typeName = this.GetSerializedString();
             if (typeName == null)
               return null;
-            return (TypeNameTypeReference)this.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeName);
+            var result = (TypeNameTypeReference)this.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeName);
+            if (result != null) result.IsEnum = true;
+            return result;
           }
       }
       this.decodeFailed = true;
@@ -1322,32 +1303,29 @@ namespace Microsoft.Cci.MetadataReader {
       return typeName;
     }
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-    protected ExpressionBase/*?*/ ReadSerializedValue(
-      IMetadataReaderTypeReference type
-    ) {
-      switch (type.SignatureTypeCode) {
-        case MetadataReaderSignatureTypeCode.SByte:
-        case MetadataReaderSignatureTypeCode.Int16:
-        case MetadataReaderSignatureTypeCode.Int32:
-        case MetadataReaderSignatureTypeCode.Int64:
-        case MetadataReaderSignatureTypeCode.Byte:
-        case MetadataReaderSignatureTypeCode.UInt16:
-        case MetadataReaderSignatureTypeCode.UInt32:
-        case MetadataReaderSignatureTypeCode.UInt64:
-        case MetadataReaderSignatureTypeCode.Single:
-        case MetadataReaderSignatureTypeCode.Double:
-        case MetadataReaderSignatureTypeCode.Boolean:
-        case MetadataReaderSignatureTypeCode.Char:
+    protected ExpressionBase/*?*/ ReadSerializedValue(ITypeReference type) {
+      switch (type.TypeCode) {
+        case PrimitiveTypeCode.Int8:
+        case PrimitiveTypeCode.Int16:
+        case PrimitiveTypeCode.Int32:
+        case PrimitiveTypeCode.Int64:
+        case PrimitiveTypeCode.UInt8:
+        case PrimitiveTypeCode.UInt16:
+        case PrimitiveTypeCode.UInt32:
+        case PrimitiveTypeCode.UInt64:
+        case PrimitiveTypeCode.Float32:
+        case PrimitiveTypeCode.Float64:
+        case PrimitiveTypeCode.Boolean:
+        case PrimitiveTypeCode.Char:
           return new ConstantExpression(type, this.GetPrimitiveValue(type));
-        case MetadataReaderSignatureTypeCode.String:
+        case PrimitiveTypeCode.String:
           return new ConstantExpression(type, this.GetSerializedString());
-        case MetadataReaderSignatureTypeCode.Object: {
-            IMetadataReaderTypeReference/*?*/ underlyingType = this.GetFieldOrPropType();
-            if (underlyingType == null)
-              return null;
+        default:
+          if (TypeHelper.TypesAreEquivalent(type, this.PEFileToObjectModel.SystemObject)) {
+            ITypeReference/*?*/ underlyingType = this.GetFieldOrPropType();
+            if (underlyingType == null) return null;
             return this.ReadSerializedValue(underlyingType);
           }
-        default:
           if (TypeHelper.TypesAreEquivalent(type, this.PEFileToObjectModel.SystemType)) {
             string/*?*/ typeNameStr = this.GetSerializedString();
             if (typeNameStr == null) {
@@ -1355,12 +1333,12 @@ namespace Microsoft.Cci.MetadataReader {
             }
             return new TypeOfExpression(this.PEFileToObjectModel, this.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeNameStr));
           }
-          var typeDef = type.ResolvedType as IMetadataReaderNamedTypeReference;
-          if (typeDef != null && typeDef.IsEnum)
-            return new ConstantExpression(type, this.GetPrimitiveValue(typeDef.EnumUnderlyingType));
-          VectorType/*?*/ vectorType = type as VectorType;
+          var typeDef = type.ResolvedType;
+          if (typeDef != Dummy.Type && typeDef.IsEnum)
+            return new ConstantExpression(type, this.GetPrimitiveValue(typeDef.UnderlyingType));
+          var vectorType = type as IArrayTypeReference;
           if (vectorType != null) {
-            IMetadataReaderTypeReference/*?*/ elementType = vectorType.ElementType;
+            ITypeReference/*?*/ elementType = vectorType.ElementType;
             if (elementType == null) {
               this.decodeFailed = true;
               return null;
@@ -1369,16 +1347,16 @@ namespace Microsoft.Cci.MetadataReader {
             if (size == -1) {
               return new ConstantExpression(vectorType, null);
             }
-            List<ExpressionBase> arrayElements = new List<ExpressionBase>();
+            ExpressionBase[] arrayElements = new ExpressionBase[size];
             for (int i = 0; i < size; ++i) {
               ExpressionBase/*?*/ expr = this.ReadSerializedValue(elementType);
               if (expr == null) {
                 this.decodeFailed = true;
                 return null;
               }
-              arrayElements.Add(expr);
+              arrayElements[i] = expr;
             }
-            return new ArrayExpression(vectorType, new EnumerableArrayWrapper<ExpressionBase, IMetadataExpression>(arrayElements.ToArray(), Dummy.Expression));
+            return new ArrayExpression(vectorType, new EnumerableArrayWrapper<ExpressionBase, IMetadataExpression>(arrayElements, Dummy.Expression));
           } else {
             // If the metadata is correct, type must be a reference to an enum type.
             // Problem is, that without resolving this reference, it is not possible to know how many bytes to consume for the enum value
@@ -1409,45 +1387,36 @@ namespace Microsoft.Cci.MetadataReader {
 
   internal sealed class CustomAttributeDecoder : AttributeDecoder {
     internal readonly ICustomAttribute CustomAttribute;
-    //^ [NotDelayed]
-    internal CustomAttributeDecoder(
-      PEFileToObjectModel peFileToObjectModel,
-      MemoryReader signatureMemoryReader,
-      uint customAttributeRowId,
-      IMetadataReaderMethodReference attributeConstructor
-    )
+    internal CustomAttributeDecoder(PEFileToObjectModel peFileToObjectModel, MemoryReader signatureMemoryReader, uint customAttributeRowId,
+      IMethodReference attributeConstructor)
       : base(peFileToObjectModel, signatureMemoryReader) {
-      //^ this.SignatureMemoryReader = signatureMemoryReader; //TODO: Spec# bug. This assignment should not be necessary.
       this.CustomAttribute = Dummy.CustomAttribute;
-      //^ base;
       ushort prolog = this.SignatureMemoryReader.ReadUInt16();
-      if (prolog != SerializationType.CustomAttributeStart) {
-        return;
-      }
-      List<ExpressionBase> exprList = new List<ExpressionBase>();
-      IMetadataReaderParameterTypeInformation[] modParams = attributeConstructor.RequiredModuleParameterInfos.RawArray;
-      int len = modParams.Length;
-      for (int i = 0; i < len; ++i) {
-        IMetadataReaderTypeReference/*?*/ moduleTypeRef = modParams[i].ModuleTypeReference;
-        if (moduleTypeRef == null) {
+      if (prolog != SerializationType.CustomAttributeStart) return;
+      int len = attributeConstructor.ParameterCount;
+      ExpressionBase[]/*?*/ exprList = len == 0 ? null : new ExpressionBase[len];
+      int i = 0;
+      foreach (var parameter in attributeConstructor.Parameters) {
+        var parameterType = parameter.Type;
+        if (parameterType == Dummy.TypeReference) {
           //  Error...
           return;
         }
-        ExpressionBase/*?*/ argument = this.ReadSerializedValue(moduleTypeRef);
+        ExpressionBase/*?*/ argument = this.ReadSerializedValue(parameterType);
         if (argument == null) {
           //  Error...
           this.decodeFailed = true;
           return;
         }
-        exprList.Add(argument);
+        exprList[i++] = argument;
       }
       ushort numOfNamedArgs = this.SignatureMemoryReader.ReadUInt16();
       FieldOrPropertyNamedArgumentExpression[]/*?*/ namedArgumentArray = null;
       if (numOfNamedArgs > 0) {
         namedArgumentArray = new FieldOrPropertyNamedArgumentExpression[numOfNamedArgs];
-        for (ushort i = 0; i < numOfNamedArgs; ++i) {
+        for (i = 0; i < numOfNamedArgs; ++i) {
           bool isField = this.SignatureMemoryReader.ReadByte() == SerializationType.Field;
-          IMetadataReaderTypeReference/*?*/ memberType = this.GetFieldOrPropType();
+          ITypeReference/*?*/ memberType = this.GetFieldOrPropType();
           if (memberType == null) {
             //  Error...
             return;
@@ -1461,7 +1430,7 @@ namespace Microsoft.Cci.MetadataReader {
             //  Error...
             return;
           }
-          IMetadataReaderTypeReference/*?*/ moduleTypeRef = attributeConstructor.OwningTypeReference;
+          ITypeReference/*?*/ moduleTypeRef = attributeConstructor.ContainingType;
           if (moduleTypeRef == null) {
             //  Error...
             return;
@@ -1471,22 +1440,23 @@ namespace Microsoft.Cci.MetadataReader {
         }
       }
       EnumerableArrayWrapper<ExpressionBase, IMetadataExpression> arguments = TypeCache.EmptyExpressionList;
-      if (exprList.Count > 0)
-        arguments = new EnumerableArrayWrapper<ExpressionBase, IMetadataExpression>(exprList.ToArray(), Dummy.Expression);
+      if (exprList != null)
+        arguments = new EnumerableArrayWrapper<ExpressionBase, IMetadataExpression>(exprList, Dummy.Expression);
       EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> namedArguments = TypeCache.EmptyNamedArgumentList;
       if (namedArgumentArray != null)
         namedArguments = new EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument>(namedArgumentArray, Dummy.NamedArgument);
-      this.CustomAttribute = new CustomAttribute(this.PEFileToObjectModel, customAttributeRowId, attributeConstructor, arguments, namedArguments);
+      this.CustomAttribute = peFileToObjectModel.ModuleReader.metadataReaderHost.Rewrite(peFileToObjectModel.Module,
+        new CustomAttribute(peFileToObjectModel, customAttributeRowId, attributeConstructor, arguments, namedArguments));
     }
   }
 
   internal sealed class SecurityAttributeDecoder20 : AttributeDecoder {
-    internal readonly EnumerableArrayWrapper<SecurityCustomAttribute, ICustomAttribute> SecurityAttributes;
+    internal readonly IEnumerable<ICustomAttribute> SecurityAttributes;
     SecurityCustomAttribute/*?*/ ReadSecurityAttribute(SecurityAttribute securityAttribute) {
       string/*?*/ typeNameStr = this.GetSerializedString();
       if (typeNameStr == null)
         return null;
-      IMetadataReaderTypeReference/*?*/ moduleTypeReference = this.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeNameStr);
+      ITypeReference/*?*/ moduleTypeReference = this.PEFileToObjectModel.GetSerializedTypeNameAsTypeReference(typeNameStr);
       if (moduleTypeReference == null)
         return null;
       IMethodReference ctorReference = Dummy.MethodReference;
@@ -1526,7 +1496,7 @@ namespace Microsoft.Cci.MetadataReader {
         namedArgumentArray = new FieldOrPropertyNamedArgumentExpression[numOfNamedArgs];
         for (int i = 0; i < numOfNamedArgs; ++i) {
           bool isField = this.SignatureMemoryReader.ReadByte() == SerializationType.Field;
-          IMetadataReaderTypeReference/*?*/ memberType = this.GetFieldOrPropType();
+          ITypeReference/*?*/ memberType = this.GetFieldOrPropType();
           if (memberType == null)
             return null;
           string/*?*/ memberStr = this.GetSerializedString();
@@ -1542,34 +1512,25 @@ namespace Microsoft.Cci.MetadataReader {
       EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument> namedArguments = TypeCache.EmptyNamedArgumentList;
       if (namedArgumentArray != null)
         namedArguments = new EnumerableArrayWrapper<FieldOrPropertyNamedArgumentExpression, IMetadataNamedArgument>(namedArgumentArray, Dummy.NamedArgument);
-      return new SecurityCustomAttribute(securityAttribute, ctorReference, TypeCache.EmptyExpressionList, namedArguments);
+      return new SecurityCustomAttribute(securityAttribute, ctorReference, namedArguments);
     }
-    //^ [NotDelayed]
-    internal SecurityAttributeDecoder20(
-      PEFileToObjectModel peFileToObjectModel,
-      MemoryReader signatureMemoryReader,
-      SecurityAttribute securityAttribute
-    )
+
+    internal SecurityAttributeDecoder20(PEFileToObjectModel peFileToObjectModel, MemoryReader signatureMemoryReader, SecurityAttribute securityAttribute)
       : base(peFileToObjectModel, signatureMemoryReader) {
-      //^ this.SignatureMemoryReader = signatureMemoryReader; //TODO: Spec# bug. This assignment should not be necessary.
-      this.SecurityAttributes = TypeCache.EmptySecurityAttributes;
-      //^ base;
+      this.SecurityAttributes = Enumerable<ICustomAttribute>.Empty;
       byte prolog = this.SignatureMemoryReader.ReadByte();
-      if (prolog != SerializationType.SecurityAttribute20Start) {
-        return;
-      }
+      if (prolog != SerializationType.SecurityAttribute20Start) return;
       int numberOfAttributes = this.SignatureMemoryReader.ReadCompressedUInt32();
-      SecurityCustomAttribute[] securityCustomAttributes = new SecurityCustomAttribute[numberOfAttributes];
+      var securityCustomAttributes = new ICustomAttribute[numberOfAttributes];
       for (int i = 0; i < numberOfAttributes; ++i) {
-        SecurityCustomAttribute/*?*/ secAttr = this.ReadSecurityAttribute(securityAttribute);
+        var secAttr = this.ReadSecurityAttribute(securityAttribute);
         if (secAttr == null) {
           //  MDError...
           return;
         }
         securityCustomAttributes[i] = secAttr;
       }
-      //^ NonNullType.AssertInitialized(securityCustomAttributes);
-      this.SecurityAttributes = new EnumerableArrayWrapper<SecurityCustomAttribute, ICustomAttribute>(securityCustomAttributes, Dummy.CustomAttribute);
+      this.SecurityAttributes = IteratorHelper.GetReadonly(securityCustomAttributes);
     }
   }
 }

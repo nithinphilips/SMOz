@@ -624,8 +624,8 @@ namespace Microsoft.Cci {
   internal sealed class DummyAliasForType : Dummy, IAliasForType {
     #region IAliasForType Members
 
-    public ITypeReference AliasedType {
-      get { return Dummy.TypeReference; }
+    public INamedTypeReference AliasedType {
+      get { return Dummy.NamedTypeReference; }
     }
 
     #endregion
@@ -985,6 +985,10 @@ namespace Microsoft.Cci {
 
     public IAssembly ResolvedAssembly {
       get { return this; }
+    }
+
+    public IEnumerable<byte> HashValue {
+      get { return Enumerable<byte>.Empty; }
     }
 
     public IEnumerable<byte> PublicKeyToken {
@@ -2463,6 +2467,10 @@ namespace Microsoft.Cci {
       get { return false; }
     }
 
+    public bool IsAggressivelyInlined {
+      get { return false; }
+    }
+
     public bool IsNeverOptimized {
       get { return false; }
     }
@@ -2492,7 +2500,7 @@ namespace Microsoft.Cci {
     }
 
     public bool IsStatic {
-      get { return false; }
+      get { return true; }
     }
 
     public bool IsSynchronized {
@@ -2694,6 +2702,10 @@ namespace Microsoft.Cci {
 
     public bool IsGeneric {
       get { return false; }
+    }
+
+    public bool IsStatic {
+      get { return true; }
     }
 
     public ushort ParameterCount {
@@ -5013,6 +5025,10 @@ namespace Microsoft.Cci {
 
     #region ISignature Members
 
+    public bool IsStatic {
+      get { return true; }
+    }
+
     public IEnumerable<IParameterDefinition> Parameters {
       get { return Enumerable<IParameterDefinition>.Empty; }
     }
@@ -5038,7 +5054,7 @@ namespace Microsoft.Cci {
     }
 
     public CallingConvention CallingConvention {
-      get { return CallingConvention.C; }
+      get { return CallingConvention.Default; }
     }
 
     #endregion
@@ -5864,6 +5880,14 @@ namespace Microsoft.Cci {
       get { return string.Empty; }
     }
 
+    public IEnumerable<byte> HashValue {
+      get { return Enumerable<byte>.Empty; }
+    }
+
+    public IEnumerable<byte> PublicKey {
+      get { return Enumerable<byte>.Empty; }
+    }
+
     public IEnumerable<byte> PublicKeyToken {
       get { return Enumerable<byte>.Empty; }
     }
@@ -6635,6 +6659,10 @@ namespace Microsoft.Cci {
       get { return false; }
     }
 
+    public bool IsAggressivelyInlined {
+      get { return false; }
+    }
+
     public bool IsNeverOptimized {
       get { return false; }
     }
@@ -6664,7 +6692,7 @@ namespace Microsoft.Cci {
     }
 
     public bool IsStatic {
-      get { return false; }
+      get { return true; }
     }
 
     public bool IsSynchronized {
@@ -6889,6 +6917,10 @@ namespace Microsoft.Cci {
     #endregion
 
     #region ISignature Members
+
+    public bool IsStatic {
+      get { return true; }
+    }
 
     public IEnumerable<IParameterDefinition> Parameters {
       get { return Enumerable<IParameterDefinition>.Empty; }
@@ -7709,6 +7741,10 @@ namespace Microsoft.Cci {
       get { return false; }
     }
 
+    public bool IsAggressivelyInlined {
+      get { return false; }
+    }
+
     public bool IsNeverOptimized {
       get { return false; }
     }
@@ -7738,7 +7774,7 @@ namespace Microsoft.Cci {
     }
 
     public bool IsStatic {
-      get { return false; }
+      get { return true; }
     }
 
     public bool IsSynchronized {

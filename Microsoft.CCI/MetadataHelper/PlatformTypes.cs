@@ -17,7 +17,7 @@ using System.Diagnostics.Contracts;
 
 //^ using Microsoft.Contracts;
 
-namespace Microsoft.Cci {
+namespace Microsoft.Cci.Immutable {
 
   /// <summary>
   /// A reference to a .NET assembly.
@@ -116,6 +116,13 @@ namespace Microsoft.Cci {
     bool containsForeignTypes;
 
     /// <summary>
+    /// The encrypted SHA1 hash of the persisted form of the referenced assembly.
+    /// </summary>
+    public IEnumerable<byte> HashValue {
+      get { return Enumerable<byte>.Empty; }
+    }
+
+    /// <summary>
     /// A potentially empty collection of locations that correspond to this AssemblyReference instance.
     /// </summary>
     public IEnumerable<ILocation> Locations {
@@ -134,6 +141,15 @@ namespace Microsoft.Cci {
     /// </summary>
     public IName Name {
       get { return this.AssemblyIdentity.Name; }
+    }
+
+    /// <summary>
+    /// The public part of the key used to encrypt the SHA1 hash over the persisted form of the referenced assembly. Empty if not specified.
+    /// This value is used by the loader to decrypt an encrypted hash value stored in the assembly, which it then compares with a freshly computed hash value
+    /// in order to verify the integrity of the assembly.
+    /// </summary>
+    public IEnumerable<byte> PublicKey {
+      get { return Enumerable<byte>.Empty; }
     }
 
     /// <summary>
@@ -215,10 +231,13 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
-    /// Gives the alias for the type
+    /// If this type reference can be resolved and it resolves to a type alias, the resolution continues on
+    /// to resolve the reference to the aliased type. This property provides a way to discover how that resolution
+    /// proceeded, by exposing the alias concerned. Think of this as a version of ResolvedType that does not
+    /// traverse aliases.
     /// </summary>
-    public IAliasForType AliasForType {
-      get { return Dummy.AliasForType; }
+    public abstract IAliasForType AliasForType {
+      get;
     }
 
     /// <summary>
@@ -449,6 +468,21 @@ namespace Microsoft.Cci {
     }
 
     /// <summary>
+    /// If this type reference can be resolved and it resolves to a type alias, the resolution continues on
+    /// to resolve the reference to the aliased type. This property provides a way to discover how that resolution
+    /// proceeded, by exposing the alias concerned. Think of this as a version of ResolvedType that does not
+    /// traverse aliases.
+    /// </summary>
+    public override IAliasForType AliasForType {
+      get {
+        if (this.aliasForType == null)
+          this.resolvedType = this.GetResolvedType(); //also fills in this.aliasForType
+        return this.aliasForType;
+      }
+    }
+    IAliasForType/*?*/ aliasForType;
+
+    /// <summary>
     /// The namespace that contains the referenced type.
     /// </summary>
     public IUnitNamespaceReference ContainingUnitNamespace {
@@ -514,9 +548,19 @@ namespace Microsoft.Cci {
     /// The namespace type this reference resolves to.
     /// </summary>
     private INamespaceTypeDefinition GetResolvedType() {
-      foreach (INamespaceMember nsMember in this.ContainingUnitNamespace.ResolvedUnitNamespace.GetMembersNamed(this.Name, false)) {
-        INamespaceTypeDefinition/*?*/ nsTypeDef = nsMember as INamespaceTypeDefinition;
-        if (nsTypeDef != null) return nsTypeDef;
+      this.aliasForType = Dummy.AliasForType;
+      foreach (INamespaceMember member in this.ContainingUnitNamespace.ResolvedUnitNamespace.GetMembersNamed(this.name, false)) {
+        var nsTypeDef = member as INamespaceTypeDefinition;
+        if (nsTypeDef != null) {
+          if (nsTypeDef.GenericParameterCount == this.GenericParameterCount) return nsTypeDef;
+        } else {
+          var nsAlias = member as INamespaceAliasForType;
+          if (nsAlias != null && nsAlias.AliasedType.GenericParameterCount == this.GenericParameterCount) this.aliasForType = nsAlias;
+        }
+      }
+      if (this.aliasForType != null) {
+        var resolvedType = this.aliasForType.AliasedType.ResolvedType as INamespaceTypeDefinition;
+        if (resolvedType != null && resolvedType.GenericParameterCount == this.GenericParameterCount) return resolvedType;
       }
       return Dummy.NamespaceTypeDefinition;
     }
@@ -653,7 +697,10 @@ namespace Microsoft.Cci {
   /// </summary>
   public class PlatformType : IPlatformType {
 
-    IMetadataHost host;
+    /// <summary>
+    /// An object that provides a standard abstraction over the applications that host components that provide or consume objects from the metadata model.
+    /// </summary>
+    protected readonly IMetadataHost host;
 
     /// <summary>
     /// Allocates a collection of references to types from the core platform, such as System.Object and System.String.
