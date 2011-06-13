@@ -36,6 +36,7 @@ namespace Afterthought.Amender
 		Dictionary<string, ITypeAmendment> typeAmendments;
 		ITypeDefinition iTypeAmendment;
 		ITypeDefinition iAmendmentAttribute;
+		Dictionary<Type, ITypeDefinition> resolvedTypes = new Dictionary<Type, ITypeDefinition>();
 
 		internal AssemblyAmender(IMetadataHost host, PdbReader pdbReader, IEnumerable<ITypeAmendment> typeAmendments)
 			: base(host, true)
@@ -1985,54 +1986,66 @@ namespace Afterthought.Amender
 		/// <returns></returns>
 		ITypeDefinition ResolveType(Type type)
 		{
+			// Return the cached type definition if available
+			ITypeDefinition typeDef;
+			if (resolvedTypes.TryGetValue(type, out typeDef))
+				return typeDef;
+
 			// Handle arrays
 			if (type.IsArray)
 			{
 				ITypeDefinition elementTypeDef = ResolveType(type.GetElementType());
-				return Vector.GetVector(elementTypeDef, host.InternFactory);
+				typeDef = Vector.GetVector(elementTypeDef, host.InternFactory);
 			}
-
-			System.Reflection.Assembly assembly = type.Assembly;
-
-			// See if the assembly is already loaded
-			IAssembly assemblyDef = null;
-			if (assembly.FullName.StartsWith("mscorlib") && TargetRuntimeVersion.StartsWith("v2"))
-				assemblyDef = host.FindAssembly(host.CoreAssemblySymbolicIdentity);
 			else
 			{
-				foreach (var unit in host.LoadedUnits)
+
+				System.Reflection.Assembly assembly = type.Assembly;
+
+				// See if the assembly is already loaded
+				IAssembly assemblyDef = null;
+				if (assembly.FullName.StartsWith("mscorlib") && TargetRuntimeVersion.StartsWith("v2"))
+					assemblyDef = host.FindAssembly(host.CoreAssemblySymbolicIdentity);
+				else
 				{
-					if (unit.Name.Value == assembly.FullName)
+					foreach (var unit in host.LoadedUnits)
 					{
-						assemblyDef = (IAssembly)unit;
-						break;
+						if (unit.Name.Value == assembly.FullName)
+						{
+							assemblyDef = (IAssembly)unit;
+							break;
+						}
 					}
 				}
+
+				// Otherwise, load the assembly
+				if (assemblyDef == null)
+					assemblyDef = (IAssembly)host.LoadUnitFrom(assembly.Location);
+
+				// Handle generic types
+				if (type.IsGenericType && !type.IsGenericTypeDefinition)
+				{
+					var genericType = type.GetGenericTypeDefinition();
+					var genericTypeDef = assemblyDef.GetAllTypes()
+						.OfType<INamedTypeDefinition>()
+						.Where(t => AreEquivalent(t, genericType))
+						.FirstOrDefault();
+
+					// Return the generic type
+					typeDef = GenericTypeInstance.GetGenericTypeInstance(genericTypeDef, type.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeReference>(), host.InternFactory);
+				}
+
+				// Otherwise, just find the type
+				else
+					typeDef = assemblyDef.GetAllTypes()
+						.OfType<INamedTypeDefinition>()
+						.Where(t => AreEquivalent(t, type))
+						.FirstOrDefault();
 			}
 
-			// Otherwise, load the assembly
-			if (assemblyDef == null)
-				assemblyDef = (IAssembly)host.LoadUnitFrom(assembly.Location);
-
-			// Handle generic types
-			if (type.IsGenericType && !type.IsGenericTypeDefinition)
-			{
-				var genericType = type.GetGenericTypeDefinition();
-				var genericTypeDef = assemblyDef.GetAllTypes()
-					.OfType<INamedTypeDefinition>()
-					.Where(t => AreEquivalent(t, genericType))
-					.FirstOrDefault();
-
-				// Return the generic type
-				return GenericTypeInstance.GetGenericTypeInstance(genericTypeDef, type.GetGenericArguments().Select(t => ResolveType(t)).Cast<ITypeReference>(), host.InternFactory);
-			}
-
-			// Otherwise, just find the type
-			else
-				return assemblyDef.GetAllTypes()
-					.OfType<INamedTypeDefinition>()
-					.Where(t => AreEquivalent(t, type))
-					.FirstOrDefault();
+			// Cache an return the resolved type definition
+			resolvedTypes[type] = typeDef;
+			return typeDef;
 		}
 
 		/// <summary>

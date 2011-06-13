@@ -34,7 +34,7 @@ namespace Afterthought.Amender
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
-				throw e;
+				throw;
 			}
 			return 0;
 		} 
