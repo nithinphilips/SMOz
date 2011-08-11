@@ -48,4 +48,21 @@ namespace NotifyPropertyChanged
 				.AfterSet(NotificationAmender<T>.OnPropertyChanged);
 		}
 	}
+
+    /// <summary>
+    /// Amendment class that simply calls the OnPropertyChanged method on the instance.
+    /// The user must implement all the necessary logic. At minimum, the class must be decorated with
+    /// NotifyPropertyChangedAttribute and must implement NotifyPropertyChanged.INotifyPropertyChangedAmendment
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SimpleNotificationAmendment<T> : Afterthought.Amendment<T, INotifyPropertyChangedAmendment>
+    {
+        public SimpleNotificationAmendment()
+        {            
+            // Raise Property Changed
+            Properties
+                .Where(p => p.PropertyInfo.CanRead && p.PropertyInfo.CanWrite && p.PropertyInfo.GetSetMethod().IsPublic)
+                .AfterSet(NotificationAmender<T>.OnPropertyChanged);
+        }
+    }
 }
