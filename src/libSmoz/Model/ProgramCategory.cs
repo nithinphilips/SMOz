@@ -1,67 +1,96 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Collections.ObjectModel;
+using LibSmoz.Comparators;
 
-namespace LibSmoz
+namespace LibSmoz.Model
 {
-    public class ProgramCategory : Collection<ProgramItem>, IEquatable<ProgramCategory>, IComparable<ProgramCategory>
+    public class ProgramCategory : HashSet<ProgramItem>, IEquatable<ProgramCategory>, IComparable<ProgramCategory>, IStartMenuItem
     {
-
-        #region List methods
-
-        protected override void InsertItem(int index, ProgramItem item)
+        private string _name;
+        /// <summary>
+        /// The name of this category.
+        /// </summary>
+        public string Name
         {
-            item.Category = this;
-            base.InsertItem(index, item);
-        }
-
-        protected override void SetItem(int index, ProgramItem item)
-        {
-            this[index].Category = null;
-            base.SetItem(index, item);
-            this[index].Category = this;
-        }
-
-        protected override void RemoveItem(int index)
-        {
-            this[index].Category = null;
-            base.RemoveItem(index);
-        }
-
-        protected override void ClearItems()
-        {
-            foreach (var item in this)
+            get { return _name; }
+            set
             {
-                item.Category = null;
+                if (_name == value) return;
+                _name = value;
+                SetSelectors();
             }
-            base.ClearItems();
         }
 
-        #endregion
+        /// <summary>
+        /// The start menu item to which the category belongs to.
+        /// </summary>
+        public StartMenu Root { get; internal set; }
 
-        public string Name { get; set; }
-        public ProgramsMenu Root { get; internal set; }
-        public ReadOnlyCollection<string> Paths { get; protected set; }
+        /// <summary>
+        /// A list of all possible locations where this category could exist.
+        /// </summary>
+        public IEnumerable<string> Locations { get; protected set; }
 
-        internal void UpdatePaths()
+        /// <summary>
+        /// A list of all locations where this category actually exists.
+        /// </summary>
+        public IEnumerable<string> RealLocations { get; protected set; }
+
+        /// <summary>
+        /// Creates the LINQ selectors for Locations and RealLocations properties.
+        /// While the selectors are evaluated lazily, they must be re-created if the 
+        /// Name property changes, in order to get the correct results.
+        /// </summary>
+        void SetSelectors()
         {
-            List<string> list = new List<string>(this.Root.Paths.Count);
-            foreach (var item in this.Root.Paths)
-            {
-                list.Add(System.IO.Path.Combine(item, this.Name));
-            }
-            this.Paths = list.AsReadOnly();
 
-            foreach (var item in this)
-                item.UpdatePaths();
-            
+            this.Locations = from l in Root.Locations
+                             select Path.Combine(l, this.Name);
+
+            this.RealLocations = from l in this.Locations
+                                 where Directory.Exists(l)
+                                 select l;
+        }
+
+        /// <summary>
+        /// Creates a new instance of ProgramCategory.
+        /// </summary>
+        /// <param name="startMenu">The start menu to which this category belongs to.</param>
+        /// <param name="name">The name of this category.</param>
+        public ProgramCategory(StartMenu startMenu, string name)
+            : base(new ProgramItemEqualityComparer())
+        {
+            this.Root = startMenu;
+            this.Name = name;
+        }
+
+        /// <summary>
+        /// Searches all the RealLocations of this category and finds all ProgramItems within.
+        /// </summary>
+        public void FindItems()
+        {
+            foreach (var item in RealLocations.SelectMany(location => Directory.GetFiles(location, "*.lnk")))
+            {
+                Add(new ProgramItem(this, Path.GetFileName(item), false));
+            }
+
+            foreach (var item in RealLocations.SelectMany(Directory.GetDirectories))
+            {
+                string fileName = Path.GetFileName(item);
+                string fullName = Path.Combine(Name, fileName);
+                if (!Root.KnownCategories.Contains(fullName))
+                    Add(new ProgramItem(this, fileName, true));
+                else
+                    Console.WriteLine("Ignoring Known Category: {0}", fullName);
+
+            }
         }
 
         public bool Equals(ProgramCategory other)
         {
-            return this.Name.Equals(other.Name, StringComparison.OrdinalIgnoreCase);
+            return ProgramCategoryEqualityComparer.Instance.Equals(this, other);
         }
 
         public int CompareTo(ProgramCategory other)
@@ -71,12 +100,8 @@ namespace LibSmoz
 
         public override string ToString()
         {
-            string s = this.Name;
-            foreach (var item in Paths)
-            {
-                s += Environment.NewLine + item;
-            }
-            return s;
+            return string.Format("{0} ({1})", string.IsNullOrEmpty(this.Name) ? "<default>" : this.Name,
+                                 RealLocations.Count());
         }
     }
 }
