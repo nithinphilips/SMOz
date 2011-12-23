@@ -1,17 +1,8 @@
 Delete "$INSTDIR\COPYING"
-Delete "$INSTDIR\MagicLocalLibrary.dll"
-Delete "$INSTDIR\README"
-Delete "$INSTDIR\SMOz.exe"
-Delete "$INSTDIR\Template.ini"
-Delete "$INSTDIR\XPTable.dll"
-Delete "$INSTDIR\de\SMOz.resources.dll"
-RmDir "$INSTDIR\de"
-
-Delete "$INSTDIR\de-de\SMOz.resources.dll"
-RmDir "$INSTDIR\de-de"
-
-Delete "$INSTDIR\ml-IN\SMOz.resources.dll"
-RmDir "$INSTDIR\ml-IN"
-
+Delete "$INSTDIR\libSmoz.dll"
+Delete "$INSTDIR\README.md"
+Delete "$INSTDIR\smoz.exe"
+Delete "$INSTDIR\SMOz.Tests.dll"
+Delete "$INSTDIR\testHarness.exe"
 RmDir "$INSTDIR"
 
