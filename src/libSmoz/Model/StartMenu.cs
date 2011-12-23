@@ -108,13 +108,13 @@ namespace LibSmoz.Model
         public void AddLocation(string location)
         {
             var nLocation = NormalizeLocation(location);
+            locations.Add(nLocation);
 
             // The root is also a category
             var pCategory = new ProgramCategory(this, "");
             if (Add(pCategory)) pCategory.FindItems();
             else Get(pCategory).FindItems();
 
-            locations.Add(nLocation);
             FindCategories(nLocation);
         }
 
@@ -163,6 +163,7 @@ namespace LibSmoz.Model
 
         static string NormalizeLocation(string location)
         {
+            if (!Path.IsPathRooted(location)) location = Path.GetFullPath(location);
             return location.EndsWith(Path.DirectorySeparatorChar.ToString()) ? location : location + Path.DirectorySeparatorChar;
         }
     }
