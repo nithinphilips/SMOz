@@ -7,7 +7,7 @@ using LibSmoz.Ini;
 
 namespace LibSmoz.Transformation
 {
-    public class TemplateParser
+    public static class TemplateParser
     {
         public static void Save(Template template, string file)
         {
@@ -27,6 +27,11 @@ namespace LibSmoz.Transformation
             File.Delete(tempFile);
         }
 
+        public static Template Parse(IEnumerable<string> lines)
+        {
+            return Parse(IniParser.Parse(lines));
+        }
+
         public static Template Parse(string file)
         {
             return Parse(IniParser.Parse(file));
@@ -39,7 +44,7 @@ namespace LibSmoz.Transformation
             foreach (var pair in sections)
             {
                 Category category = CategoryFromFormat(pair.Key);
-                category.AddRange(pair.Value.Select(item => CategoryItemFromFormat(item)));
+                category.AddRange(pair.Value.Select(CategoryItemFromFormat));
                 template.Add(category);
             }
 
@@ -47,7 +52,7 @@ namespace LibSmoz.Transformation
         }
 
 
-        public static Category CategoryFromFormat(string format)
+        internal static Category CategoryFromFormat(string format)
         {
             Category newCategory = new Category();
             if (format.Contains(Category.RestCatSelector))
@@ -71,7 +76,7 @@ namespace LibSmoz.Transformation
             return newCategory;
         }
 
-        public static string CategoryToFormat(Category category)
+        internal static string CategoryToFormat(Category category)
         {
             return string.IsNullOrEmpty(category.RestrictedPath)
                        ? category.Name
@@ -79,7 +84,7 @@ namespace LibSmoz.Transformation
         }
 
 
-        public static CategoryItem CategoryItemFromFormat(string format)
+        internal static CategoryItem CategoryItemFromFormat(string format)
         {
             CategoryItem item = new CategoryItem();
 
@@ -110,7 +115,7 @@ namespace LibSmoz.Transformation
             return item;
         }
 
-        public static string CategoryItemToFormat(CategoryItem item)
+        internal static string CategoryItemToFormat(CategoryItem item)
         {
             string prefix = "";
             switch (item.Type)
