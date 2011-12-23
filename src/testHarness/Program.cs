@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using LibSmoz;
@@ -13,8 +14,36 @@ namespace testHarness
 {
     class Program
     {
+        static void ScanDirTree(string directory)
+        {
+            directory = directory.EndsWith("\\") ? directory : directory + "\\";
+            ScanDirTree(directory, directory);
+        }
+        static void ScanDirTree(string directory, string root)
+        {
+            var dirs = Directory.GetDirectories(directory);
+            var files = Directory.GetFiles(directory, "*.lnk");
+
+            foreach (var dir in dirs)
+            {
+                Console.WriteLine("Directory.CreateDirectory(@\"StartA\\{0}\");", dir.Replace(root, ""));
+                ScanDirTree(dir, root);
+            }
+
+            foreach (var file in files)
+            {
+                Console.WriteLine("File.Create(@\"StartA\\{0}\").Close();", file.Replace(root, ""));
+            }
+        }
+
         static void Main(string[] args)
         {
+
+            ScanDirTree(Environment.GetFolderPath(Environment.SpecialFolder.Programs));
+
+            return;
+            
+
             Template t = TemplateParser.Parse("Template.ini");
 
             List<string> startMenus = new List<string>(2)

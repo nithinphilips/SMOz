@@ -52,40 +52,12 @@ namespace LibSmoz.Transformation
             this.RestrictedPath = restrictedPath;
         }
 
-        protected List<CategoryItem> items;
-
-        public ReadOnlyCollection<CategoryItem> Items
-        {
-            get { return this.items.AsReadOnly(); }
-        }
-
         public string Name { get; set; }
-
         public string RestrictedPath { get; set; }
 
         public bool IsRestricted
         {
             get { return !string.IsNullOrEmpty(RestrictedPath); }
-        }
-
-        public bool Match(string value)
-        {
-            CategoryItem result;
-            return Match(value, out result);
-        }
-
-        public bool Match(string value, out CategoryItem item)
-        {
-            item = null;
-            foreach (CategoryItem t in this.items)
-            {
-                Regex regex = new Regex(t.GetPattern(), DefaultRegexOptions);
-                if (!regex.Match(value).Success) continue;
-
-                item = t;
-                return true;
-            }
-            return false;
         }
 
         public override string ToString()
@@ -98,10 +70,7 @@ namespace LibSmoz.Transformation
             }
             return sb.ToString();
         }
-
         
-        
-
         #region IComparable<Category> Members
 
         // Compared by: name, restrictedPath

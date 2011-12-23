@@ -44,7 +44,7 @@ namespace LibSmoz.Commands.IO
             foreach (var pair in moveMap)
             {
                 if (File.Exists(pair.Key)) isFile = true;
-                this.name = string.Format("Move '{0}' to '{1}'", Path.GetFileNameWithoutExtension(pair.Key), Path.GetDirectoryName(pair.Value));
+                this.name = string.Format("Move '{0}' to '{1}'", pair.Key, pair.Value);
                 break;
             }
         }
