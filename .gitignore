@@ -1,0 +1,17 @@
+build/
+TestResults/
+bin/
+obj/
+deliverables/
+.preprocessed/
+.metadata/
+*_ReSharper*/
+*.suo
+*.user
+tags
+README.html
+GettingStarted.html
+build_bbapp5.yml
+build_bbapp6.yml
+sign_cod.yml
+MusicSync.Installer/*.exe
