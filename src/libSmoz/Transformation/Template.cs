@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using LibSmoz.Commands;
+using LibSmoz.Commands.IO;
 using LibSmoz.Commands.UI;
 using LibSmoz.Model;
 
@@ -10,6 +12,38 @@ namespace LibSmoz.Transformation
 {
     public class Template : HashSet<Category>
     {
+        public IEnumerable<Command> CleanupStartMenu(StartMenu startMenu)
+        {
+            foreach (var programCategory in startMenu)
+            {
+                int count = 0;
+                foreach (var realLocation in programCategory.RealLocations)
+                {
+                    count += Directory.GetFiles(realLocation).Length;
+                    count += Directory.GetDirectories(realLocation).Length;
+                }
+
+                if (count == 0)
+                    yield return new DeleteFileCommand(programCategory.RealLocations);
+            }
+
+            foreach (var category in this)
+            {
+                if (!category.IsRestricted) continue;
+                ProgramCategory programCategory = new ProgramCategory(startMenu, category.RestrictedPath);
+
+                int count = 0;
+                foreach (var realLocation in programCategory.RealLocations)
+                {
+                    count += Directory.GetFiles(realLocation).Length;
+                    count += Directory.GetDirectories(realLocation).Length;
+                }
+
+                if (count == 0)
+                    yield return new DeleteFileCommand(programCategory.RealLocations);
+            }
+        }
+
         public IEnumerable<Command> TransformStartMenu(StartMenu startMenu)
         {
             string matchedSelector;
