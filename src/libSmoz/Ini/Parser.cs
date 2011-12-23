@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LibSmoz.Transformation;
 
 namespace LibSmoz.Ini
@@ -36,12 +37,14 @@ namespace LibSmoz.Ini
             return Parse(File.ReadAllLines(file, System.Text.Encoding.UTF8));
         }
 
-        public static Dictionary<string, HashSet<string>> Parse(string[] lines)
+        public static Dictionary<string, HashSet<string>> Parse(IEnumerable<string> lines)
         {
             SectionBuilder builder = new SectionBuilder();
-
+            int lineNumber = 0;
             foreach (string t in lines)
             {
+                lineNumber++;
+
                 string currentLine = t.Trim();
 
                 if (string.IsNullOrEmpty(currentLine)) continue;  // ignore empty lines
@@ -49,19 +52,30 @@ namespace LibSmoz.Ini
 
                 if (currentLine.StartsWith("[") && currentLine.EndsWith("]"))
                 {
-                    builder.BeginSection(currentLine.Substring(1, currentLine.Length - 2));
+                    string sectionName = currentLine.Substring(1, currentLine.Length - 2);
+                    ThrowIfContainsInvalidCharacters(sectionName, lineNumber);
+                    builder.BeginSection(sectionName);
                 }
                 else
                 {
-                    builder.Add(t);
+                    builder.Add(currentLine, lineNumber);
                 }
             }
 
-            return builder.sections;
+            return builder.Sections;
         }
+
+        private static void ThrowIfContainsInvalidCharacters(string str, int lineNumber)
+        {
+            str = str.Replace("->", "");
+            int index = str.IndexOfAny(Path.GetInvalidPathChars());
+            if (index >= 0) 
+                throw new IniParseException("Section name contains an invalid character", lineNumber, index);
+        }
+
         protected class SectionBuilder
         {
-            public Dictionary<string, HashSet<string>> sections = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, HashSet<string>> Sections = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
             public bool IgnoreCase = Category.IgnoreCase;
 
             private string _currentSectionName = "";
@@ -70,13 +84,15 @@ namespace LibSmoz.Ini
             {
                 _currentSectionName = name;
 
-                if(!sections.ContainsKey(name))
-                    sections.Add(_currentSectionName, new HashSet<string>());
+                if(!Sections.ContainsKey(name))
+                    Sections.Add(_currentSectionName, new HashSet<string>());
             }
 
-            public void Add(string value)
+            public void Add(string value, int lineNumber)
             {
-                sections[_currentSectionName].Add(value);
+                if(string.IsNullOrEmpty(_currentSectionName)) 
+                    throw new IniParseException("Orphaned values found. All values must be within a section.", lineNumber);
+                Sections[_currentSectionName].Add(value);
             }
         }
     }

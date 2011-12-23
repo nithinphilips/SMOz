@@ -80,6 +80,7 @@
     <Compile Include="Commands\UI\RenameProgramItemCommand.cs" />
     <Compile Include="Comparators\ProgramItemEqualityComparer.cs" />
     <Compile Include="Comparators\ProgramCategoryEqualityComparer.cs" />
+    <Compile Include="Ini\IniParseException.cs" />
     <Compile Include="Ini\Parser.cs" />
     <Compile Include="Ini\Writer.cs" />
     <Compile Include="Model\IStartMenuItem.cs" />
