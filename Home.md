@@ -1,5 +1,8 @@
-Home
-====
+SMOz Documentation
+==================
 Welcome to the SMOz (Start Menu Organizer) documentation. 
 
- * [[intro]]
+Table of Contents
+-----------------
+
+ * [Introduction](intro)
