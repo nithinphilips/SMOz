@@ -64,7 +64,8 @@ you'll need to install Sphinx and the required tools.
    <https://www.microsoft.com/download/en/details.aspx?displaylang=en&id=21138>`_
    is required to create ``.chm`` output.
 
-   Download and install it from `https://www.microsoft.com/download/en/details.aspx?displaylang=en&id=21138`.
+   Download and install it from
+   `https://www.microsoft.com/download/en/details.aspx?displaylang=en&id=21138`.
 
    You should add the install path your ``PATH`` environment variable.
 
@@ -123,6 +124,8 @@ dist``.
 
 .. figure:: images/dep_graph.png
           :alt: The SMOz build script dependency graph.
+          :height: 731px
+          :width: 423px
           :align: center
 
           The SMOz build script dependency graph.
