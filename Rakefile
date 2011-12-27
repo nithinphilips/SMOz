@@ -162,6 +162,44 @@ assemblyinfo :testsasminfo do |a|
     a.output_file  = "src/SMOz.Tests/Properties/AssemblyInfo.cs"
 end
 
+msbuild :clean_sln do |msb|
+    msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
+    msb.targets :Clean
+    msb.solution = "SMOz.sln"
+end
+
+task :clean_dist do
+    FileUtils.rm_rf BUILD_DIR
+end
+
+task :clean_doc do |d|
+   FileUtils.rm_rf "doc/.build"
+end
+
+desc "Runs Sphinx to build the documentation."
+task :build_doc do |d|
+
+    # We don't want this littering the dep_graph, call it explicitly!
+    Rake::Task["dep_graph"].execute
+
+    currentDir = Dir.pwd()
+    Dir.chdir("doc")
+      sh 'make html latexpdf htmlhelp'
+      sh 'make linkcheck'
+      FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
+
+      # @@#&!(# hhc return 1 for OK, 0 for failure. So, ignore it
+     result = system("hhc htmlhelp/SMOzdoc.hhp")
+     FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
+     FileUtils.rm_rf "htmlhelp"
+
+    Dir.chdir(currentDir)
+
+    FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
+    FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}"
+    FileUtils.cp_r FileList['doc/.build/latex/*.pdf'], "#{BIN_DIR}/#{PACKAGE}"
+end
+
 desc "Generates a graph of all the tasks and their relationships."
 task :dep_graph do |task|
     this_task = task.name
@@ -179,38 +217,13 @@ task :dep_graph do |task|
 
     dep.write_to_graphic_file('png', this_task)
     puts "Wrote dependency graph to #{this_task}.png."
-end
-
-msbuild :clean_sln do |msb|
-    msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
-    msb.targets :Clean
-    msb.solution = "SMOz.sln"
-end
-
-task :clean_dist do
-    FileUtils.rm_rf BUILD_DIR
-end
-
-task :clean_doc do |d|
-   FileUtils.rm_rf "doc/.build"
-end
-
-desc "Runs Sphinx to build the documentation."
-task :build_doc do |d|
-    currentDir = Dir.pwd()
-    Dir.chdir("doc")
-      sh 'make html latexpdf htmlhelp'
-      sh 'make linkcheck'
-      FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
-
-      # @@#&!(# hhc return 1 for OK, 0 for failure. So, ignore it
-     result = system("hhc htmlhelp/SMOzdoc.hhp")
-     FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
-     FileUtils.rm_rf "htmlhelp"
-
-    Dir.chdir(currentDir)
-
-    FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
-    FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}"
-    FileUtils.cp_r FileList['doc/.build/latex/*.pdf'], "#{BIN_DIR}/#{PACKAGE}"
+    dep.write_to_graphic_file('pdf', this_task)
+    puts "Wrote dependency graph to #{this_task}.pdf."
+    
+    if File.Directory? "doc/images"
+        FileUtils.cp("#{this_task}.png", "doc/images/#{this_task}.png")
+        FileUtils.cp("#{this_task}.pdf", "doc/images/#{this_task}.pdf")
+    else
+        puts "doc/images directory not found. NOT copying files."
+    end
 end
