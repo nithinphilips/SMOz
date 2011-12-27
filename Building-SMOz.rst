@@ -1,12 +1,15 @@
 Building SMOz
 =============
-You can use either Visual Studio or `Rake <http://rake.rubyforge.org/>`_ with
-`Albacore <http://albacorebuild.net/>`_ to build the project. Building with
-Rake is the preferred method and it is described below.
+You can use either :program:`Visual Studio` or `Rake
+<http://rake.rubyforge.org/>`_  with `Albacore <http://albacorebuild.net/>`_ to
+build the project. Building with :program:`Rake` is the preferred method and it
+is described here.
+
+.. index:: Ruby, .NET 4.0 SDK, Rake, Albacore, RubyZip, Rgl, Git
+.. index:: see: Windows 7 SDK; .NET 4.0 SDK
 
 Setting Up the Build Environment
 --------------------------------
-
 1. Install `Git for Windows <https://code.google.com/p/msysgit/>`_
 2. Install the `Windows 7 and .NET 4.0 SDK
    <http://msdn.microsoft.com/en-us/windows/bb980924.aspx>`_.
@@ -18,12 +21,13 @@ Setting Up the Build Environment
     gem install rgl
     gem install rubyzip
 
-5. Make sure that the paths to the tools, git, .NET framework tools and ruby
-   are in your ``PATH``.
+5. Make sure that the paths to the tools, :program:`git`, .NET framework tools
+   and :program:`ruby` are in your ``PATH``.
 
 For more information on Albacore, visit the `Albacore wiki
 <https://github.com/derickbailey/Albacore/wiki/>`_.
 
+.. index:: Python, Sphinx, HTML Help Workshop, TeX Live, Github, Cygwin
 
 Setting up the Documentation Build Environment
 -----------------------------------------------
@@ -82,6 +86,8 @@ you'll need to install Sphinx and the required tools.
 
    You should add the install path your ``PATH`` environment variable.
 
+.. index:: Building SMOz, Running Rake, Build targets, Build dependency graph
+
 Getting the Source and Building
 -------------------------------
 You can checkout the latest source code via git. Two public mirrors are
@@ -127,6 +133,8 @@ update_submodules   Ensures that all the git submodules are pulled and at the
 To run tasks, add the task name after the rake command. For example:  ``rake
 dist``.
 
+.. index:: HTML documentation, CHM documentation, PDF documentation
+
 Getting the Documentation Source and Building
 ---------------------------------------------
 The Documentation is hosted at GitHub.
@@ -162,3 +170,11 @@ The following targets are available:
  info        to make Texinfo files and run them through makeinfo
  linkcheck   to check all external links for integrity
 =========== ===================================================================
+
+.. index:: Dependency graph
+
+SMOz Rakefile Dependency
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: images/dep_graph.*
+   :alt: Detailed dependency graph of SMOz Rakefile
