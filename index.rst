@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    Introduction
+   Building-SMOz
 
 Indices and tables
 ==================

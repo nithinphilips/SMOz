@@ -6,3 +6,4 @@ Table of Contents
 -----------------
 
  * [[Introduction]]
+ * [[Building-SMOz]]
