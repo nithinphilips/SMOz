@@ -6,14 +6,19 @@
 Welcome to SMOz's documentation!
 ================================
 
+Contents:
+
 .. toctree::
    :maxdepth: 2
 
+   Preface
    Introduction
    Building-SMOz
 
-Indices and tables
-==================
+.. todolist::
+
+Index and Search
+================
 
 * :ref:`genindex`
 * :ref:`search`
