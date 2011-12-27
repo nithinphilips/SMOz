@@ -6,8 +6,6 @@
 Welcome to SMOz's documentation!
 ================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
