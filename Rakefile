@@ -197,7 +197,7 @@ task :build_doc do |d|
 
     FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
     FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}"
-    FileUtils.cp_r FileList['doc/.build/latex/*.pdf'], "#{BIN_DIR}/#{PACKAGE}"
+    FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}"
 end
 
 desc "Generates a graph of all the tasks and their relationships."
