@@ -15,3 +15,4 @@ build_bbapp5.yml
 build_bbapp6.yml
 sign_cod.yml
 MusicSync.Installer/*.exe
+dep_graph.*

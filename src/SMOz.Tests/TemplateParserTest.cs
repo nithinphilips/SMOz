@@ -36,7 +36,7 @@ namespace SMOz.Tests
         [TestMethod]
         public void LoadFile()
         {
-            Template t = TemplateParser.Parse(@"F:\Work\Projects\smoz\src\SMOz.Tests\bin\Debug\Template.ini");
+            Template t = TemplateParser.Parse(Common.GetTestDataFullPath("TemplateParserTest.LoadFile.ini"));
             Assert.AreEqual(12, t.Count);
 
             foreach (var category in t)

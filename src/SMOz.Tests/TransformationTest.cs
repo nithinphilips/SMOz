@@ -197,7 +197,7 @@ namespace SMOz.Tests
             _knownCategories.Add("Accessories");
             _knownCategories.Add("Administrative Tools");
 
-            t = TemplateParser.Parse(@"F:\Work\Projects\smoz\src\SMOz.Tests\TransformationTestTemplate.ini");
+            t = TemplateParser.Parse(Common.GetTestDataFullPath("TransformationTest.Setup.ini"));
 
             foreach (var templateCategory in t)
                 _knownCategories.Add(templateCategory.Name);
@@ -208,7 +208,7 @@ namespace SMOz.Tests
         }
 
         [TestMethod]
-        public void ATest()
+        public void StandardRun()
         {
             List<Command> realCommand = new List<Command>();
             var list = t.TransformStartMenu(_startMenu).ToList();
@@ -230,7 +230,6 @@ namespace SMOz.Tests
                 cleanupCommand.Execute();
             }
 
-            Console.WriteLine();
         }
     }
 }
