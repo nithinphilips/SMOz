@@ -86,6 +86,14 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+rst_epilog = """
+.. |copyright| replace:: \(C\) 2011 Keith Brooke, Nithin Philips
+.. |GNU| replace:: :abbr:`GNU (GNU is Not UNIX)`
+.. |GPL| replace:: :abbr:`GPL (General Public License)`
+.. |FDL| replace:: :abbr:`FDL (Free Documentation License)`
+"""
+
+todo_include_todos = True
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -110,7 +118,7 @@ html_theme = 'default'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = "images/Logo.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -181,12 +189,12 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'SMOz.tex', u'SMOz Documentation',
-   u'Keith Brooke, Nithin Philips', 'manual', False),
+   u'Keith Brooke, Nithin Philips', 'manual', True),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+latex_logo = "images/Logo.pdf"
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
