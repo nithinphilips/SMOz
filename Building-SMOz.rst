@@ -1,8 +1,8 @@
 Building SMOz
 =============
 You can use either Visual Studio or `Rake <http://rake.rubyforge.org/>`_ with
-`Albacore <http://albacorebuild.net/>`_ to build the project. Building with Rake
-is the preferred method and it is described below.
+`Albacore <http://albacorebuild.net/>`_ to build the project. Building with
+Rake is the preferred method and it is described below.
 
 Setting Up the Build Environment
 --------------------------------
@@ -71,13 +71,14 @@ you'll need to install Sphinx and the required tools.
 
 3. Install `Tex Live <http://www.tug.org/texlive/>`_
 
-   `Tex Live <http://www.tug.org/texlive/>`_ is required to create ``.pdf`` output.
+   `Tex Live <http://www.tug.org/texlive/>`_ is required to create ``.pdf``
+   output.
 
    Download and install it from http://www.tug.org/texlive/acquire-netinstall.html
 
    .. NOTE::
-      If you have Cygwin installed, run the installation script from a Cygwin shell
-      to install it there.
+      If you have Cygwin installed, run the installation script from a Cygwin
+      shell to install it there.
 
    You should add the install path your ``PATH`` environment variable.
 
@@ -104,31 +105,27 @@ The default target compiles the code, builds the installer and creates all the
 packages necessary for distribution. There are a few different targets
 available for other tasks:
 
-=============== =================================================================
+================== ============================================================
   Target                            Description
-=============== =================================================================
- dist            The default. Compiles code, builds installer, packages binaries
-                 and source code for distribution.
- dist_with_log   Same as dist, except logging will be enabled.
- installer       Compiles code and builds the installer.
- build           Compiles the code.
- dist_zip        Compiles the code and packages the binaries into a zip file.
- dist_src        Packages the source code into a zip file.
- clean           Deletes all the output created by all other tasks.
- dep_graph       Creates a nice graph with all available targets and their
-                 relationship.
-=============== =================================================================
+================== ============================================================
+build_doc           Runs Sphinx to build the documentation.
+clean               Cleans all the object files, binaries, dist packages etc.
+compile             Compiles the application.
+default             Runs the dist task
+dep_graph           Generates a graph of all the tasks and their relationships.
+dist                Builds the application, installer and packages source and
+                    binaries.
+dist_src            Packages the source code
+dist_zip            Packages binaries into a distribution ready archive.
+doc                 Builds the documentation and runs the dist task
+installer           Builds the installer
+test                Runs any unit tests
+update_submodules   Ensures that all the git submodules are pulled and at the
+                    HEAD of the master branch.
+================== ============================================================
 
 To run tasks, add the task name after the rake command. For example:  ``rake
 dist``.
-
-.. figure:: images/dep_graph.png
-          :alt: The SMOz build script dependency graph.
-          :height: 731px
-          :width: 423px
-          :align: center
-
-          The SMOz build script dependency graph.
 
 Getting the Documentation Source and Building
 ---------------------------------------------
@@ -138,16 +135,16 @@ To checkout the source, run::
 
     git clone git://github.com/nithinphilips/SMOz.wiki.git
 
-The documentation uses a ``makefile`` to build. To build the ``html`` output format,
-run::
+The documentation uses a ``makefile`` to build. To build the ``html`` output
+format, run::
 
     make html
 
 The following targets are available:
 
-=========== ================================================================
-  Target                            Description
-=========== ================================================================
+=========== ===================================================================
+  Target                              Description
+=========== ===================================================================
  html        to make standalone HTML files
  dirhtml     to make HTML files named index.html in directories
  singlehtml  to make a single large HTML file
@@ -164,4 +161,4 @@ The following targets are available:
  texinfo     to make Texinfo files
  info        to make Texinfo files and run them through makeinfo
  linkcheck   to check all external links for integrity
-=========== ================================================================
+=========== ===================================================================
