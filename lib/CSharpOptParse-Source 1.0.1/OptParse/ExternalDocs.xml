@@ -1,0 +1,177 @@
+<externalDocs>
+	<doc name="ExampleUsageCode">
+		<example>
+			Example code printing different usage outputs:
+			<code>
+UsageBuilder usage = new UsageBuilder();
+usage.GroupOptionsByCategory = false;
+
+usage.BeginSection("Name");
+usage.AddParagraph("Tester.exe");
+usage.EndSection();
+
+usage.BeginSection("Synopsis");
+usage.AddParagraph("Tester.exe [options] [arguments]");
+usage.EndSection();
+
+usage.BeginSection("Description");
+usage.AddParagraph("Program to test the CSharpOptParse library");
+
+// List of bullets
+usage.BeginList(ListType.Unordered);
+usage.AddListItem("First");
+usage.AddListItem("Second");
+usage.EndList();
+
+// Example of creating nested lists:
+usage.AddParagraph("Test");
+usage.BeginList(ListType.Ordered);
+usage.AddListItem("First");
+usage.BeginList(ListType.Ordered);
+usage.AddListItem("Item");
+usage.BeginList(ListType.Ordered);
+usage.AddListItem("Item");
+usage.BeginList(ListType.Ordered);
+usage.AddListItem("Item");
+usage.EndList();
+usage.EndList();
+usage.EndList();
+usage.AddListItem("Second");
+usage.EndList();
+
+usage.EndSection();
+
+usage.BeginSection("Options");
+usage.AddOptions(parser); // parser is an instance of Parser
+usage.EndSection();
+
+usage.BeginSection("Arguments");
+usage.AddParagraph("Before arguments");
+usage.BeginArguments();
+usage.AddArgument("Arguments to pass through", 
+	"Arguments to check if the parsing is returning the correct number of arguments",
+	typeof(string), true);
+usage.EndArguments();
+usage.AddParagraph("After arguments");
+usage.EndSection();
+
+using (StreamWriter sw = new StreamWriter("Usage.html"))
+{
+	usage.ToHtml(sw, OptStyle.Unix, null, true, "Tester.exe");
+}
+
+Console.WriteLine("Usage:");
+usage.ToText(Console.Out, OptStyle.Unix, true);			
+			</code>
+		</example>
+	</doc>
+	<doc name="ExamplePropClass">
+		<example>
+			Example class implementing options via attributes:
+			<code>
+// Example class defining properties
+class Properties
+{
+	#region Enumerations
+	internal enum ExamplePropertyEnum
+	{
+		First,
+		Second
+	}
+	#endregion Enumerations
+
+	#region Members
+	private ExamplePropertyEnum _exampleEnumProp;
+	#endregion Members
+
+	#region Accessed by code properties
+	// Cannot be used by the parser easily, but can be used
+	// by code
+	public ExamplePropertyEnum ExampleEnumProp 
+	{
+		get { return _exampleEnumProp; }
+		set { _exampleEnumProp = value; }
+	}
+	#endregion Accessed by code properties
+
+	#region Options
+	// Cannot be used by the parser easily, but can be used
+	// by code
+	// The EditorBrowsableAttribute is used to hide this 
+	// property from code
+	[OptDef(OptValType.Flag)]
+	[LongOptionName("example-enum-prop")]
+	[UseNameAsLongOption(false)]
+	[Description("Show how to perform complex type option parsing")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public string ExampleEnumPropAsString
+	{
+		get { return _exampleEnumProp.ToString(); }
+		set 
+		{ 
+			switch (value.ToLower())
+			{
+				case "first": _exampleEnumProp = ExamplePropertyEnum.First; break;
+				case "second": _exampleEnumProp = ExamplePropertyEnum.Second; break;
+				default:
+					throw new ArgumentException(
+						"Invalid value for the example-enum-prop option");
+			}
+		}
+	}
+
+
+	// Example of how to reverse flag-option values
+	[OptDef(OptValType.Flag)]
+	[LongOptionName("no-debug")]
+	[UseNameAsLongOption(false)]
+	[Description("Disable debug output")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public bool NoDebug
+	{
+		get { return !this.Debug; }
+		set { this.Debug = !value; }
+	}
+
+
+	[ShortOptionName('b')]
+	[OptDef(OptValType.Flag)]
+	[LongOptionName("debug")]
+	[UseNameAsLongOption(false)]
+	[Description("Enable debug output")]
+	public bool Debug = false;
+
+	[OptDef(OptValType.ValueReq)]
+	[ShortOptionName('d')]
+	[LongOptionName("directory")]
+	[UseNameAsLongOption(false)]
+	[Description("Output directory")]
+	[DefaultValue(".")]
+	public string Directory = ".";
+
+	[OptDef(OptValType.ValueOpt)]
+	[ShortOptionName('f')]
+	[LongOptionName("file")]
+	[UseNameAsLongOption(false)]
+	[Description("Input file")]
+	public string File = null;
+
+	[OptDef(OptValType.IncrementalFlag)]
+	[ShortOptionName('v')]
+	[LongOptionName("verbose")]
+	[UseNameAsLongOption(false)]
+	[Description("Set level of vebosity for debug printing")]
+	public int Verbose = 0;
+
+	[OptDef(OptValType.MultValue, ValueType=typeof(string))]
+	[ShortOptionName('s')]
+	[LongOptionName("strings")]
+	[UseNameAsLongOption(false)]
+	[Description("Test option that takes multiple values")]
+	public StringCollection Strings = new StringCollection();
+	#endregion Options
+}
+			</code>
+		</example>
+	</doc>
+</externalDocs>

@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpOptParse", "CSharpOptParse.csproj", "{EA550970-C2A0-4B5A-BBE2-7745638FBB85}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{E702DE7F-7C01-4BD6-B169-36A6877DE100}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{EA550970-C2A0-4B5A-BBE2-7745638FBB85}.Debug.ActiveCfg = Debug|.NET
+		{EA550970-C2A0-4B5A-BBE2-7745638FBB85}.Debug.Build.0 = Debug|.NET
+		{EA550970-C2A0-4B5A-BBE2-7745638FBB85}.Release.ActiveCfg = Release|.NET
+		{EA550970-C2A0-4B5A-BBE2-7745638FBB85}.Release.Build.0 = Release|.NET
+		{E702DE7F-7C01-4BD6-B169-36A6877DE100}.Debug.ActiveCfg = Debug|.NET
+		{E702DE7F-7C01-4BD6-B169-36A6877DE100}.Debug.Build.0 = Debug|.NET
+		{E702DE7F-7C01-4BD6-B169-36A6877DE100}.Release.ActiveCfg = Release|.NET
+		{E702DE7F-7C01-4BD6-B169-36A6877DE100}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
