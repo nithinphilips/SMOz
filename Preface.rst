@@ -7,7 +7,7 @@ Preface
 License
 -------
 
-This document is published under the |GNU| |FDL|::
+This document is published under the GNU FDL::
 
     Copyright (C) 2011 Keith Brooke, Nithin Philips
 
@@ -61,7 +61,7 @@ If you are a user, help is needed in providing support for other users,
 maintaining the website and the user manual, and more. If you'd like to help,
 please get in touch: <nithin@nithinphilips.com>
 
-If you are a progammer, you can `fork <http://help.github.com/fork-a-repo/>`_
-the repository at GitHub, and when you're ready, send me a `pull request
+If you are a programmer, you can `fork <http://help.github.com/fork-a-repo/>`_
+the repository at GitHub, make changes to SMOz, and when you're ready, send me a `pull request
 <http://help.github.com/send-pull-requests/>`_ to have your changes integrated
 into the primary repo. You can also send your changes as standard patch files.
