@@ -7,8 +7,16 @@ using LibSmoz.Ini;
 
 namespace LibSmoz.Transformation
 {
+    /// <summary>
+    /// The TemplateParser provides methods to parse a template ini file can create a Template object and vice versa.
+    /// </summary>
     public static class TemplateParser
     {
+        /// <summary>
+        /// Persisis a Template object into a file.
+        /// </summary>
+        /// <param name="template">The template object to save.</param>
+        /// <param name="file">The file to save the data into.</param>
         public static void Save(Template template, string file)
         {
             IniWriter writer = new IniWriter();
@@ -27,16 +35,31 @@ namespace LibSmoz.Transformation
             File.Delete(tempFile);
         }
 
+        /// <summary>
+        /// Reads a template ini file and creates a Template object from it.
+        /// </summary>
+        /// <param name="lines">The template file as an enumeration of lines.</param>
+        /// <returns>The new template.</returns>
         public static Template Parse(IEnumerable<string> lines)
         {
             return Parse(IniParser.Parse(lines));
         }
 
+        /// <summary>
+        /// Reads a template ini file and creates a Template object from it.
+        /// </summary>
+        /// <param name="file">The template file.</param>
+        /// <returns>The new template.</returns>
         public static Template Parse(string file)
         {
             return Parse(IniParser.Parse(file));
         }
 
+        /// <summary>
+        /// Reads a template ini file and creates a Template object from it.
+        /// </summary>
+        /// <param name="sections">The template file as a dictionary, keyed by the category</param>
+        /// <returns>The new template.</returns>
         public static Template Parse(Dictionary<string, HashSet<string>> sections)
         {
             Template template = new Template();
@@ -50,7 +73,6 @@ namespace LibSmoz.Transformation
 
             return template;
         }
-
 
         internal static Category CategoryFromFormat(string format)
         {

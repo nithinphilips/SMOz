@@ -1,0 +1,77 @@
+﻿<Window x:Class="SMOz.Windows.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="MainWindow" Height="382" Width="770">
+  
+    <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Command="Open"/>
+                <MenuItem Command="Save" />
+                <MenuItem Command="SaveAs" />
+                <Separator />
+                <MenuItem Header="Import" />
+                <MenuItem Command="Close" />
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Command="Undo" />
+                <MenuItem Command="Redo" />
+                <Separator />
+                <MenuItem Command="Cut" />
+                <MenuItem Command="Paste" />
+                <MenuItem Command="Delete" />
+                <Separator />
+                <MenuItem Command="SelectAll" />
+            </MenuItem>
+            <MenuItem Header="Category">
+                    <MenuItem Header="Add" />
+                    <MenuItem Header="Remove" />
+            </MenuItem>
+            <MenuItem Header="Template">
+                <MenuItem Header="Edit"  />
+                <MenuItem Header="Apply" />
+            </MenuItem>
+            <MenuItem Header="Tools">
+                <MenuItem Header="Options" />
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Command="Help" />
+                <MenuItem Header="About" />
+            </MenuItem>
+        </Menu>
+
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button ToolTip="Download a file">
+                </Button>
+                <Button ToolTip="Open website scanner">
+                </Button>
+                <Button  ToolTip="Open script dialog">
+                </Button>
+                <Separator />
+                <Button  ToolTip="Resume downloads" Visibility="{Binding RelativeSource={RelativeSource Self},Path=IsEnabled}">
+                </Button>
+                <Button ToolTip="Pause downloads" Visibility="{Binding RelativeSource={RelativeSource Self},Path=IsEnabled}">
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+       
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock>Ready</TextBlock>
+        </StatusBar>
+
+        <DockPanel LastChildFill="True">
+            <ListBox x:Name="uiViewList" DockPanel.Dock="Left" Padding="0">
+               
+            </ListBox>
+
+            <ListView x:Name="uiDownloadInfoList" ItemsSource="{Binding ElementName=uiViewList,Path=SelectedItem.Items}">
+                
+            </ListView>
+
+        </DockPanel>
+
+    </DockPanel>
+    
+    
+</Window>
