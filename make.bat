@@ -129,6 +129,24 @@ if "%1" == "latex" (
 	goto end
 )
 
+if "%1" == "latexpdf" (
+    %SPHINXBUILD% -b latex %ALLSPHINXOPTS% %BUILDDIR%/latex
+    if errorlevel 1 exit /b 1
+    pushd ".build/latex"
+    for /r %%i in (*.tex) do (
+        pdftex -progname=pdflatex "%%~ni"
+        pdftex -progname=pdflatex "%%~ni"
+        pdftex -progname=pdflatex "%%~ni"
+        makeindex -s python.ist "%%~ni.idx"
+        pdftex -progname=pdflatex "%%~ni"
+        pdftex -progname=pdflatex "%%~ni"
+    )
+    popd
+	echo.
+	echo.Build finished; the PDF files are in %BUILDDIR%/latex.
+	goto end
+)
+
 if "%1" == "text" (
 	%SPHINXBUILD% -b text %ALLSPHINXOPTS% %BUILDDIR%/text
 	if errorlevel 1 exit /b 1
