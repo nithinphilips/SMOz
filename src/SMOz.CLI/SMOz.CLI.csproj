@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -55,6 +55,10 @@
     <ProjectReference Include="..\..\lib\CSharpOptParse-Source 1.0.1\CSharpOptParse.csproj">
       <Project>{EA550970-C2A0-4B5A-BBE2-7745638FBB85}</Project>
       <Name>CSharpOptParse</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\libSmoz\libSmoz.csproj">
+      <Project>{18FE98B5-02BA-4738-ADC2-8E7C4BC7A580}</Project>
+      <Name>libSmoz</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
