@@ -22,6 +22,7 @@
  *  Description       :  
  *************************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LibSmoz.Model;
@@ -33,13 +34,25 @@ namespace LibSmoz.Commands.IO
     /// Deletes an actual file or directory.
     /// </summary>
     /// <remarks>Deleted files or directories are moved to .\Application Data\Smoz\Trash</remarks>
+    [Serializable]
     public class DeleteFileCommand : MoveFileCommand
     {
+        /// <summary>
+        /// Specifies the folder to move the files to be deleted
+        /// </summary>
+        public static string TrashFolder { get; set; }
+
+        static DeleteFileCommand()
+        {
+            TrashFolder = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SMOz"), "Trash");
+        }
+
+        public DeleteFileCommand() { }
 
         public DeleteFileCommand(IEnumerable<string> filesToDelete)
-            : base(filesToDelete.ToDictionary(file => file, file => ""))
+            : base(filesToDelete.ToDictionary(file => file, file => Path.Combine(TrashFolder, Path.GetRandomFileName())))
         {
-            this.name = string.Format("Delete '{0}'", Path.GetFileNameWithoutExtension(filesToDelete.First()));
+            this.Name = string.Format("Delete '{0}'", Path.GetFileNameWithoutExtension(filesToDelete.First()));
         }
 
         public override CommandType Type

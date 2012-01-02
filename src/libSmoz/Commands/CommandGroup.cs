@@ -22,6 +22,7 @@
  *  Description       :  
  *************************************************************************/
 
+using System;
 using System.Collections.Generic;
 
 namespace LibSmoz.Commands
@@ -30,48 +31,49 @@ namespace LibSmoz.Commands
     /// Represents a group of commands.
     /// </summary>
     /// <remarks>Members of this collection may contain other CommandGroup objects.</remarks>
-    public class CommandGroup : Command	
+    [Serializable]
+    public class CommandGroup : Command
     {
-	   public CommandGroup(string name)
-		  : this(name, new List<Command>()) { }
+        public CommandGroup()
+            : this(string.Empty) { }
 
-	   public CommandGroup(string name, List<Command> commands) {
-		  this.name = name;
-		  this.commands = commands;
-	   }
+        public CommandGroup(string name)
+            : this(name, new List<Command>()) { }
 
-	   public CommandGroup(string name, IEnumerable<Command> commands) {
-		  this.name = name;
-		  this.commands = new List<Command>(commands);
-	   }
+        public CommandGroup(string name, IList<Command> commands)
+        {
+            Name = name;
+            this.Commands = commands;
+        }
 
-	   List<Command> commands;
+        public CommandGroup(string name, IEnumerable<Command> commands)
+        {
+            this.Name = name;
+            this.Commands = new List<Command>(commands);
+        }
 
-	   public List<Command> Commands {
-		  get { return commands; }
-		  set { commands = value; }
-	   }
+        public IList<Command> Commands { get; set; }
 
-	   string name;
+        public override CommandType Type
+        {
+            get { return CommandType.Group; }
+        }
 
-	   public override string Name {
-		  get { return this.name; }
-	   }
+        public override void Execute()
+        {
+            foreach (Command cmd in this.Commands)
+            {
+                cmd.Execute();
+            }
+        }
 
-	   public override CommandType Type {
-		  get { return CommandType.Group; }
-	   }
+        public override void UnExecute()
+        {
 
-	   public override void Execute() {
-		  foreach (Command cmd in this.commands) {
-			 cmd.Execute();
-		  }
-	   }
-
-	   public override void UnExecute() {
-		  for (int i = this.commands.Count - 1; i >= 0; i--) {
-			 this.commands[i].UnExecute();
-		  }
-	   }
+            for (int i = this.Commands.Count - 1; i >= 0; i--)
+            {
+                this.Commands[i].UnExecute();
+            }
+        }
     }
 }

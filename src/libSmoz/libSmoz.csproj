@@ -79,8 +79,9 @@
     <Compile Include="Commands\UI\DeleteProgramItemCommand.cs" />
     <Compile Include="Commands\UI\MoveProgramItemCommand.cs" />
     <Compile Include="Commands\UI\RenameProgramItemCommand.cs" />
-    <Compile Include="Comparators\ProgramItemEqualityComparer.cs" />
-    <Compile Include="Comparators\ProgramCategoryEqualityComparer.cs" />
+    <Compile Include="Common.cs" />
+    <Compile Include="Comparators\EqualityComparer.cs" />
+    <Compile Include="Comparators\EqualityComparers.cs" />
     <Compile Include="Ini\IniParseException.cs" />
     <Compile Include="Ini\Parser.cs" />
     <Compile Include="Ini\Writer.cs" />
@@ -95,7 +96,6 @@
     <Compile Include="Transformation\Template.cs" />
     <Compile Include="Transformation\TemplateParser.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>

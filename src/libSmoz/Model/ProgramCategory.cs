@@ -8,6 +8,19 @@ namespace LibSmoz.Model
 {
     public class ProgramCategory : HashSet<ProgramItem>, IEquatable<ProgramCategory>, IComparable<ProgramCategory>, IStartMenuItem
     {
+
+        /// <summary>
+        /// Creates a new instance of ProgramCategory.
+        /// </summary>
+        /// <param name="startMenu">The start menu to which this category belongs to.</param>
+        /// <param name="name">The name of this category.</param>
+        public ProgramCategory(StartMenu startMenu, string name = null)
+            : base(EqualityComparers.ProgramItemComparer)
+        {
+            this.Root = startMenu;
+            this.Name = name ?? string.Empty;
+        }
+
         private string _name;
         /// <summary>
         /// The name of this category.
@@ -23,10 +36,21 @@ namespace LibSmoz.Model
             }
         }
 
+        private StartMenu _root;
+
         /// <summary>
         /// The start menu item to which the category belongs to.
         /// </summary>
-        public StartMenu Root { get; internal set; }
+        public StartMenu Root
+        {
+            get { return _root; }
+            internal set
+            {
+                if (_root == value) return;
+                _root = value;
+                SetSelectors();
+            }
+        }
 
         /// <summary>
         /// A list of all possible locations where this category could exist.
@@ -54,17 +78,7 @@ namespace LibSmoz.Model
                                  select l;
         }
 
-        /// <summary>
-        /// Creates a new instance of ProgramCategory.
-        /// </summary>
-        /// <param name="startMenu">The start menu to which this category belongs to.</param>
-        /// <param name="name">The name of this category.</param>
-        public ProgramCategory(StartMenu startMenu, string name)
-            : base(new ProgramItemEqualityComparer())
-        {
-            this.Root = startMenu;
-            this.Name = name;
-        }
+       
 
         /// <summary>
         /// Searches all the RealLocations of this category and finds all ProgramItems within.
@@ -90,12 +104,17 @@ namespace LibSmoz.Model
 
         public bool Equals(ProgramCategory other)
         {
-            return ProgramCategoryEqualityComparer.Instance.Equals(this, other);
+            return this.Name.Equals(other.Name, Common.DefaultStringComparison);
         }
 
         public int CompareTo(ProgramCategory other)
         {
             return this.Name.CompareTo(other.Name);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
         }
 
         public override string ToString()

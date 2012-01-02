@@ -9,9 +9,64 @@ using LibSmoz.Comparators;
 
 namespace LibSmoz.Model
 {
+    /// <summary>
+    /// <para>Represents a Windows Start Menu</para>
+    /// <para>A Windows Start Menu can have multiple <see cref="StartMenu.Locations"/>, however it is addresses as if there is only a single location</para>
+    /// <para>The StartMenu class will transparently merge the multiple locations and allows using the Start Menu like Windows does.</para>
+    /// </summary>
     public class StartMenu : HashSet<ProgramCategory>
     {
-        private List<string> locations = new List<string>();
+        /// <summary>
+        /// Creates a new instance of StartMenu.
+        /// </summary>
+        public StartMenu()
+            :this(null)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of StartMenu.
+        /// </summary>
+        /// <param name="locations">A list of locations</param>
+        public StartMenu(IEnumerable<string> locations)
+            : this(new List<string>(), locations.ToArray())
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of StartMenu
+        /// </summary>
+        /// <param name="knownCategories">A list of directories that are to be considered  categories.</param>
+        /// <param name="locations"></param>
+        public StartMenu(ICollection<string> knownCategories, IEnumerable<string> locations)
+            : this(knownCategories, locations.ToArray())
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of StartMenu.
+        /// </summary>
+        /// <param name="locations">A list of locations</param>
+        public StartMenu(params string[] locations)
+            :this(new List<string>(), locations)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of StartMenu.
+        /// </summary>
+        /// <param name="knownCategories">A list of directories that are to be considered  categories.</param>
+        /// <param name="locations">A list of locations</param>
+        public StartMenu(ICollection<string> knownCategories, params string[] locations)
+            : base(EqualityComparers.ProgramCategoryComparer)
+        {
+            KnownCategories = knownCategories;
+
+            if (locations != null)
+                foreach (var location in locations) AddLocation(location);
+        }
+
+        private readonly List<string> _locations = new List<string>();
 
         /// <summary>
         /// A list of folder names that are to be considered categories.
@@ -21,14 +76,7 @@ namespace LibSmoz.Model
         /// <summary>
         /// All the directories where the StartMenu is located.
         /// </summary>
-        public IEnumerable<string> Locations { get { return locations; } }
-
-        /// <summary>
-        /// Creates a new instance of StartMenu.
-        /// </summary>
-        public StartMenu()
-            : base(new ProgramCategoryEqualityComparer())
-        { }
+        public IEnumerable<string> Locations { get { return _locations; } }
 
         /// <summary>
         /// Retrives the instance of a ProgramCategory, if any, in this StartMenu which is identical to <code>item</code>.
@@ -108,7 +156,7 @@ namespace LibSmoz.Model
         public void AddLocation(string location)
         {
             var nLocation = NormalizeLocation(location);
-            locations.Add(nLocation);
+            _locations.Add(nLocation);
 
             // The root is also a category
             var pCategory = new ProgramCategory(this, "");
@@ -125,7 +173,15 @@ namespace LibSmoz.Model
         public void RemoveLocation(string location)
         {
             var nLocation = NormalizeLocation(location);
-            locations.Remove(nLocation);
+            _locations.Remove(nLocation);
+        }
+
+        /// <summary>
+        /// Looks for any new items or categories.
+        /// </summary>
+        public void Refresh()
+        {
+            _locations.ForEach(FindCategories);
         }
 
         /// <summary>
@@ -155,7 +211,6 @@ namespace LibSmoz.Model
                 foreach (var location in category.RealLocations) sb.AppendLine("  " + location);
                 foreach (var items in category)
                     sb.AppendLine("  " + items);
-
             }
 
             return sb.ToString();
@@ -163,7 +218,7 @@ namespace LibSmoz.Model
 
         static string NormalizeLocation(string location)
         {
-            if (!Path.IsPathRooted(location)) location = Path.GetFullPath(location);
+            //if (!Path.IsPathRooted(location)) location = Path.GetFullPath(location);
             return location.EndsWith(Path.DirectorySeparatorChar.ToString()) ? location : location + Path.DirectorySeparatorChar;
         }
     }

@@ -41,21 +41,12 @@ namespace LibSmoz.Commands.UI
             this.OldName = programItem.Name;
             this.NewName = newName;
 
-            this.name = "Rename '" + programItem.Name;
+            this.Name = "Rename '" + programItem.Name;
         }
 
         public ProgramItem ProgramItem { get; set; }
         public string OldName { get; set; }
         public string NewName { get; set; }
-
-        private string name;
-        public override string Name
-        {
-            get
-            {
-                return name;
-            }
-        }
 
         public override CommandType Type
         {

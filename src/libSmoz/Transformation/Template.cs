@@ -6,38 +6,51 @@ using System.Text;
 using LibSmoz.Commands;
 using LibSmoz.Commands.IO;
 using LibSmoz.Commands.UI;
+using LibSmoz.Comparators;
 using LibSmoz.Model;
 
 namespace LibSmoz.Transformation
 {
     public class Template : HashSet<Category>
     {
+        public Template():
+            base(EqualityComparers.CategoryComparer)
+        {
+        }
+
+        public void Merge(Template t)
+        {
+            foreach (var category in t)
+            {
+                if (Add(category)) continue;
+
+                var myCategory = this.FirstOrDefault(q => q.Equals(category));
+                myCategory.Merge(category);
+            }    
+        }
+
         public IEnumerable<Command> CleanupStartMenu(StartMenu startMenu)
         {
-            foreach (var programCategory in startMenu)
+            // Look through all existing program categories.
+            foreach (var programCategory in startMenu.Where(p => p.RealLocations.Count() > 0))
             {
-                int count = 0;
-                foreach (var realLocation in programCategory.RealLocations)
-                {
-                    count += Directory.GetFiles(realLocation).Length;
-                    count += Directory.GetDirectories(realLocation).Length;
-                }
+                int count = programCategory.RealLocations.Sum(
+                                    l => Directory.GetFiles(l).Length + Directory.GetDirectories(l).Length
+                            );
 
                 if (count == 0)
                     yield return new DeleteFileCommand(programCategory.RealLocations);
             }
 
-            foreach (var category in this)
+            // Look though all restricted categories
+            foreach (var programCategory in this.Where(c => c.IsRestricted)
+                                                .Select(c => new ProgramCategory(startMenu, c.RestrictedPath)))
             {
-                if (!category.IsRestricted) continue;
-                ProgramCategory programCategory = new ProgramCategory(startMenu, category.RestrictedPath);
+                if (programCategory.RealLocations.Count() == 0) continue;
 
-                int count = 0;
-                foreach (var realLocation in programCategory.RealLocations)
-                {
-                    count += Directory.GetFiles(realLocation).Length;
-                    count += Directory.GetDirectories(realLocation).Length;
-                }
+                int count = programCategory.RealLocations.Sum(
+                                l => Directory.GetFiles(l).Length + Directory.GetDirectories(l).Length
+                            );
 
                 if (count == 0)
                     yield return new DeleteFileCommand(programCategory.RealLocations);

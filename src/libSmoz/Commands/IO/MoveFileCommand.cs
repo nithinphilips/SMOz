@@ -22,9 +22,12 @@
  *  Description       :  
  *************************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using LibSmoz.Model;
 
 namespace LibSmoz.Commands.IO
@@ -32,9 +35,13 @@ namespace LibSmoz.Commands.IO
     /// <summary>
     /// Moves an actual file or directory.
     /// </summary>
+    [Serializable]
     public class MoveFileCommand : Command
     {
-        protected MoveFileCommand() { }
+        public MoveFileCommand()
+        {
+            
+        }
 
         public MoveFileCommand(Dictionary<string, string> moveMap)
         {
@@ -44,25 +51,26 @@ namespace LibSmoz.Commands.IO
             foreach (var pair in moveMap)
             {
                 if (File.Exists(pair.Key)) isFile = true;
-                this.name = string.Format("Move '{0}' to '{1}'", pair.Key, pair.Value);
+                this.Name = string.Format("Move '{0}' to '{1}'", pair.Key, pair.Value);
                 break;
             }
         }
 
         private bool isFile = false;
-        public ProgramItem ProgramItem { get; private set; }
-        public Dictionary<string, string> MoveMap { get; private set; }
+
+        public Dictionary<string, string> MoveMap { get; set; }
         public MoveFileMode MoveFileMode { get; set; }
 
-        protected string name;
-        public override string Name
-        {
-            get { return this.name; }
-        }
-
+        
         public override CommandType Type
         {
             get { return CommandType.IOMove; }
+        }
+
+        public MoveFileCommand GetReverseCommand()
+        {
+            Dictionary<string, string> reverseMap = MoveMap.ToDictionary(x => x.Value, x => x.Key);
+            return new MoveFileCommand(reverseMap);
         }
 
         public override void Execute()
@@ -97,59 +105,61 @@ namespace LibSmoz.Commands.IO
             return sb.ToString();
         }
 
-        private void MoveFile(string source, string target)
+        private void MoveFile(string source, string destination)
         {
-            // create target dir
-            Directory.CreateDirectory(Path.GetDirectoryName(target));
-            MoveFile(source, target, MoveFileMode);
+            // create destination dir
+            Directory.CreateDirectory(Path.GetDirectoryName(destination));
+            MoveFile(source, destination, MoveFileMode);
         }
 
         private void MoveDirectory(string source, string target)
         {
-            RecursiveMoveDirectory(source, target, MoveFileMode);
+            MoveDirectory(source, target, MoveFileMode);
         }
 
-        // ...Because .NET is piece of .SHIT
-        // Watch for stack overflow, ye be warned
-        // Note: This method can be rewritten to 'merge' two directories together (like 'move' in explorer does)
-        public static void RecursiveMoveDirectory(string source, string target, MoveFileMode mode)
+        /// <summary>
+        /// Moves a directory from one location to another.
+        /// </summary>
+        /// <param name="source">The source directory.</param>
+        /// <param name="destination">The destination directory</param>
+        /// <param name="mode">Controls the action taken when the source files exists at destination.</param>
+        public static void MoveDirectory(string source, string destination, MoveFileMode mode)
         {
-            Directory.CreateDirectory(target);
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
+                Directory.CreateDirectory(Path.Combine(destination, dirPath.Substring(source.Length)));
 
-            string[] subdirs = Directory.GetDirectories(source);
-
-            for (int i = 0; i < subdirs.Length; i++)
-            {
-                RecursiveMoveDirectory(subdirs[i], Path.Combine(target, Path.GetFileName(subdirs[i])), mode);
-            }
-
-            string[] files = Directory.GetFiles(source);
-
-            for (int i = 0; i < files.Length; i++)
-            {
-                string targetFile = Path.Combine(target, Path.GetFileName(files[i]));
-                MoveFile(files[i], targetFile, mode);
-            }
-
-            Directory.Delete(source, false);
+            //Copy all the files
+            foreach (string newPath in Directory.GetFiles(source, "*.*", SearchOption.AllDirectories))
+                MoveFile(newPath, Path.Combine(destination, newPath.Substring(source.Length)), mode);
 
         }
 
-        public static void MoveFile(string source, string target, MoveFileMode mode)
+        /// <summary>
+        /// Moves a file from source to destination
+        /// </summary>
+        /// <param name="source">The source file.</param>
+        /// <param name="destination">The destination to move the file.</param>
+        /// <param name="mode">Controls the action taken when the source files exists at destination.</param>
+        public static void MoveFile(string source, string destination, MoveFileMode mode)
         {
-            if (File.Exists(target))
+            if (!File.Exists(destination))
+            {
+                File.Move(source, destination);
+            }
+            else
             {
                 switch (mode)
                 {
                     case MoveFileMode.Overwrite:
-                        File.Delete(target);
-                        File.Move(source, target);
+                        File.Delete(destination);
+                        File.Move(source, destination);
                         break;
                     case MoveFileMode.OverwriteIfNewer:
-                        if (File.GetCreationTimeUtc(source) >= File.GetCreationTimeUtc(target))
+                        if (File.GetCreationTimeUtc(source) >= File.GetCreationTimeUtc(destination))
                         {
-                            File.Delete(target);
-                            File.Move(source, target);
+                            File.Delete(destination);
+                            File.Move(source, destination);
                         }
                         else
                         {
@@ -157,12 +167,8 @@ namespace LibSmoz.Commands.IO
                         }
                         break;
                     default:
-                        break;
+                        throw new ArgumentException("Unknown enum value");
                 }
-            }
-            else
-            {
-                File.Move(source, target);
             }
         }
     }

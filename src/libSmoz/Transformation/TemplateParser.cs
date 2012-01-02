@@ -67,7 +67,10 @@ namespace LibSmoz.Transformation
             foreach (var pair in sections)
             {
                 Category category = CategoryFromFormat(pair.Key);
-                category.AddRange(pair.Value.Select(CategoryItemFromFormat));
+                foreach (var categoryItem in pair.Value.Select(CategoryItemFromFormat))
+                {
+                    category.Add(categoryItem);
+                }
                 template.Add(category);
             }
 
@@ -77,9 +80,9 @@ namespace LibSmoz.Transformation
         internal static Category CategoryFromFormat(string format)
         {
             Category newCategory = new Category();
-            if (format.Contains(Category.RestCatSelector))
+            if (format.Contains(Common.RestrictedCategorySelector))
             {
-                string[] pieces = format.Split(new string[] { Category.RestCatSelector }, StringSplitOptions.None);
+                string[] pieces = format.Split(new string[] { Common.RestrictedCategorySelector }, StringSplitOptions.None);
                 if (pieces.Length == 2)
                 {
                     newCategory.Name = pieces[0];
@@ -102,7 +105,7 @@ namespace LibSmoz.Transformation
         {
             return string.IsNullOrEmpty(category.RestrictedPath)
                        ? category.Name
-                       : category.Name + Category.RestCatSelector + category.RestrictedPath;
+                       : category.Name + Common.RestrictedCategorySelector + category.RestrictedPath;
         }
 
 

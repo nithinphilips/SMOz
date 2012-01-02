@@ -40,14 +40,9 @@ namespace LibSmoz.Commands.UI
         {
             this.programItem = programItem;
             this.KnownCategories = knownCategories;
-            this.name = string.Format("Make {0} a category", Path.GetFileNameWithoutExtension(programItem.Name));
+            this.Name = string.Format("Make {0} a category", Path.GetFileNameWithoutExtension(programItem.Name));
         }
 
-        private string name;
-        public override string Name
-        {
-            get { return name; }
-        }
 
         public override CommandType Type
         {

@@ -22,51 +22,67 @@
  *  Description       :  
  *************************************************************************/
 
+using System;
+using System.Xml.Serialization;
+using LibSmoz.Commands.IO;
+
 namespace LibSmoz.Commands
 {
     /// <summary>
     /// Base class for all Undo/Redo commands.
     /// </summary>
-    /// <remarks>This class is abstract</remarks>
-    public abstract class Command{
-	   /// <summary>
-	   /// Display name of this command.
-	   /// </summary>
-	   public abstract string Name { get; }
+    [XmlInclude(typeof(MoveFileCommand)), XmlInclude(typeof(DeleteFileCommand)), XmlInclude(typeof(RenameFileCommand))]
+    [Serializable]
+    public abstract class Command
+    {
+        /// <summary>
+        /// Display name of this command.
+        /// </summary>
+        public string Name { get; set; }
 
-	   /// <summary>
-	   /// Type of this command. If, an unknown command <code>CommandType.None</code> is returned
-	   /// </summary>
-	   public abstract CommandType Type { get; }
+        /// <summary>
+        /// Type of this command. If, an unknown command <code>CommandType.None</code> is returned
+        /// </summary>
+        public abstract CommandType Type { get; }
 
-	   public abstract void Execute();
-	   public abstract void UnExecute();
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        public abstract void Execute();
 
-	   public override string ToString() {
-		  return this.Name;
-	   }
+        /// <summary>
+        /// Reverses the changes made by a call to the <see cref="Command.Execute"/> method.
+        /// </summary>
+        public abstract void UnExecute();
 
-	   public static string TypeToString(CommandType type) {
-		  switch (type) {
-			 case CommandType.None:
-				return "None";
-			 case CommandType.Group:
-				return "Group";
-			 case CommandType.UIMove:
-				return "Move";
-			 case CommandType.UIDelete:
-				return "Delete";
-			 case CommandType.UIRename:
-				return "Rename";
-			 case CommandType.IOMove:
-				return "Move";
-			 case CommandType.IODelete:
-				return "Delete";
-			 case CommandType.IORename:
-				return "Rename";
-			 default:
-				return type.ToString();
-		  }
-	   }
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
+        public static string TypeToString(CommandType type)
+        {
+            switch (type)
+            {
+                case CommandType.None:
+                    return "None";
+                case CommandType.Group:
+                    return "Group";
+                case CommandType.UIMove:
+                    return "Move";
+                case CommandType.UIDelete:
+                    return "Delete";
+                case CommandType.UIRename:
+                    return "Rename";
+                case CommandType.IOMove:
+                    return "Move";
+                case CommandType.IODelete:
+                    return "Delete";
+                case CommandType.IORename:
+                    return "Rename";
+                default:
+                    return type.ToString();
+            }
+        }
     }
 }

@@ -37,11 +37,10 @@ namespace LibSmoz.Commands.UI
         {
             this.programItem = programItem;
             this.programItemName = programItem.Name;
-            this.name = "Delete '" + programItem.Name + "'";
+            this.Name = "Delete '" + programItem.Name + "'";
         }
 
         ProgramItem programItem;
-        string name;
         string programItemName;
 
         public DeleteFileCommand GetRealCommand()
@@ -49,10 +48,6 @@ namespace LibSmoz.Commands.UI
             return new DeleteFileCommand(programItem.RealLocations);
         }
 
-        public override string Name
-        {
-            get { return this.name; }
-        }
 
         public override CommandType Type
         {

@@ -22,6 +22,7 @@
  *  Description       :  
  *************************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using LibSmoz.Model;
@@ -31,14 +32,17 @@ namespace LibSmoz.Commands.IO
     /// <summary>
     /// Renames an actual file or directory.
     /// </summary>
+    [Serializable]
     public class RenameFileCommand : MoveFileCommand
     {
-        public RenameFileCommand(Dictionary<string, string> moveMap)
-            :base(moveMap)
+        public RenameFileCommand() { }
+
+        public RenameFileCommand(Dictionary<string, string> renameMap)
+            :base(renameMap)
         {
-            foreach (var pair in moveMap)
+            foreach (var pair in renameMap)
             {
-                this.name = string.Format("Move '{0}' to '{1}'", Path.GetFileNameWithoutExtension(pair.Key), Path.GetDirectoryName(pair.Value));
+                this.Name = string.Format("Rename '{0}' to '{1}'", Path.GetFileNameWithoutExtension(pair.Key), Path.GetDirectoryName(pair.Value));
                 break;
             }
 	   }

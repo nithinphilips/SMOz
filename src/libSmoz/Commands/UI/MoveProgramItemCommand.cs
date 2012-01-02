@@ -45,7 +45,7 @@ namespace LibSmoz.Commands.UI
 
             this.OldCategory = programItem.Category;
             this.NewCategory = newCategory;
-            this._name = string.Format("Move '{0}' to '{1}' because of '{2}'", Path.GetFileName(programItem.Name), newCategory.Name, matchedSelector);
+            this.Name = string.Format("Move '{0}' to '{1}' because of '{2}'", Path.GetFileName(programItem.Name), newCategory.Name, matchedSelector);
 
             oldPaths = new List<string>(ProgramItem.Locations);
         }
@@ -71,12 +71,6 @@ namespace LibSmoz.Commands.UI
                 }
             }
             return new MoveFileCommand(dict);
-        }
-
-        private string _name;
-        public override string Name
-        {
-            get { return _name; }
         }
 
         public override CommandType Type

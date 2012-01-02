@@ -83,16 +83,19 @@ namespace LibSmoz.Model
         /// <param name="category">The initial category to which this item belongs to.</param>
         /// <param name="name">The name of this item.</param>
         /// <param name="isDirectory">Whether or not this item is a directory.</param>
-        public ProgramItem(ProgramCategory category, string name, bool isDirectory)
+        public ProgramItem(ProgramCategory category, string name, bool isDirectory = false)
         {
             this.Name = name;
             this.Category = category;
             this.IsDirectory = isDirectory;
         }
 
-        public bool Equals(ProgramItem other)
+
+        #region Overrides
+
+        public override string ToString()
         {
-            return ProgramItemEqualityComparer.Instance.Equals(this, other);
+            return string.Format("{2}{0} ({1})", this.Name, this.RealLocations.Count(), IsDirectory ? "[D] " : "");
         }
 
         public int CompareTo(ProgramItem other)
@@ -100,10 +103,56 @@ namespace LibSmoz.Model
             return this.Name.CompareTo(other.Name);
         }
 
-        public override string ToString()
+        public bool Equals(ProgramItem other)
         {
-            return string.Format("{2}{0} ({1})", this.Name, this.RealLocations.Count(), IsDirectory ? "[D] " : "");
+            return this.Name.Equals(other.Name, Common.DefaultStringComparison);
         }
 
+        public override bool Equals(object obj)
+        {
+            return Equals((ProgramItem)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns the string represenation of this program item.
+        /// The string representation is the same as ProgramItem.Name
+        /// </summary>
+        /// <param name="x">The program item.</param>
+        /// <returns>The string represenation.</returns>
+        public static implicit operator string(ProgramItem x)
+        {
+            return x.Name;
+        }
+
+        /// <summary>
+        /// Determines whether two program items are equal.
+        /// Two ProgramItems are equal when they both have the same name.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
+        public static bool operator ==(ProgramItem a, ProgramItem b)
+        {
+            return a.Equals(b);
+        }
+
+        /// <summary>
+        /// Determines whether two category items are not equal.
+        /// Two ProgramItems are equal when they both have the same name.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are not equal. Otherwise, false.</returns>
+        public static bool operator !=(ProgramItem a, ProgramItem b)
+        {
+            return !(a == b);
+        }
+
+        #endregion
     }
 }

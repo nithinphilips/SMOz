@@ -28,30 +28,51 @@ using System.Text.RegularExpressions;
 namespace LibSmoz.Transformation
 {
 
+    /// <summary>
+    /// Represents an item in a category that belongs to a template.
+    /// </summary>
     [Serializable]
     public class CategoryItem : IComparable<CategoryItem>, IEquatable<CategoryItem>
     {
 
-        public CategoryItem() 
+        internal CategoryItem() 
             : this(string.Empty, CategoryItemType.String) { }
 
+        /// <summary>
+        /// Creates a new instance of a CategoryItem.
+        /// </summary>
+        /// <param name="value">The value of the item.</param>
+        /// <param name="type">The type of the item.</param>
         public CategoryItem(string value, CategoryItemType type)
         {
             this.Value = value;
             this.Type = type;
         }
 
-        public string Value { get; set; }
-        public CategoryItemType Type { get; set; }
-        public Category Parent { get; set; }
 
+        private string _pattern;
+        private Regex _regexObject;
+
+        /// <summary>
+        /// Gets a valid Regex patten that represents this object.
+        /// </summary>
+        public string Pattern { get { return _pattern ?? (_pattern = GetPattern()); } }
+        
+        /// <summary>
+        /// Gets the value of this item as set by the user.
+        /// </summary>
+        public string Value { get; internal set; }
+
+        /// <summary>
+        /// Gets the type of this CategoryItem.
+        /// </summary>
+        public CategoryItemType Type { get; internal set; }
 
         /// <summary>
         /// Gets the pattern of this item. When performing Regex match, use this value.
         /// </summary>
-        public string GetPattern()
+        private string GetPattern()
         {
-
             switch (Type)
             {
                 case CategoryItemType.String:
@@ -65,36 +86,76 @@ namespace LibSmoz.Transformation
             }
         }
 
-        private Regex _regexObject;
+
+        /// <summary>
+        /// Returns a Regex object that can be used to compare real start menu items to this CategoryItem.
+        /// </summary>
         public Regex RegexObject
         {
             get { return _regexObject ?? (_regexObject = new Regex(this.GetPattern())); }
         }
 
+
+        #region Overrides
+
         public override string ToString()
         {
-            return TemplateParser.CategoryItemToFormat(this);
+            return Pattern;
         }
 
-        #region IComparable<CategoryItem> Members
-
-        // Compared by: type, value
         public int CompareTo(CategoryItem other)
         {
-            int result = 0;
-            result = this.Type.CompareTo(other.Type);
-            if (result == 0) { result = string.Compare(this.Value, other.Value, Category.IgnoreCase); }
-            if (result == 0) { if ((this.Parent != null) && (other.Parent != null)) { result = this.Parent.CompareTo(other.Parent); } }
-            return result;
+            return this.Pattern.CompareTo(other.Pattern);
         }
-
-        #endregion
-
-        #region IEquatable<CategoryItem> Members
 
         public bool Equals(CategoryItem other)
         {
-            return (this.CompareTo(other) == 0);
+            return this.Pattern.Equals(other.Pattern, Common.DefaultStringComparison);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals((CategoryItem) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Pattern.GetHashCode();
+        }
+
+        /// <summary>
+        /// Returns the string represenation of this category item.
+        /// The string representation is the same as CategoryItem.Pattern.
+        /// </summary>
+        /// <param name="x">The category item.</param>
+        /// <returns>The string represenation.</returns>
+        public static implicit operator string(CategoryItem x)
+        {
+            return x.Pattern;
+        }
+
+        /// <summary>
+        /// Determines whether two category items are equal.
+        /// Two CategoryItems are equal when they both generate the same regex pattern.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
+        public static bool operator ==(CategoryItem a, CategoryItem b)
+        {
+            return a.Equals(b);
+        }
+
+        /// <summary>
+        /// Determines whether two category items are not equal.
+        /// Two CategoryItems are equal when they both generate the same regex pattern.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are not equal. Otherwise, false.</returns>
+        public static bool operator !=(CategoryItem a, CategoryItem b)
+        {
+            return !(a == b);
         }
 
         #endregion

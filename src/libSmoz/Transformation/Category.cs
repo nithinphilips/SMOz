@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
+using LibSmoz.Comparators;
 
 namespace LibSmoz.Transformation
 {
@@ -34,19 +35,21 @@ namespace LibSmoz.Transformation
     /// Represents a template category.
     /// </summary>
     [Serializable]
-    public class Category : List<CategoryItem>, IComparable<Category>
+    public class Category : HashSet<CategoryItem>, IComparable<Category>, IEquatable<Category>
     {
-        public const bool IgnoreCase = true;
-        public const RegexOptions DefaultRegexOptions = RegexOptions.IgnoreCase | RegexOptions.Singleline;
-        public const string RestCatSelector = "->";
 
         public Category()
+            :this(string.Empty, string.Empty)
         {
         }
 
+        public Category(string name)
+            :this(name, string.Empty)
+        {
+        }
 
         public Category(string name, string restrictedPath)
-            : this()
+            : base(EqualityComparers.CategoryItemComparer)
         {
             this.Name = name;
             this.RestrictedPath = restrictedPath;
@@ -59,31 +62,72 @@ namespace LibSmoz.Transformation
         {
             get { return !string.IsNullOrEmpty(RestrictedPath); }
         }
+        
+        public void Merge(Category category)
+        {
+            foreach (var item in category)
+                this.Add(item);
+        }
+  
+        #region Overrides
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(TemplateParser.CategoryToFormat(this));
+            sb.AppendLine(TemplateParser.CategoryToFormat(this) + " (" + this.Count + ")");
             foreach (var item in this)
             {
                 sb.AppendLine(" " + item);
             }
             return sb.ToString();
         }
-        
-        #region IComparable<Category> Members
 
-        // Compared by: name, restrictedPath
         public int CompareTo(Category other)
         {
-            int result = 0;
-            result = string.Compare(this.Name, other.Name, IgnoreCase);
-            if (result == 0) { result = string.Compare(this.RestrictedPath, other.RestrictedPath, IgnoreCase); }
-            return result;
+            int name_cmp = this.Name.CompareTo(other.Name);
+            return name_cmp == 0 ? this.RestrictedPath.CompareTo(other.RestrictedPath) : name_cmp;
+        }
+
+        public bool Equals(Category other)
+        {
+            return Name.Equals(other.Name, Common.DefaultStringComparison) && RestrictedPath.Equals(other.RestrictedPath, Common.DefaultStringComparison);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals((Category)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode() ^ this.RestrictedPath.GetHashCode();
+        }
+
+        /// <summary>
+        /// Determines whether two categories  are equal.
+        /// Two categories are equal when they both generate the same regex pattern.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
+        public static bool operator ==(Category a, Category b)
+        {
+            return a.Equals(b);
+        }
+
+        /// <summary>
+        /// Determines whether two categories are not equal.
+        /// Two categories are equal when they both generate the same regex pattern.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are not equal. Otherwise, false.</returns>
+        public static bool operator !=(Category a, Category b)
+        {
+            return !(a == b);
         }
 
         #endregion
-
-
+        
     }
 }

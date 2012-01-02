@@ -76,7 +76,6 @@ namespace LibSmoz.Ini
         protected class SectionBuilder
         {
             public Dictionary<string, HashSet<string>> Sections = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-            public bool IgnoreCase = Category.IgnoreCase;
 
             private string _currentSectionName = "";
 
