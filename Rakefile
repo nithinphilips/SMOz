@@ -7,6 +7,8 @@ COPYRIGHT     = "(c) 2004-2011 #{AUTHORS}"
 TRADEMARKS    = "Windows is a trademark of Microsoft Corporation"
 
 CONFIGURATION = "Release"
+SOLUTION_FILE = "SMOz.sln"
+
 BUILD_DIR     = File.expand_path("build")
 OUTPUT_DIR    = "#{BUILD_DIR}/out"
 BIN_DIR       = "#{BUILD_DIR}/bin"
@@ -52,16 +54,16 @@ desc "Compiles the application."
 msbuild :compile  => :assemblyinfo do |msb|
     msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
     msb.targets :Build
-    msb.solution = "SMOz.sln"
-    # q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]
+    msb.solution = SOLUTION_FILE
+    # Values are: q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]
     msb.verbosity = "detailed"
-
     msb.log_level = :verbose
     FileUtils.mkdir_p(BUILD_DIR)
     # Disable console logging and send output to a file.
     msb.parameters = "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.log\""
 end
 
+# Copies the ouput from compile to a proper directory structure
 task :build => [:compile]  do
     binaries = FileList["#{OUTPUT_DIR}/*.dll", "#{OUTPUT_DIR}/*.exe", "#{OUTPUT_DIR}/*.exe.config", "#{OUTPUT_DIR}/*.dll.config", "README.md", "COPYING"]
 
@@ -165,7 +167,7 @@ end
 msbuild :clean_sln do |msb|
     msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
     msb.targets :Clean
-    msb.solution = "SMOz.sln"
+    msb.solution = SOLUTION_FILE
 end
 
 task :clean_dist do
@@ -178,7 +180,6 @@ end
 
 desc "Runs Sphinx to build the documentation."
 task :build_doc do |d|
-
     # We don't want this littering the dep_graph, call it explicitly!
     Rake::Task["dep_graph"].execute
 
