@@ -35,8 +35,8 @@ namespace LibSmoz.Transformation
     public class CategoryItem : IComparable<CategoryItem>, IEquatable<CategoryItem>
     {
 
-        internal CategoryItem() 
-            : this(string.Empty, CategoryItemType.String) { }
+        internal CategoryItem()
+            : this(string.Empty, CategoryItemType.Regex) { }
 
         /// <summary>
         /// Creates a new instance of a CategoryItem.
@@ -57,28 +57,54 @@ namespace LibSmoz.Transformation
         /// Gets a valid Regex patten that represents this object.
         /// </summary>
         public string Pattern { get { return _pattern ?? (_pattern = GetPattern()); } }
-        
+
+        private string _value;
+
         /// <summary>
         /// Gets the value of this item as set by the user.
         /// </summary>
-        public string Value { get; internal set; }
+        public string Value
+        {
+            get { return _value; }
+            set
+            {
+                if (value == _value) return;
+                _value = value;
+                _regexObject = null;
+                _pattern = null;
+            }
+        }
+
+        private CategoryItemType _type;
 
         /// <summary>
         /// Gets the type of this CategoryItem.
         /// </summary>
-        public CategoryItemType Type { get; internal set; }
+        public CategoryItemType Type
+        {
+            get { return _type; }
+            set
+            {
+                if (value == _type) return;
+                _type = value;
+                _regexObject = null;
+                _pattern = null;
+            }
+        }
 
         /// <summary>
         /// Gets the pattern of this item. When performing Regex match, use this value.
         /// </summary>
         private string GetPattern()
         {
+            if (string.IsNullOrEmpty(Value)) return string.Empty;
+
             switch (Type)
             {
                 case CategoryItemType.String:
                     return "^" + Regex.Escape(this.Value) + "$";
                 case CategoryItemType.WildCard:
-                     return ".*" + Regex.Escape(this.Value) + ".*";
+                    return ".*" + Regex.Escape(this.Value) + ".*";
                 case CategoryItemType.Regex:
                     return this.Value;
                 default:
@@ -105,17 +131,22 @@ namespace LibSmoz.Transformation
 
         public int CompareTo(CategoryItem other)
         {
+            if (other == null) return -1;
             return this.Pattern.CompareTo(other.Pattern);
         }
 
         public bool Equals(CategoryItem other)
         {
-            return this.Pattern.Equals(other.Pattern, Common.DefaultStringComparison);
+            return this == other;
         }
 
         public override bool Equals(object obj)
         {
-            return Equals((CategoryItem) obj);
+            if(obj == null) return false;
+           
+            var cObj = obj as CategoryItem;
+
+            return cObj == null || cObj == this;
         }
 
         public override int GetHashCode()
@@ -143,7 +174,8 @@ namespace LibSmoz.Transformation
         /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
         public static bool operator ==(CategoryItem a, CategoryItem b)
         {
-            return a.Equals(b);
+            if ((object)a == null || (object)b == null) return false;
+            return a.Pattern.Equals(b.Pattern, Common.DefaultStringComparison);
         }
 
         /// <summary>
