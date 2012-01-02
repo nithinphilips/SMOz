@@ -34,9 +34,11 @@ namespace SMOz.Tests
 
 
         [TestMethod]
+        [DeploymentItem(@"Resources\TemplateParserTest.LoadFile.ini")]
         public void LoadFile()
         {
-            Template t = TemplateParser.Parse(Common.GetTestDataFullPath("TemplateParserTest.LoadFile.ini"));
+            //File.WriteAllText("TemplateParserTest.LoadFile.ini", Resources.TemplateParserTest_LoadFile);
+            Template t = TemplateParser.Parse("TemplateParserTest.LoadFile.ini");
             Assert.AreEqual(12, t.Count);
 
             foreach (var category in t)
@@ -132,7 +134,7 @@ namespace SMOz.Tests
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual("Dummy", t.First().Name);
             Assert.AreEqual(CategoryItemType.WildCard, t.First().First().Type);
-            Assert.AreEqual(".*WildCard.*", t.First().First().GetPattern());
+            Assert.AreEqual(".*WildCard.*", t.First().First().Pattern);
         }
 
         [TestMethod]
@@ -145,7 +147,7 @@ namespace SMOz.Tests
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual("Dummy", t.First().Name);
             Assert.AreEqual(CategoryItemType.WildCard, t.First().First().Type);
-            Assert.AreEqual(@".*WildCard\*\*\+\+.*", t.First().First().GetPattern());
+            Assert.AreEqual(@".*WildCard\*\*\+\+.*", t.First().First().Pattern);
         }
 
         [TestMethod]
@@ -178,14 +180,14 @@ Exacto
             Assert.AreEqual(CategoryItemType.String, t.First().First().Type);
             
             Assert.AreEqual(1, t.ElementAt(0).Count);
-            Assert.AreEqual("^Exacto$", t.ElementAt(0).ElementAt(0).GetPattern());
+            Assert.AreEqual("^Exacto$", t.ElementAt(0).ElementAt(0).Pattern);
 
             Assert.AreEqual(2, t.ElementAt(1).Count);
-            Assert.AreEqual("^Exacto$", t.ElementAt(1).ElementAt(0).GetPattern());
-            Assert.AreEqual("^Exacto2$", t.ElementAt(1).ElementAt(1).GetPattern());
+            Assert.AreEqual("^Exacto$", t.ElementAt(1).ElementAt(0).Pattern);
+            Assert.AreEqual("^Exacto2$", t.ElementAt(1).ElementAt(1).Pattern);
 
             Assert.AreEqual(1, t.ElementAt(2).Count);
-            Assert.AreEqual("^Exacto$", t.ElementAt(1).ElementAt(0).GetPattern());
+            Assert.AreEqual("^Exacto$", t.ElementAt(1).ElementAt(0).Pattern);
         }
 
         [TestMethod]
@@ -198,7 +200,7 @@ Exacto
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual("Dummy", t.First().Name);
             Assert.AreEqual(CategoryItemType.String, t.First().First().Type);
-            Assert.AreEqual("^Exacto$", t.First().First().GetPattern());
+            Assert.AreEqual("^Exacto$", t.First().First().Pattern);
         }
 
         [TestMethod]
@@ -211,7 +213,7 @@ Exacto**++
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual("Dummy", t.First().Name);
             Assert.AreEqual(CategoryItemType.String, t.First().First().Type);
-            Assert.AreEqual(@"^Exacto\*\*\+\+$", t.First().First().GetPattern());
+            Assert.AreEqual(@"^Exacto\*\*\+\+$", t.First().First().Pattern);
         }
 
         [TestMethod]
@@ -224,7 +226,7 @@ Exacto**++
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual("Dummy", t.First().Name);
             Assert.AreEqual(CategoryItemType.Regex, t.First().First().Type);
-            Assert.AreEqual("Exacto.*", t.First().First().GetPattern());
+            Assert.AreEqual("Exacto.*", t.First().First().Pattern);
         }
 
         [TestMethod]
@@ -238,13 +240,13 @@ Exacto**++
             Assert.AreEqual(1, t.Count);
             Assert.AreEqual("Dummy", t.First().Name);
             Assert.AreEqual(CategoryItemType.Regex, t.First().First().Type);
-            Assert.AreEqual("Exacto.*", t.First().First().GetPattern());
+            Assert.AreEqual("Exacto.*", t.First().First().Pattern);
 
             Assert.AreEqual(CategoryItemType.String, t.First().ElementAt(1).Type);
-            Assert.AreEqual("^Part2$", t.First().ElementAt(1).GetPattern());
+            Assert.AreEqual("^Part2$", t.First().ElementAt(1).Pattern);
         }
 
-        private static IEnumerable<string> ReadAllLines(string str)
+        internal static IEnumerable<string> ReadAllLines(string str)
         {
             StringReader sr  = new StringReader(str);
             while (sr.Peek() > 0)
