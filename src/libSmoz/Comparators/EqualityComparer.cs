@@ -10,7 +10,7 @@ namespace LibSmoz.Comparators
     /// It calls the Equals method on the type.
     ///</summary>
     ///<typeparam name="T">Tye type to compare</typeparam>
-    public class EqualityComparer<T> : IEqualityComparer<T>
+    internal class EqualityComparer<T> : IEqualityComparer<T>
     {
         public bool Equals(T x, T y)
         {

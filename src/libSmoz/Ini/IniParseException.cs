@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LibSmoz.Ini
+namespace LibSmoz
 {
     public class IniParseException : Exception
     {

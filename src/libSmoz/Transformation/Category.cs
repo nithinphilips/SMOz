@@ -84,18 +84,21 @@ namespace LibSmoz.Transformation
 
         public int CompareTo(Category other)
         {
-            int name_cmp = this.Name.CompareTo(other.Name);
-            return name_cmp == 0 ? this.RestrictedPath.CompareTo(other.RestrictedPath) : name_cmp;
+            if (other == null) return -1;
+
+            int nameCmp = this.Name.CompareTo(other.Name);
+            return nameCmp == 0 ? this.RestrictedPath.CompareTo(other.RestrictedPath) : nameCmp;
         }
 
         public bool Equals(Category other)
         {
-            return Name.Equals(other.Name, Common.DefaultStringComparison) && RestrictedPath.Equals(other.RestrictedPath, Common.DefaultStringComparison);
+            return this == other;
         }
 
         public override bool Equals(object obj)
         {
-            return Equals((Category)obj);
+            var cObj = obj as Category;
+            return cObj == null || cObj == this;
         }
 
         public override int GetHashCode()
@@ -112,7 +115,8 @@ namespace LibSmoz.Transformation
         /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
         public static bool operator ==(Category a, Category b)
         {
-            return a.Equals(b);
+            if ((object)a == null || (object)b == null) return false;
+            return a.Name.Equals(b.Name, Common.DefaultStringComparison) && a.RestrictedPath.Equals(b.RestrictedPath, Common.DefaultStringComparison);
         }
 
         /// <summary>

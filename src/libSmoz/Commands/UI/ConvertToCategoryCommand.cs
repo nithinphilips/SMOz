@@ -22,16 +22,18 @@
  *  Description       :  
  *************************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
-using LibSmoz.Model;
+using LibSmoz.Commands.Io;
+using LibSmoz.ProgramsMenu;
 
-namespace LibSmoz.Commands.UI
+namespace LibSmoz.Commands.Ui
 {
     /// <summary>
     /// Encapsulates a command that converts a Start Menu item to a category
     /// </summary>
-    public class ConvertToCategoryCommand : Command
+    public class ConvertToCategoryCommand : UiCommand
     {
         ProgramItem programItem;
         private ICollection<string> KnownCategories { get; set; }
@@ -59,6 +61,11 @@ namespace LibSmoz.Commands.UI
         {
             KnownCategories.Remove(programItem.Name);
             programItem.Category.Add(programItem);
+        }
+
+        public override IoCommand GetIoCommand()
+        {
+            return null;
         }
     }
 }

@@ -25,10 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LibSmoz.Model;
 using System.IO;
 
-namespace LibSmoz.Commands.IO
+namespace LibSmoz.Commands.Io
 {
     /// <summary>
     /// Deletes an actual file or directory.

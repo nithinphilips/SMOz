@@ -1,9 +1,9 @@
-﻿using LibSmoz.Model;
+﻿using LibSmoz.ProgramsMenu;
 using LibSmoz.Transformation;
 
 namespace LibSmoz.Comparators
 {
-    public static class EqualityComparers
+    internal static class EqualityComparers
     {
         public static EqualityComparer<Category> CategoryComparer { get; private set; }
         public static EqualityComparer<CategoryItem> CategoryItemComparer { get; private set; }

@@ -25,9 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using LibSmoz.Model;
 
-namespace LibSmoz.Commands.IO
+namespace LibSmoz.Commands.Io
 {
     /// <summary>
     /// Renames an actual file or directory.

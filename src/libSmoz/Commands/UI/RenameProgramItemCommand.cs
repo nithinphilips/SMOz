@@ -23,16 +23,20 @@
  *************************************************************************/
 
 using System;
-using LibSmoz.Model;
+using System.Collections.Generic;
+using LibSmoz.Commands.Io;
+using System.Linq;
+using System.Linq.Expressions;
 using System.IO;
+using LibSmoz.ProgramsMenu;
 
-namespace LibSmoz.Commands.UI
+namespace LibSmoz.Commands.Ui
 {
     /// <summary>
     /// Renames a start item.
     /// </summary>
     /// <remarks>No changes are made to the actual file or directory by this command.</remarks>
-    public class RenameProgramItemCommand : Command
+    public class RenameProgramItemCommand : UiCommand
     {
         public RenameProgramItemCommand(ProgramItem programItem, string newName)
         {
@@ -61,6 +65,32 @@ namespace LibSmoz.Commands.UI
         public override void UnExecute()
         {
             ProgramItem.Name = OldName;
+        }
+
+        public override IoCommand GetIoCommand()
+        {
+            bool revert = ProgramItem.Name == OldName;
+
+            var oldPaths = ProgramItem.Locations.ToList();
+            ProgramItem.Name = NewName;
+            var newPaths = ProgramItem.Locations.ToList();
+
+            var dict = new Dictionary<string, string>();
+
+            for (int i = 0; i < oldPaths.Count; i++)
+            {
+                if ((ProgramItem.IsDirectory && Directory.Exists(oldPaths[i])) ||  File.Exists(oldPaths[i]) )
+                {
+                    dict.Add(oldPaths[i], newPaths[i]);
+                }
+            }
+
+            var cmd = new RenameFileCommand(dict);
+
+            if(revert)
+                ProgramItem.Name = OldName;
+
+            return cmd;
         }
     }
 }

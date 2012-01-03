@@ -29,7 +29,7 @@ using System.IO;
 
 namespace LibSmoz.Ini
 {
-    public class IniWriter
+    internal class IniWriter
     {
 
         public IniWriter()

@@ -24,12 +24,19 @@
 
 using System;
 using System.Xml.Serialization;
-using LibSmoz.Commands.IO;
+using LibSmoz.Commands.Io;
 
 namespace LibSmoz.Commands
 {
     /// <summary>
-    /// Base class for all Undo/Redo commands.
+    /// <para>Commands implement a basic <a href="https://en.wikipedia.org/wiki/Command_pattern">Command design pattern</a>.</para>
+    /// 
+    /// </summary>
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    internal class NamespaceDoc { }
+
+    /// <summary>
+    /// <para>Base class for all Undo/Redo commands.</para>
     /// </summary>
     [XmlInclude(typeof(MoveFileCommand)), XmlInclude(typeof(DeleteFileCommand)), XmlInclude(typeof(RenameFileCommand))]
     [Serializable]

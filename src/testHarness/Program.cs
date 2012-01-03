@@ -6,8 +6,8 @@ using System.Text;
 using LibSmoz;
 using System.Diagnostics;
 using LibSmoz.Commands;
-using LibSmoz.Commands.UI;
-using LibSmoz.Model;
+using LibSmoz.Commands.Ui;
+using LibSmoz.ProgramsMenu;
 using LibSmoz.Transformation;
 
 namespace testHarness

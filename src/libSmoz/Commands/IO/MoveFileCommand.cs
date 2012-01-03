@@ -28,15 +28,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using LibSmoz.Model;
 
-namespace LibSmoz.Commands.IO
+namespace LibSmoz.Commands.Io
 {
     /// <summary>
     /// Moves an actual file or directory.
     /// </summary>
     [Serializable]
-    public class MoveFileCommand : Command
+    public class MoveFileCommand : IoCommand
     {
         public MoveFileCommand()
         {
@@ -67,7 +66,7 @@ namespace LibSmoz.Commands.IO
             get { return CommandType.IOMove; }
         }
 
-        public MoveFileCommand GetReverseCommand()
+        public override IoCommand GetReverseCommand()
         {
             Dictionary<string, string> reverseMap = MoveMap.ToDictionary(x => x.Value, x => x.Key);
             return new MoveFileCommand(reverseMap);

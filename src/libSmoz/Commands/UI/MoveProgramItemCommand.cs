@@ -25,16 +25,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using LibSmoz.Commands.IO;
-using LibSmoz.Model;
+using LibSmoz.Commands.Io;
+using LibSmoz.ProgramsMenu;
 
-namespace LibSmoz.Commands.UI
+namespace LibSmoz.Commands.Ui
 {
     /// <summary>
     /// Moves a start item.
     /// </summary>
     /// <remarks>No changes are made to the actual file or directory by this command.</remarks>
-    public class MoveProgramItemCommand : Command
+    public class MoveProgramItemCommand : UiCommand
     {
         protected MoveProgramItemCommand() { }
 
@@ -52,7 +52,7 @@ namespace LibSmoz.Commands.UI
 
         private List<string> oldPaths, newPaths;
 
-        public MoveFileCommand GetRealCommand()
+        public override IoCommand GetIoCommand()
         {
             if (newPaths == null)
             {

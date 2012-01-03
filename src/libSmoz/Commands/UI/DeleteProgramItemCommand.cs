@@ -22,16 +22,17 @@
  *  Description       :  
  *************************************************************************/
 
-using LibSmoz.Commands.IO;
-using LibSmoz.Model;
+using System;
+using LibSmoz.Commands.Io;
+using LibSmoz.ProgramsMenu;
 
-namespace LibSmoz.Commands.UI
+namespace LibSmoz.Commands.Ui
 {
     /// <summary>
     /// Deletes a start item.
     /// </summary>
     /// <remarks>No changes are made to the actual file or directory by this command.</remarks>
-    public class DeleteProgramItemCommand : Command
+    public class DeleteProgramItemCommand : UiCommand
     {
         public DeleteProgramItemCommand(ProgramItem programItem)
         {
@@ -72,6 +73,11 @@ namespace LibSmoz.Commands.UI
         public override void UnExecute()
         {
             programItem.Category.Add(programItem);
+        }
+
+        public override IoCommand GetIoCommand()
+        {
+            return new DeleteFileCommand(programItem.RealLocations);
         }
     }
 }

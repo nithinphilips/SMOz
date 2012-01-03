@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LibSmoz.Commands;
-using LibSmoz.Commands.IO;
-using LibSmoz.Commands.UI;
+using LibSmoz.Commands.Io;
+using LibSmoz.Commands.Ui;
 using LibSmoz.Comparators;
-using LibSmoz.Model;
+using LibSmoz.ProgramsMenu;
 
 namespace LibSmoz.Transformation
 {

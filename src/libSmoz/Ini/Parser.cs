@@ -30,7 +30,17 @@ using LibSmoz.Transformation;
 
 namespace LibSmoz.Ini
 {
-    public class IniParser
+    /// <summary>
+    /// <para>Classes in this namespace implement a basic Ini file parser.</para>
+    /// </summary>
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    internal class NamespaceDoc { }
+
+    /// <summary>
+    /// <para>A simple ini parser.</para>
+    ///  
+    /// </summary>
+    internal class IniParser
     {
         public static Dictionary<string, HashSet<string>> Parse(string file)
         {

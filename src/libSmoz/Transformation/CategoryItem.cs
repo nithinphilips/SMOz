@@ -35,7 +35,10 @@ namespace LibSmoz.Transformation
     public class CategoryItem : IComparable<CategoryItem>, IEquatable<CategoryItem>
     {
 
-        internal CategoryItem()
+        /// <summary>
+        /// Creates a new instance of a CategoryItem.
+        /// </summary>
+        public CategoryItem()
             : this(string.Empty, CategoryItemType.Regex) { }
 
         /// <summary>
@@ -48,7 +51,6 @@ namespace LibSmoz.Transformation
             this.Value = value;
             this.Type = type;
         }
-
 
         private string _pattern;
         private Regex _regexObject;
@@ -142,10 +144,7 @@ namespace LibSmoz.Transformation
 
         public override bool Equals(object obj)
         {
-            if(obj == null) return false;
-           
             var cObj = obj as CategoryItem;
-
             return cObj == null || cObj == this;
         }
 
@@ -155,14 +154,90 @@ namespace LibSmoz.Transformation
         }
 
         /// <summary>
-        /// Returns the string represenation of this category item.
-        /// The string representation is the same as CategoryItem.Pattern.
+        /// Returns the string representation of this category item.
         /// </summary>
         /// <param name="x">The category item.</param>
         /// <returns>The string represenation.</returns>
+        /// <seealso cref="op_Implicit(string)"/>
         public static implicit operator string(CategoryItem x)
         {
-            return x.Pattern;
+            if((object)x == null) return string.Empty;
+
+            string prefix = "";
+            switch (x.Type)
+            {
+                case CategoryItemType.WildCard:
+                    prefix = "*";
+                    break;
+                case CategoryItemType.Regex:
+                    prefix = "@";
+                    break;
+            }
+
+            return prefix + x.Value;
+        }
+
+        /// <summary>
+        /// Creates a CategoryItem from a string representation.
+        /// </summary>
+        /// <param name="str">
+        /// <para>A string representation of a Category Item.</para>
+        /// <para>The type of the string is denoted by its first chracter.</para>
+        /// <list type="bullet">
+        ///     <item>*: A wildcard item</item>
+        ///     <item>@: A regular expression</item>
+        ///     <item>All else: An exact string match</item>
+        /// </list>
+        /// </param>
+        /// <example>
+        /// <code>
+        /// class Program
+        /// {
+        ///     
+        ///     static void Main()
+        ///     {
+        ///         CategoryItem a = "*A WildCard";
+        ///         // c.Value = "A WildCard";
+        ///         // c.Type  = CategoryItemType.WildCard;
+        /// 
+        ///         CategoryItem b = "@A [Re]gex";
+        ///         // c.Value = "A [Re]gex";
+        ///         // c.Type  = CategoryItemType.Regex;
+        /// 
+        ///         CategoryItem c = "An exact match";
+        ///         // c.Value = "An exact match";
+        ///         // c.Type  = CategoryItemType.String;
+        ///     }
+        /// 
+        /// }
+        /// </code>
+        /// </example>
+        /// <returns>A category item.</returns>
+        public static implicit operator CategoryItem(string str)
+        {
+            CategoryItem item = new CategoryItem();
+
+            if (!string.IsNullOrEmpty(str))
+            {
+                char firstChar = str[0];
+                switch (firstChar)
+                {
+                    case '*':
+                        item.Type = CategoryItemType.WildCard;
+                        item.Value = str.Substring(1);
+                        break;
+                    case '@':
+                        item.Type = CategoryItemType.Regex;
+                        item.Value = str.Substring(1);
+                        break;
+                    default:
+                        item.Value = str;
+                        item.Type = CategoryItemType.String;
+                        break;
+                }
+            }
+
+            return item;
         }
 
         /// <summary>

@@ -111,49 +111,14 @@ namespace LibSmoz.Transformation
 
         internal static CategoryItem CategoryItemFromFormat(string format)
         {
-            CategoryItem item = new CategoryItem();
-
-            if (string.IsNullOrEmpty(format))
-            {
-                item.Value = "";
-                item.Type = CategoryItemType.String;
-            }
-            else
-            {
-                char firstChar = format[0];
-                switch (firstChar)
-                {
-                    case '*':
-                        item.Type = CategoryItemType.WildCard;
-                        item.Value = format.Substring(1);
-                        break;
-                    case '@':
-                        item.Type = CategoryItemType.Regex;
-                        item.Value = format.Substring(1);
-                        break;
-                    default:
-                        item.Value = format;
-                        item.Type = CategoryItemType.String;
-                        break;
-                }
-            }
-            return item;
+            // use the implicit cast operator
+            return format;
         }
 
         internal static string CategoryItemToFormat(CategoryItem item)
         {
-            string prefix = "";
-            switch (item.Type)
-            {
-                case CategoryItemType.WildCard:
-                    prefix = "*";
-                    break;
-                case CategoryItemType.Regex:
-                    prefix = "@";
-                    break;
-            }
-
-            return prefix + item.Value;
+            // use the implicit cast operator
+            return item;
         }
     }
 }
