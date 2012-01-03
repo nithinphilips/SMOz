@@ -34,7 +34,7 @@ desc "Builds the application, installer and packages source and binaries."
 task :dist    => [:dist_zip, :dist_src, :installer, :test]
 
 desc "Builds the documentation and runs the dist task"
-task :doc     => [:build_doc, :dist]
+task :doc     => [:build_doc, :libdoc, :dist]
 
 desc "Cleans all the object files, binaries, dist packages etc."
 task :clean   => [:clean_sln, :clean_doc, :clean_dist]
@@ -60,7 +60,29 @@ msbuild :compile  => :assemblyinfo do |msb|
     msb.log_level = :verbose
     FileUtils.mkdir_p(BUILD_DIR)
     # Disable console logging and send output to a file.
-    msb.parameters = "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.log\""
+    msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.log\""
+end
+
+msbuild :compile_libdoc  => :compile do |msb|
+    msb.properties :configuration => CONFIGURATION, "OutputPath" => "#{BUILD_DIR}/lib-doc"
+    msb.solution = File.expand_path("src/libSmoz/libSmoz.shfbproj")
+    msb.verbosity = "detailed"
+    msb.log_level = :verbose
+    FileUtils.mkdir_p(BUILD_DIR)
+    # Disable console logging and send output to a file.
+    msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/shfb.log\"", "/p:DocSourceDir=\"#{OUTPUT_DIR}\""
+end
+
+desc "Generates documentation for any class libraries."
+task :libdoc => :compile_libdoc  do |t|
+    # Copy chm files
+    chmfiles = FileList["#{BUILD_DIR}/lib-doc/*.chm"]
+    FileUtils.cp_r chmfiles, "#{BIN_DIR}/#{PACKAGE}/"
+
+    # Copy html files
+    htmlfiles = FileList["#{BUILD_DIR}/lib-doc/*"].exclude(/\.chm$/).exclude(/\/Working/)
+    FileUtils.mkdir_p  "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
+    FileUtils.cp_r htmlfiles, "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
 end
 
 # Copies the ouput from compile to a proper directory structure
@@ -220,8 +242,8 @@ task :dep_graph do |task|
     puts "Wrote dependency graph to #{this_task}.png."
     dep.write_to_graphic_file('pdf', this_task)
     puts "Wrote dependency graph to #{this_task}.pdf."
-    
-    if File.Directory? "doc/images"
+
+    if File.directory? "doc/images"
         FileUtils.cp("#{this_task}.png", "doc/images/#{this_task}.png")
         FileUtils.cp("#{this_task}.pdf", "doc/images/#{this_task}.pdf")
     else
