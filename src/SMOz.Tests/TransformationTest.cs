@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LibSmoz.Commands;
-using LibSmoz.Commands.IO;
-using LibSmoz.Commands.UI;
-using LibSmoz.Model;
+using LibSmoz.Commands.Io;
+using LibSmoz.Commands.Ui;
+using LibSmoz.ProgramsMenu;
 using LibSmoz.Transformation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -67,7 +67,7 @@ namespace SMOz.Tests
             foreach (var command in list)
             {
                 command.Execute();
-                realCommand.Add((command as MoveProgramItemCommand).GetRealCommand());
+                realCommand.Add((command as MoveProgramItemCommand).GetIoCommand());
             }
 
             foreach (var command in realCommand)

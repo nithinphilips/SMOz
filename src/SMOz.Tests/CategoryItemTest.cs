@@ -94,15 +94,38 @@ namespace SMOz.Tests
             CategoryItem b = new CategoryItem("^Hello$", CategoryItemType.Regex);
             bool actual = (a == b);
             Assert.AreEqual(true, actual);
+        }
+
+        [TestMethod()]
+        public void op_EqualityTest1()
+        {
+            CategoryItem a = new CategoryItem("Hello", CategoryItemType.String);
+            CategoryItem b = null; 
+            bool actual = (a == b);
+            Assert.AreEqual(true, actual);
        }
 
         [TestMethod()]
         public void op_ImplicitTest()
         {
             CategoryItem x = new CategoryItem("Hello", CategoryItemType.String);
-            string expected = "^Hello$";
-            string actual;
-            actual = x;
+            string expected = "Hello";
+            string actual = x; 
+            Assert.AreEqual(expected, actual);
+
+            CategoryItem y = "@^Hello$";
+            expected = "Hello";
+            actual = y.Value; 
+            Assert.AreEqual(expected, actual);
+            
+            CategoryItem z = "^Hello$";
+            expected = "Hello";
+            actual = y.Value; 
+            Assert.AreEqual(expected, actual);
+            
+            CategoryItem a = "@^Hello$";
+            expected = "Hello";
+            actual = y.Value; 
             Assert.AreEqual(expected, actual);
         }
 

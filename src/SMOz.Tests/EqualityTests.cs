@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using LibSmoz.Model;
+using LibSmoz.ProgramsMenu;
 using LibSmoz.Transformation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
