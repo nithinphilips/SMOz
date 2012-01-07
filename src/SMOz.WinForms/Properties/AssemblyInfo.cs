@@ -1,10 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-[assembly: AssemblyTitle("SMOz")]
-[assembly: AssemblyDescription("Start Menu Organizer")]
+[assembly: AssemblyTitle("SMOz.WinForms")]
+[assembly: AssemblyDescription("The (legacy) Windows Forms based graphical user interface of SMOz")]
 [assembly: AssemblyCompany("Nithin Philips")]
-[assembly: AssemblyProduct("SMOz")]
+[assembly: AssemblyProduct("SMOz (Start Menu Organizer)")]
 [assembly: AssemblyCopyright("(c) 2004-2011 Nithin Philips")]
-[assembly: AssemblyVersion("0.8.0")]
-[assembly: AssemblyFileVersion("0.8.0")]
+[assembly: AssemblyTrademark("Windows is a trademark of Microsoft Corporation")]
+[assembly: AssemblyVersion("2.0.0")]
+[assembly: AssemblyFileVersion("2.0.0")]
 

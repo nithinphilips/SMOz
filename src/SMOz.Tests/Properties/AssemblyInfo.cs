@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("SMOz.Tests")]
-[assembly: AssemblyDescription("A set of tests for libSMOz features")]
+[assembly: AssemblyDescription("A set of unit tests for libSMOz features")]
 [assembly: AssemblyCompany("Nithin Philips")]
 [assembly: AssemblyProduct("SMOz (Start Menu Organizer)")]
 [assembly: AssemblyCopyright("(c) 2004-2011 Nithin Philips")]

@@ -37,7 +37,7 @@ desc "Builds the documentation and runs the dist task"
 task :doc     => [:build_doc, :libdoc, :dist]
 
 desc "Cleans all the object files, binaries, dist packages etc."
-task :clean   => [:clean_sln, :clean_doc, :clean_dist]
+task :clean   => [:clean_sln, :clean_sln_old, :clean_doc, :clean_dist]
 
 Albacore.configure do |config|
     config.assemblyinfo do |a|
@@ -51,7 +51,7 @@ Albacore.configure do |config|
 end
 
 desc "Compiles the application."
-msbuild :compile  => :assemblyinfo do |msb|
+msbuild :compile  => [:assemblyinfo, :compile_smoz_old] do |msb|
     msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
     msb.targets :Build
     msb.solution = SOLUTION_FILE
@@ -62,6 +62,28 @@ msbuild :compile  => :assemblyinfo do |msb|
     # Disable console logging and send output to a file.
     msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.log\""
 end
+
+################################################
+# SMOz WinForms targets. Remove when it is obselete
+################################################
+msbuild :compile_smoz_old  => :assemblyinfo do |msb|
+    msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
+    msb.targets :Build
+    msb.solution = "src/SMOz.WinForms/SMOz.sln"
+    # Values are: q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]
+    msb.verbosity = "detailed"
+    msb.log_level = :verbose
+    FileUtils.mkdir_p(BUILD_DIR)
+    # Disable console logging and send output to a file.
+    msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.winforms.log\""
+end
+
+msbuild :clean_sln_old do |msb|
+    msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
+    msb.targets :Clean
+    msb.solution = "src/SMOz.WinForms/SMOz.sln"
+end
+###############################################
 
 msbuild :compile_libdoc  => :compile do |msb|
     msb.properties :configuration => CONFIGURATION, "OutputPath" => "#{BUILD_DIR}/lib-doc"
@@ -79,10 +101,10 @@ task :libdoc => :compile_libdoc  do |t|
     chmfiles = FileList["#{BUILD_DIR}/lib-doc/*.chm"]
     FileUtils.cp_r chmfiles, "#{BIN_DIR}/#{PACKAGE}/"
 
-    # Copy html files
-    htmlfiles = FileList["#{BUILD_DIR}/lib-doc/*"].exclude(/\.chm$/).exclude(/\/Working/)
-    FileUtils.mkdir_p  "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
-    FileUtils.cp_r htmlfiles, "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
+    # Copy html libdoc files
+    #htmlfiles = FileList["#{BUILD_DIR}/lib-doc/*"].exclude(/\.chm$/).exclude(/\/Working/)
+    #FileUtils.mkdir_p  "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
+    #FileUtils.cp_r htmlfiles, "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
 end
 
 # Copies the ouput from compile to a proper directory structure
@@ -172,7 +194,7 @@ nsis :installer => [:installerfiles] do |n|
     n.defines :PRODUCT_VERSION => VERSION, :OUT_FILE => "#{BUILD_DIR}/#{INS_PACKAGE}.exe"
 end
 
-task :assemblyinfo => [:libasminfo, :testsasminfo]
+task :assemblyinfo => [:libasminfo, :testsasminfo, :cliasminfo, :winformsasminfo, :wpfasminfo]
 
 assemblyinfo :libasminfo do |a|
     a.title        = "libSmoz"
@@ -182,8 +204,26 @@ end
 
 assemblyinfo :testsasminfo do |a|
     a.title        = "SMOz.Tests"
-    a.description  = "A set of tests for libSMOz features"
+    a.description  = "A set of unit tests for libSMOz features"
     a.output_file  = "src/SMOz.Tests/Properties/AssemblyInfo.cs"
+end
+
+assemblyinfo :cliasminfo do |a|
+    a.title        = "SMOz.CLI"
+    a.description  = "The command-line interface of SMOz"
+    a.output_file  = "src/SMOz.CLI/Properties/AssemblyInfo.cs"
+end
+
+assemblyinfo :winformsasminfo do |a|
+    a.title        = "SMOz.WinForms"
+    a.description  = "The (legacy) Windows Forms based graphical user interface of SMOz"
+    a.output_file  = "src/SMOz.WinForms/Properties/AssemblyInfo.cs"
+end
+
+assemblyinfo :wpfasminfo do |a|
+    a.title        = "SMOz.WPF"
+    a.description  = "The next generation graphical user interface of SMOz"
+    a.output_file  = "src/SMOz.WPF/Properties/AssemblyInfo.cs"
 end
 
 msbuild :clean_sln do |msb|
