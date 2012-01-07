@@ -90,6 +90,7 @@
     <Compile Include="Ini\IniParseException.cs" />
     <Compile Include="Ini\Parser.cs" />
     <Compile Include="Ini\Writer.cs" />
+    <Compile Include="KnownCategories.cs" />
     <Compile Include="ProgramsMenu\IStartMenuItem.cs" />
     <Compile Include="ProgramsMenu\ProgramCategory.cs" />
     <Compile Include="ProgramsMenu\ProgramItem.cs" />

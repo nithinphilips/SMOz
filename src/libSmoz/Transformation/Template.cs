@@ -45,7 +45,7 @@ namespace LibSmoz.Transformation
                 if (Add(category)) continue;
 
                 var myCategory = this.FirstOrDefault(q => q.Equals(category));
-                myCategory.Merge(category);
+                myCategory.UnionWith(category);
             }    
         }
 

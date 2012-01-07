@@ -133,7 +133,7 @@ namespace LibSmoz.Transformation
 
         public int CompareTo(CategoryItem other)
         {
-            if (other == null) return -1;
+            if (other == null) return 1;
             return this.Pattern.CompareTo(other.Pattern);
         }
 
@@ -154,7 +154,7 @@ namespace LibSmoz.Transformation
         }
 
         /// <summary>
-        /// Returns the string representation of this category item.
+        /// Returns the string representation of a category item.
         /// </summary>
         /// <param name="x">The category item.</param>
         /// <returns>The string represenation.</returns>
@@ -178,7 +178,7 @@ namespace LibSmoz.Transformation
         }
 
         /// <summary>
-        /// Creates a CategoryItem from a string representation.
+        /// Creates a CategoryItem from its string representation.
         /// </summary>
         /// <param name="str">
         /// <para>A string representation of a Category Item.</para>
@@ -249,6 +249,7 @@ namespace LibSmoz.Transformation
         /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
         public static bool operator ==(CategoryItem a, CategoryItem b)
         {
+            if ((object)a == null && (object)b == null) return true;
             if ((object)a == null || (object)b == null) return false;
             return a.Pattern.Equals(b.Pattern, Common.DefaultStringComparison);
         }

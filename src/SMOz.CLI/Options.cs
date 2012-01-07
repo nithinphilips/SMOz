@@ -39,16 +39,16 @@ namespace Smoz.Cli
 
         [OptDef(OptValType.MultValue, ValueType = typeof(string))]
         [ShortOptionName('f')]
-        [LongOptionName("start-folders")]
+        [LongOptionName("start-folder")]
         [UseNameAsLongOption(false)]
-        [Description("Sets the start menu folders to manipulate. If not specified, SMOz will try to use all the Start Menu locations it can access")]
+        [Description("Sets the start menu folder(s) to manipulate. If not specified, SMOz will try to use all the Start Menu folders it can access")]
         public List<string> StartMenuFolders { get; set; }
 
         [OptDef(OptValType.MultValue, ValueType = typeof(string))]
         [ShortOptionName('t')]
         [LongOptionName("template")]
         [UseNameAsLongOption(false)]
-        [Description("Sets the template file(s) to use. If more than one are specified, they will be merged. If none are specified, the program will look in the current directory for a file named Template.ini and if that fails, it will look in the directory where this executable is located.")]
+        [Description("Sets the template file(s) to use. If more than one are specified, they will be merged. If none are specified, the program will look for a file named \"Template.ini\" in the current directory or the directory where this executable is located.")]
         public List<string> TemplateFiles { get; set; }
 
         public IEnumerable<string> Directories { get; set; }

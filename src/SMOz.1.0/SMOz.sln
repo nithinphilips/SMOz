@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMOz", "SMOz.csproj", "{4EFC867D-4337-403A-88F7-898C57FD8050}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XPTable", "3rdParty\XPTable\XPTable.csproj", "{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicLibrary", "3rdParty\MagicLibrary\MagicLibrary.csproj", "{92F94EA0-9910-4895-B8A1-FED1543A9DA1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		StrongMagic|Any CPU = StrongMagic|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4EFC867D-4337-403A-88F7-898C57FD8050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EFC867D-4337-403A-88F7-898C57FD8050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EFC867D-4337-403A-88F7-898C57FD8050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EFC867D-4337-403A-88F7-898C57FD8050}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EFC867D-4337-403A-88F7-898C57FD8050}.StrongMagic|Any CPU.ActiveCfg = Release|Any CPU
+		{4EFC867D-4337-403A-88F7-898C57FD8050}.StrongMagic|Any CPU.Build.0 = Release|Any CPU
+		{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}.StrongMagic|Any CPU.ActiveCfg = Release|Any CPU
+		{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}.StrongMagic|Any CPU.Build.0 = Release|Any CPU
+		{92F94EA0-9910-4895-B8A1-FED1543A9DA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92F94EA0-9910-4895-B8A1-FED1543A9DA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92F94EA0-9910-4895-B8A1-FED1543A9DA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92F94EA0-9910-4895-B8A1-FED1543A9DA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92F94EA0-9910-4895-B8A1-FED1543A9DA1}.StrongMagic|Any CPU.ActiveCfg = StrongMagic|Any CPU
+		{92F94EA0-9910-4895-B8A1-FED1543A9DA1}.StrongMagic|Any CPU.Build.0 = StrongMagic|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

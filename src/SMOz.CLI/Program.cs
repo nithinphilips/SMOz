@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CommandLine.OptParse;
+using LibSmoz;
+using LibSmoz.ProgramsMenu;
 using LibSmoz.Transformation;
 
 namespace Smoz.Cli
@@ -14,6 +16,7 @@ namespace Smoz.Cli
     class Program
     {
         static Options options = new Options();
+        private static ICollection<string> _knownCategories = KnownCategories.Instance.Items;
 
         static void Main(string[] args)
         {
@@ -21,108 +24,120 @@ namespace Smoz.Cli
             try
             {
 #endif
-                Console.CancelKeyPress += Console_CancelKeyPress;
-                PrintBanner();
+            Console.CancelKeyPress += Console_CancelKeyPress;
+            PrintBanner();
 
-                // ****************************************************************
-                // Parse command-line arguments
-                // ****************************************************************
-                PropertyFieldParserHelper parseHelper = new PropertyFieldParserHelper(options);
-                Parser parser = ParserFactory.BuildParser(parseHelper);
-                parser.CaseSensitive = false;
-                parser.DupOptHandleType = DupOptHandleType.Error;
-                parser.SearchEnvironment = true;
-                parser.UnixShortOption = UnixShortOption.CollapseShort;
-                parser.UnknownOptHandleType = UnknownOptHandleType.Warning;
-                parser.OptionWarning += parser_OptionWarning;
+            // ****************************************************************
+            // Parse command-line arguments
+            // ****************************************************************
+            PropertyFieldParserHelper parseHelper = new PropertyFieldParserHelper(options);
+            Parser parser = ParserFactory.BuildParser(parseHelper);
+            parser.CaseSensitive = false;
+            parser.DupOptHandleType = DupOptHandleType.Error;
+            parser.SearchEnvironment = true;
+            parser.UnixShortOption = UnixShortOption.CollapseShort;
+            parser.UnknownOptHandleType = UnknownOptHandleType.Warning;
+            parser.OptionWarning += parser_OptionWarning;
 
-                try
+            try
+            {
+                options.ProcessArguments(parser.Parse());
+            }
+            catch (ParseException peX)
+            {
+                Console.Error.WriteLine("There was an error parsing the command-line arguments");
+                Console.Error.WriteLine("    {0}", peX.Message);
+                if (peX.InnerException != null)
                 {
-                    options.ProcessArguments(parser.Parse());
+                    Console.Error.WriteLine("    {0}", peX.InnerException.Message);
                 }
-                catch (ParseException peX)
+                Console.Error.WriteLine("See --help for proper use.");
+                Environment.Exit(2);
+            }
+
+            // ****************************************************************
+            // Print help or version
+            // ****************************************************************
+            if (options.Help)
+            {
+                // Print help and exit
+                PrintHelp(parseHelper);
+                Environment.Exit(0);
+            }
+
+            if (options.Version)
+            {
+                // Print help and exit
+                PrintVersion("SMOz", 2012, "Nithin Philips");
+                Environment.Exit(0);
+            }
+
+            if (options.StartMenuFolders.Count == 0)
+            {
+                string currentUserStartMenu = Win32.GetFolderPath(Win32.CSIDL.CSIDL_PROGRAMS);
+
+                WriteInColor(ConsoleColor.Yellow, "Running as {0}.", Helpers.IsRunAsAdmin() ? "administrator" : "normal user");
+
+                if (Helpers.IsRunAsAdmin())
                 {
-                    Console.Error.WriteLine("There was an error parsing the command-line arguments");
-                    Console.Error.WriteLine("    {0}", peX.Message);
-                    if (peX.InnerException != null)
-                    {
-                        Console.Error.WriteLine("    {0}", peX.InnerException.Message);
-                    }
-                    Console.Error.WriteLine("See --help for proper use.");
-                    Environment.Exit(2);
-                }
+                    // We get the current user's start menu path and replace the user name 
+                    // with all available user names. This method is fairly naive. 
+                    // If the user's name is not unique in the path string, this method will
+                    // fail to find the correct start menu location.
+                    currentUserStartMenu = currentUserStartMenu.Replace(Environment.UserName, "{0}");
 
-                // ****************************************************************
-                // Print help or version
-                // ****************************************************************
-                if (options.Help)
+                    options.StartMenuFolders.AddRange(GetAllStartMenus(currentUserStartMenu));
+                    options.StartMenuFolders.Add(Win32.GetFolderPath(Win32.CSIDL.CSIDL_COMMON_PROGRAMS));
+                }
+                else
                 {
-                    // Print help and exit
-                    PrintHelp(parseHelper);
-                    Environment.Exit(0);
+                    options.StartMenuFolders.Add(currentUserStartMenu);
                 }
+            }
 
-                if (options.Version)
-                {
-                    // Print help and exit
-                    PrintVersion("SMOz", 2012, "Nithin Philips");
-                    Environment.Exit(0);
-                }
-
-                if (options.StartMenuFolders.Count == 0)
-                {
-                    if (Helpers.IsRunAsAdmin())
-                    {
-                        // We get the current user's start menu path and replace the user name 
-                        // with all available user names. This method is fairly naive. 
-                        // If the user's name is not unique in the path string, this method will
-                        // fail to find the correct start menu location.
-                        Console.WriteLine("Running as Administrator");
-                        string prototypeStartMenu = Win32.GetFolderPath(Win32.CSIDL.CSIDL_PROGRAMS);
-                        prototypeStartMenu = prototypeStartMenu.Replace(Environment.UserName, "{0}");
-
-                        options.StartMenuFolders.AddRange(GetAllStartMenus(prototypeStartMenu));
-
-                        options.StartMenuFolders.Add(Win32.GetFolderPath(Win32.CSIDL.CSIDL_COMMON_PROGRAMS));
-                    }
-                    else
-                    {
-                        options.StartMenuFolders.Add(Win32.GetFolderPath(Win32.CSIDL.CSIDL_PROGRAMS));
-                    }
-                }
-
-                if (!options.Quiet) foreach (var starMenuFolder in options.StartMenuFolders) Console.WriteLine(starMenuFolder);
-
-            if(options.TemplateFiles.Count == 0)
+            if (options.TemplateFiles.Count == 0)
             {
                 // Look in cwd.
                 string cwdTemplate = Path.Combine(Environment.CurrentDirectory, "Template.ini");
-                Console.WriteLine(cwdTemplate);
-                if(File.Exists(cwdTemplate))
+                if (File.Exists(cwdTemplate))
                 {
                     options.TemplateFiles.Add(cwdTemplate);
-                }else
+                }
+                else
                 {
                     string exeDirTemplate = Path.Combine(
                         Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Template.ini");
-                    Console.WriteLine(exeDirTemplate);
-                    if(File.Exists(exeDirTemplate))
+                    if (File.Exists(exeDirTemplate))
                     {
                         options.TemplateFiles.Add(exeDirTemplate);
-                    }else
+                    }
+                    else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Error.WriteLine("Error: Could not find any template files and none specified.");
-                        Console.ResetColor();
+                        WriteError("Error: Could not find any template files and none specified.");
+                        Console.WriteLine("See --help for usage.");
+                        Environment.Exit(2);
                     }
                 }
             }
 
-            Template t;
-            foreach (var templateFile in options.TemplateFiles)
+            Template template = new Template();
+            foreach (var t in options.TemplateFiles.Select(TemplateParser.Parse))
             {
-                t = TemplateParser.Parse(options.TemplateFiles);
+                template.Merge(t);
             }
+
+            foreach (var category in template)
+            {
+                Console.WriteLine(category.Name);
+                _knownCategories.Add(category.Name);
+            }
+
+            StartMenu startMenu = new StartMenu(_knownCategories, options.StartMenuFolders);
+
+            Console.WriteLine(startMenu);
+
+            File.WriteAllText("knownCats.json", fastJSON.JSON.Instance.ToJSON(KnownCategories.Instance, true, true));
+            //Console.ReadLine();
 
 #if RELEASE
             }
@@ -134,6 +149,20 @@ namespace Smoz.Cli
             }
 #endif
 
+        }
+
+        static void WriteError(string format, params string[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine(format, args);
+            Console.ResetColor();
+        }
+
+        static void WriteInColor(ConsoleColor c, string format, params string[] args)
+        {
+            Console.ForegroundColor = c;
+            Console.WriteLine(format, args);
+            Console.ResetColor();
         }
 
         static IEnumerable<string> GetAllStartMenus(string prototype)

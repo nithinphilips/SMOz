@@ -56,6 +56,10 @@
       <Project>{EA550970-C2A0-4B5A-BBE2-7745638FBB85}</Project>
       <Name>CSharpOptParse</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\lib\fastJSON\fastJSON.csproj">
+      <Project>{207E91B1-C9F8-4913-88E1-3549EF5F3273}</Project>
+      <Name>fastJSON</Name>
+    </ProjectReference>
     <ProjectReference Include="..\libSmoz\libSmoz.csproj">
       <Project>{18FE98B5-02BA-4738-ADC2-8E7C4BC7A580}</Project>
       <Name>libSmoz</Name>

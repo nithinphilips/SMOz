@@ -85,11 +85,6 @@ namespace LibSmoz.ProgramsMenu
         /// </summary>
         public void FindItems()
         {
-            foreach (var item in RealLocations.SelectMany(location => Directory.GetFiles(location, "*.lnk")))
-            {
-                Add(new ProgramItem(this, Path.GetFileName(item), false));
-            }
-
             foreach (var item in RealLocations.SelectMany(Directory.GetDirectories))
             {
                 string fileName = Path.GetFileName(item);
@@ -100,16 +95,36 @@ namespace LibSmoz.ProgramsMenu
                     Console.WriteLine("Ignoring Known Category: {0}", fullName);
 
             }
+            
+            foreach (var item in RealLocations.SelectMany(location => Directory.GetFiles(location, "*.lnk")))
+            {
+                Add(new ProgramItem(this, Path.GetFileName(item), false));
+            }
         }
 
-        public bool Equals(ProgramCategory other)
+        #region Overrides
+
+        public override string ToString()
         {
-            return this.Name.Equals(other.Name, Common.DefaultStringComparison);
+            return string.Format("{0} ({1})", string.IsNullOrEmpty(this.Name) ? "<default>" : this.Name,
+                                 RealLocations.Count());
         }
 
         public int CompareTo(ProgramCategory other)
         {
+            if (other == null) return 1;
             return this.Name.CompareTo(other.Name);
+        }
+
+        public bool Equals(ProgramCategory other)
+        {
+            return this == other;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var cObj = obj as ProgramCategory;
+            return cObj == null || cObj == this;
         }
 
         public override int GetHashCode()
@@ -117,10 +132,32 @@ namespace LibSmoz.ProgramsMenu
             return this.Name.GetHashCode();
         }
 
-        public override string ToString()
+        /// <summary>
+        /// Determines whether two program items are equal.
+        /// Two ProgramCategorys are equal when they both have the same name.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
+        public static bool operator ==(ProgramCategory a, ProgramCategory b)
         {
-            return string.Format("{0} ({1})", string.IsNullOrEmpty(this.Name) ? "<default>" : this.Name,
-                                 RealLocations.Count());
+            if ((object)a == null && (object)b == null) return true;
+            if ((object)a == null || (object)b == null) return false;
+            return a.Name.Equals(b.Name, Common.DefaultStringComparison);
         }
+
+        /// <summary>
+        /// Determines whether two category items are not equal.
+        /// Two ProgramCategorys are equal when they both have the same name.
+        /// </summary>
+        /// <param name="a">The first item.</param>
+        /// <param name="b">The second item.</param>
+        /// <returns>Returns true, if a and be are not equal. Otherwise, false.</returns>
+        public static bool operator !=(ProgramCategory a, ProgramCategory b)
+        {
+            return !(a == b);
+        }
+
+        #endregion
     }
 }

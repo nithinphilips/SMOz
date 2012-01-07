@@ -38,16 +38,28 @@ namespace LibSmoz.Transformation
     public class Category : HashSet<CategoryItem>, IComparable<Category>, IEquatable<Category>
     {
 
+        /// <summary>
+        /// Creates a new instance of Category.
+        /// </summary>
         public Category()
             :this(string.Empty, string.Empty)
         {
         }
 
+        /// <summary>
+        /// Creates a new instance of Category.
+        /// </summary>
+        /// <param name="name">The name of the category.</param>
         public Category(string name)
             :this(name, string.Empty)
         {
         }
-
+        
+        /// <summary>
+        /// Creates a new instance of Category.
+        /// </summary>
+        /// <param name="name">The name of the category.</param>
+        /// <param name="restrictedPath">The path to which the category is restricted to.</param>
         public Category(string name, string restrictedPath)
             : base(EqualityComparers.CategoryItemComparer)
         {
@@ -55,20 +67,43 @@ namespace LibSmoz.Transformation
             this.RestrictedPath = restrictedPath;
         }
 
+        /// <summary>
+        /// Gets or sets the name of the category.
+        /// </summary>
+        /// <remarks>
+        /// <para>The name should be identical to the name of the directory associated with this category.</para>
+        /// <para>
+        /// For categories that are in subdirectories, the directory separator character (\) can be
+        /// used to separate directories.
+        /// </para>
+        /// </remarks>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the path to which this category is restricted to.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Normally when the RestrictedPath is empty, the selectors in the Category are applied to the
+        /// root folder of the start menu. However, if the user wants to restrict the selectors to only 
+        /// a subfolder within the start menu, this property can be set.
+        /// </para>
+        /// <para>
+        /// For example, if the user wants to apply the selector *Halo to pick an item in the start menu
+        /// directory "Games\FPS" and move it to "Video Games", then <see cref="Name"/> would be 
+        /// set to "Video Games" and <see cref="RestrictedPath"/> would be set to "Games\FPS"
+        /// </para>
+        /// </remarks>
         public string RestrictedPath { get; set; }
 
+        /// <summary>
+        /// Gets whether this category applies to only a restricted category.
+        /// </summary>
         public bool IsRestricted
         {
             get { return !string.IsNullOrEmpty(RestrictedPath); }
         }
         
-        public void Merge(Category category)
-        {
-            foreach (var item in category)
-                this.Add(item);
-        }
-  
         #region Overrides
 
         public override string ToString()
@@ -84,7 +119,7 @@ namespace LibSmoz.Transformation
 
         public int CompareTo(Category other)
         {
-            if (other == null) return -1;
+            if (other == null) return 1;
 
             int nameCmp = this.Name.CompareTo(other.Name);
             return nameCmp == 0 ? this.RestrictedPath.CompareTo(other.RestrictedPath) : nameCmp;
@@ -115,6 +150,7 @@ namespace LibSmoz.Transformation
         /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
         public static bool operator ==(Category a, Category b)
         {
+            if ((object)a == null && (object)b == null) return true;
             if ((object)a == null || (object)b == null) return false;
             return a.Name.Equals(b.Name, Common.DefaultStringComparison) && a.RestrictedPath.Equals(b.RestrictedPath, Common.DefaultStringComparison);
         }

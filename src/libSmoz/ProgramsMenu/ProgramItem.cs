@@ -72,7 +72,7 @@ namespace LibSmoz.ProgramsMenu
         /// </summary>
         void SetSelectors()
         {
-            if (Category == null || Name == null) return;
+            if ((Category == null) || (Name == null)) return;
 
             this.Locations = from l in Category.Locations
                              select Path.Combine(l, this.Name);
@@ -105,7 +105,8 @@ namespace LibSmoz.ProgramsMenu
 
         public int CompareTo(ProgramItem other)
         {
-            if (other == null) return -1;
+            if (other == null) return 1;
+            if (other.IsDirectory && !this.IsDirectory) return -1;
             return this.Name.CompareTo(other.Name);
         }
 
@@ -145,6 +146,7 @@ namespace LibSmoz.ProgramsMenu
         /// <returns>Returns true, if a and be are equal. Otherwise, false.</returns>
         public static bool operator ==(ProgramItem a, ProgramItem b)
         {
+            if ((object)a == null && (object)b == null) return true;
             if ((object)a == null || (object)b == null) return false;
             return a.Name.Equals(b.Name, Common.DefaultStringComparison);
         }

@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4EFC867D-4337-403A-88F7-898C57FD8050}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SMOz</RootNamespace>
+    <AssemblyName>SMOz</AssemblyName>
+    <ApplicationIcon>.\Resources\App.ico</ApplicationIcon>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="About\AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About\AboutBox.Designer.cs">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="About\InformationPage.cs" />
+    <Compile Include="Cleanup\InstalledProgramList.cs" />
+    <Compile Include="Commands\CommandConverter.cs" />
+    <Compile Include="Commands\UI\ConvertToCategoryCommand.cs" />
+    <Compile Include="Commands\UI\RenameStartItemCommand.cs" />
+    <Compile Include="Resources\Localization\Language.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Language.resx</DependentUpon>
+    </Compile>
+    <Compile Include="StartMenu\StartCategorizer.cs" />
+    <Compile Include="StartMenu\StartItemSelector.cs" />
+    <Compile Include="Template\ICategoryProvider.cs" />
+    <Compile Include="Commands\Command.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Commands\IO\DeleteFileCommand.cs" />
+    <Compile Include="Commands\IO\MoveFileCommand.cs" />
+    <Compile Include="Commands\IO\RenameFileCommand.cs" />
+    <Compile Include="Commands\CommandGroup.cs" />
+    <Compile Include="Commands\UI\DeleteStartItemCommand.cs" />
+    <Compile Include="Commands\UI\MoveStartItemCommand.cs" />
+    <Compile Include="Ini\IniSection.cs" />
+    <Compile Include="Ini\Parser.cs" />
+    <Compile Include="Ini\Writer.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Localization\Language.de-de.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Localization\Language.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Language.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\AssociationBuilder.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>AssociationBuilder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainForm.de.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainForm.ml-IN.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MatchPreview.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MatchPreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\NewCategory.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>NewCategory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Preferences.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Preferences.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ReviewChanges.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ReviewChanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ReviewListItem.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ReviewListItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\TemplateEditor.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>TemplateEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="StartMenu\StartItem.cs" />
+    <Compile Include="StartMenu\StartManager.cs" />
+    <Compile Include="UI\AssociationBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\AssociationBuilder.Designer.cs">
+      <DependentUpon>AssociationBuilder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Preferences.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Preferences.Designer.cs">
+      <DependentUpon>Preferences.cs</DependentUpon>
+    </Compile>
+    <Compile Include="User\Settings.cs" />
+    <Compile Include="Utilities\EXComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities\EXListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities\IgnoreList.cs" />
+    <Compile Include="Utilities\SplitButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities\SysImageList.cs" />
+    <Compile Include="Template\Category.cs" />
+    <Compile Include="Template\CategoryItem.cs" />
+    <Compile Include="Template\TemplateHelper.cs" />
+    <Compile Include="Template\TemplateProvider.cs" />
+    <Compile Include="UI\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MatchPreview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\MatchPreview.Designer.cs">
+      <DependentUpon>MatchPreview.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NewCategory.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\NewCategory.Designer.cs">
+      <DependentUpon>NewCategory.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ReviewChanges.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ReviewChanges.Designer.cs">
+      <DependentUpon>ReviewChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ReviewListItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\ReviewListItem.Designer.cs">
+      <DependentUpon>ReviewListItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TemplateEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\TemplateEditor.Designer.cs">
+      <DependentUpon>TemplateEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\KnownCategories.cs" />
+    <Compile Include="Utilities\SearchCacheProvider.cs" />
+    <Compile Include="Utilities\TreeViewEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities\Utility.cs" />
+    <Compile Include="Utilities\Win32.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="COPYING" />
+    <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Installer\gpl.txt" />
+    <None Include="Resources\list-remove.png" />
+    <None Include="Resources\list-add.png" />
+    <None Include="Resources\CODING GUIDE" />
+    <None Include="Resources\Template.ini" />
+    <None Include="Resources\SMOz.cd" />
+    <None Include="Resources\Images\Start.Icon.png" />
+    <None Include="Installer\Installer.nsi" />
+    <None Include="Resources\App.ico" />
+    <None Include="Resources\Images\File_NewCategory.png" />
+    <None Include="Resources\Images\Edit_View.png" />
+    <None Include="Resources\Images\Tools_Organize.png" />
+    <None Include="Resources\Images\Tool_GoUp.png" />
+    <None Include="Resources\Images\Edit_Find_Binoc.png" />
+    <None Include="Resources\Images\Edit_Rename.png" />
+    <None Include="Resources\Images\Edit_Find_Big.png" />
+    <None Include="Resources\Images\Help_Help.png" />
+    <None Include="Resources\Images\Tools_Run.png" />
+    <None Include="Resources\Images\Edit_Find.png" />
+    <None Include="Resources\Images\File_Save.png" />
+    <None Include="Resources\Images\File_Open.png" />
+    <None Include="Resources\Images\Edit_Undo.png" />
+    <None Include="Resources\Images\Edit_Redo.png" />
+    <None Include="Resources\Images\Edit_Preferences.png" />
+    <None Include="Resources\Images\Edit_Paste.png" />
+    <None Include="Resources\Images\Edit_Delete.png" />
+    <None Include="Resources\Images\Edit_Cut.png" />
+    <None Include="Resources\Images\Edit_Copy.png" />
+    <None Include="Resources\Images\Tools_Cleanup.png" />
+    <None Include="Resources\Images\File_New.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="3rdParty\MagicLibrary\MagicLibrary.csproj">
+      <Project>{92F94EA0-9910-4895-B8A1-FED1543A9DA1}</Project>
+      <Name>MagicLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="3rdParty\XPTable\XPTable.csproj">
+      <Project>{1ADD2ECB-2B24-4162-8965-3EFAA9BB041E}</Project>
+      <Name>XPTable</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

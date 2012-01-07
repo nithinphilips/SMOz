@@ -1,6 +1,8 @@
-﻿using LibSmoz.Transformation;
+﻿using System.Collections.Generic;
+using LibSmoz.Transformation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 
 namespace SMOz.Tests
 {
@@ -12,52 +14,52 @@ namespace SMOz.Tests
     public class CategoryTest
     {
 
-        /// <summary>
-        ///A test for Category Constructor
-        ///</summary>
         [TestMethod()]
         public void CategoryConstructorTest()
         {
-            string name = string.Empty; // TODO: Initialize to an appropriate value
-            string restrictedPath = string.Empty; // TODO: Initialize to an appropriate value
+            string name = "Hello";
+            string restrictedPath = "Good\\Bye";
             Category target = new Category(name, restrictedPath);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            Assert.AreEqual(name, target.Name);
+            Assert.AreEqual(restrictedPath, target.RestrictedPath);
+            Assert.IsTrue(target.IsRestricted);
         }
 
-        /// <summary>
-        ///A test for Category Constructor
-        ///</summary>
         [TestMethod()]
         public void CategoryConstructorTest1()
         {
-            string name = string.Empty; // TODO: Initialize to an appropriate value
+            string name = "Hello";
             Category target = new Category(name);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            Assert.AreEqual(name, target.Name);
+            Assert.AreEqual(string.Empty, target.RestrictedPath);
+            Assert.IsFalse(target.IsRestricted);
         }
 
-        /// <summary>
-        ///A test for Category Constructor
-        ///</summary>
         [TestMethod()]
         public void CategoryConstructorTest2()
         {
             Category target = new Category();
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            Assert.AreEqual(string.Empty, target.Name);
+            Assert.AreEqual(string.Empty, target.RestrictedPath);
+            Assert.IsFalse(target.IsRestricted);
         }
 
-        /// <summary>
-        ///A test for CompareTo
-        ///</summary>
         [TestMethod()]
         public void CompareToTest()
         {
-            Category target = new Category(); // TODO: Initialize to an appropriate value
-            Category other = null; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.CompareTo(other);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            Category a = new Category("Hello", "Good\\Bye");
+            Category c = new Category("Zzzzz", "AAAA");
+            Category d = new Category("Hello", "AAAA");
+
+            var source = new List<Category> {a, c, d};
+            var expected = new List<Category> {d, a, c};
+
+            source.Sort();
+
+            Assert.IsTrue(source.SequenceEqual(expected));
+
+            Assert.AreEqual(-1, a.CompareTo(null));
+
         }
 
         /// <summary>
@@ -102,18 +104,6 @@ namespace SMOz.Tests
             actual = target.GetHashCode();
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        /// <summary>
-        ///A test for Merge
-        ///</summary>
-        [TestMethod()]
-        public void MergeTest()
-        {
-            Category target = new Category(); // TODO: Initialize to an appropriate value
-            Category category = null; // TODO: Initialize to an appropriate value
-            target.Merge(category);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
         /// <summary>
