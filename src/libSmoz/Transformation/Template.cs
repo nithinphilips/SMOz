@@ -12,6 +12,13 @@ using LibSmoz.ProgramsMenu;
 namespace LibSmoz.Transformation
 {
     /// <summary>
+    /// Contains classes that apply a <see cref="Template"/> to a <see cref="StartMenu"/>
+    /// and generate a collection of <see cref="Command"/> objects to effect the transformation.
+    /// </summary>
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    internal class NamespaceDoc { }
+
+    /// <summary>
     /// <para>A Template holds a collection of categories and regex selectors within those categories.</para>
     /// <para>
     /// When a template is applied to a StartMenu (via the <see cref="Template.TransformStartMenu"/> method),

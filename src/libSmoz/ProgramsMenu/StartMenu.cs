@@ -8,7 +8,7 @@ using LibSmoz.Comparators;
 namespace LibSmoz.ProgramsMenu
 {
     /// <summary>
-    /// <para>Contains classes that can represent a Windows Start Menu.</para> 
+    /// Contains classes that can represent a Windows Start Menu.
     /// </summary>
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class NamespaceDoc { }
