@@ -1,3 +1,10 @@
+# Notes:
+#   There are two optional variables that affect the version
+#   PRODUCT_VERSION and BUILD_VERSION
+#    PRODUCT_VERSION: three numbers separated by a dot (.) eg: 0.0.0
+#    BUILD_VERSION:   a single number denoting the build number. eg: 0
+#
+
 !define PRODUCT_NAME "SMOz"
 !define PRODUCT_PUBLISHER "Nithin Philips"
 !define PRODUCT_WEB_SITE "http://smoz.sourceforge.net/"
@@ -10,7 +17,11 @@
 !addplugindir "Plugins"
 
 !ifndef PRODUCT_VERSION 
-    !define PRODUCT_VERSION "0.0.0.0"
+    !define PRODUCT_VERSION "0.0.0"
+!endif
+
+!ifndef BUILD_VERSION 
+    !define BUILD_VERSION "0"
 !endif
 
 !ifndef OUT_FILE
@@ -25,15 +36,15 @@ RequestExecutionLevel admin
 ;#######################################################################
 
 ; These fields add properties to the generated installer exe.
-VIProductVersion                "${PRODUCT_VERSION}${BUILD_VERSION}"
+VIProductVersion                "${PRODUCT_VERSION}.${BUILD_VERSION}"
 VIAddVersionKey Comments        "${PRODUCT_NAME} Installer Built on ${__TIMESTAMP__}"
 VIAddVersionKey SpecialBuild    "No"
 VIAddVersionKey PrivateBuild    "No"
 VIAddVersionKey ProductName     "${PRODUCT_NAME}"
-VIAddVersionKey ProductVersion  "${PRODUCT_VERSION}.0"
+VIAddVersionKey ProductVersion  "${PRODUCT_VERSION}.${BUILD_VERSION}"
 VIAddVersionKey CompanyName     "${PRODUCT_PUBLISHER}"
 VIAddVersionKey LegalCopyright  "(C) 2012 ${PRODUCT_PUBLISHER}"
-VIAddVersionKey FileVersion     "${PRODUCT_VERSION}"
+VIAddVersionKey FileVersion     "${PRODUCT_VERSION}.${BUILD_VERSION}"
 VIAddVersionKey LegalTrademarks "All Rights Reserved"
 VIAddVersionKey FileDescription "Installer for ${PRODUCT_NAME}"
 
