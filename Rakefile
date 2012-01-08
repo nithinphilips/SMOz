@@ -241,26 +241,53 @@ task :clean_doc do |d|
 end
 
 desc "Runs Sphinx to build the documentation."
-task :build_doc do |d|
+task :build_doc, [:nohtmlhelp, :nolatexpdf, :nohtml] do |d, args|
     # We don't want this littering the dep_graph, call it explicitly!
     Rake::Task["dep_graph"].execute
 
+    targets = []
+    targets << "html" if args[:nohtml] == nil
+    targets << "latexpdf" if args[:nolatexpdf] == nil
+    targets << "htmlhelp" if args[:nohtmlhelp] == nil
+
+    targets = targets.join(" ")
+
+    puts targets.inspect
+
     currentDir = Dir.pwd()
     Dir.chdir("doc")
-      sh 'make html latexpdf htmlhelp'
-      sh 'make linkcheck'
-      FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
+      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" #{targets}"
+      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
 
-      # @@#&!(# hhc return 1 for OK, 0 for failure. So, ignore it
-     result = system("hhc htmlhelp/SMOzdoc.hhp")
-     FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
-     FileUtils.rm_rf "htmlhelp"
+      if args[:nohtmlhelp] == nil
+        FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
+        result = system("hhc htmlhelp/SMOzdoc.hhp")
+        FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
+        FileUtils.rm_rf "htmlhelp"
+     end
 
     Dir.chdir(currentDir)
 
     FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
-    FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}"
-    FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}"
+    FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}" if args[:nohtmlhelp] == nil
+    FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}" if args[:nolatexpdf] == nil
+end
+
+desc "Runs sphinx to build the website."
+task :website do |t|
+
+    Rake::Task["build_doc"].invoke(true, true)
+
+    currentDir = Dir.pwd()
+    Dir.chdir("website")
+      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
+      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
+    Dir.chdir(currentDir)
+
+    FileUtils.mkdir_p "#{BUILD_DIR}/web/"
+    FileUtils.cp_r FileList['website/.build/html/**'], "#{BUILD_DIR}/web/"
+    FileUtils.mkdir_p "#{BUILD_DIR}/web/doc"
+    FileUtils.cp_r FileList['doc/.build/html/**'], "#{BUILD_DIR}/web/doc/"
 end
 
 desc "Generates a graph of all the tasks and their relationships."
