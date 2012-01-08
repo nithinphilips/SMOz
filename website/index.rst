@@ -1,8 +1,12 @@
 SMOz (Start Menu Organizer)
 ===========================
 
+.. Warning::
+   This is a preliminary draft version.
+
 .. contents::
    :local:
+   :depth: 1
 
 .. figure:: images/start.png
    :align: right
@@ -94,17 +98,10 @@ Screenshots
 
 What's New
 ----------
-* SMOz was entirely rewritten.
-* Current version has:
 
-  * A much easier to use interface.
-  * Drag & Drop support.
-  * Displays icons for all items.
-  * A template editor (not finished yet).
-  * Unlimited Undo/Redo support (at least until memory is exhausted!)
-  * Atomicity when applying changes to file system.
-  * Targets version 2.0 of .NET Framework.
-  * Designed to be more easy to expand.
+.. include:: ../releasenotes/Release-0.0.0.rst
+   :start-after: .. begin block
+   :end-before: .. end block
 
 .. _download_section:
 

@@ -18,7 +18,7 @@ body {
     font-size: 100%;
     background-color: #999990;
     color: #000;
-    margin: 10px auto 10px auto;
+    margin: 10px auto 0 auto;
     padding: 0;
     width: 1000px;
 }
@@ -269,6 +269,11 @@ div.body h1 {
     padding: 30px 10px 30px 0;
 }
 
+div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+    background-color: inherit;
+    clear: both;
+}
+
 .related { display: none; }
 
 .download-link::before {
@@ -323,10 +328,6 @@ div.figure p.caption {
     padding: 0;
 }
 
-#screenshots, #what-s-new {
-    clear: both;
-}
-
 #screenshots div.figure {
     width: 350px;
     text-align: center;
@@ -340,7 +341,7 @@ div.document {
 }
 
 div.document, div.footer {
-    box-shadow: 0 0 6px #444;
+    box-shadow: 0px 0px 6px #444;
 }
 
 div.body {
@@ -357,32 +358,33 @@ div.footer {
 }
 
 div.topic {
-    border: 1px solid #444;
-    border-radius: 0 10px 0 10px;
-    float: left;
-    position: fixed;
-    margin-left: -160px;
-    margin-top: -11px;
-    box-shadow: -2px 0 4px #444;
-    background-color: #3A484F;
-    color: #fff;
+    color: #000;
+    top: 0px;
+    background-color: inherit;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    padding: 0;
 }
 
 div.topic a {
-    color: #fff;
+    color: #000;
     font-weight: bold;
-    text-shadow: 0 0 1px #AAAAAA;
+    text-shadow: 0 0 1px #AAA;
 }
 
 div.topic a:hover {
-    text-shadow: 0 0 1px #AAAAAA;
+    text-shadow: 0 0 1px #444;
     text-decoration: none;
 }
 
 div.topic li {
     list-style: none;
+    display: inline;
+    text-align: center;
+    padding: 0 15px;
 }
 
 div.topic ul {
     padding-left: 15px;
+    text-align: center;
 }
