@@ -1,19 +1,20 @@
 PRODUCT       = "SMOz"
 PRODUCT_LONG  = "SMOz (Start Menu Organizer)"
 DESCRIPTION   = "Start Menu Organizer"
-VERSION       = "2.0.0" # We omit the build segment of the version number.
+VERSION       = ENV['VERSION'] || "2.0.0"
 AUTHORS       = "Nithin Philips"
-COPYRIGHT     = "(c) 2004-2011 #{AUTHORS}"
+COPYRIGHT     = "(c) 2004-2012 #{AUTHORS}"
 TRADEMARKS    = "Windows is a trademark of Microsoft Corporation"
 
 CONFIGURATION = "Release"
 SOLUTION_FILE = "SMOz.sln"
 
 BUILD_DIR     = File.expand_path("build")
-OUTPUT_DIR    = "#{BUILD_DIR}/out"
-BIN_DIR       = "#{BUILD_DIR}/bin"
-SRC_DIR       = "#{BUILD_DIR}/src"
-PACKAGES_DIR  = "packages"
+OUTPUT_DIR    = "#{BUILD_DIR}/out"      # Where the output from msbuild is placed.
+BIN_DIR       = "#{BUILD_DIR}/bin"      # Where the input files for dist_zip and installer is placed.
+SRC_DIR       = "#{BUILD_DIR}/src"      # Where the source for dist_src is placed.
+WEB_DIR       = "#{BUILD_DIR}/web"      # Where the built website is placed.
+PKG_DIR       = "#{BUILD_DIR}/packages" # Where the packages will go
 
 PACKAGE       = "#{PRODUCT}-#{VERSION}"
 BIN_PACKAGE   = "#{PACKAGE}-bin"
@@ -26,6 +27,7 @@ require 'rgl/dot'
 require 'rgl/implicit'
 require 'zip/zip'
 require 'zip/zipfilesystem'
+require 'net/scp'
 
 desc "Runs the dist task"
 task :default => [:dist]
@@ -125,19 +127,23 @@ task :dist_src do |z|
     ]
 
     workingdir = Dir.pwd
-    FileUtils.rm_rf "#{BUILD_DIR}/src"
+    FileUtils.rm_rf "#{SRC_DIR}"
+
     gitModules.each { |m|
         prefix = m["prefix"]
         filename = "#{BUILD_DIR}/src-temp.zip"
         Dir.chdir(m["dir"])
         sh "git archive HEAD --format=zip -9 --prefix=\"#{prefix}/\" > \"#{filename}\""
         Dir.chdir(workingdir)
-        extract_zip(filename, "#{BUILD_DIR}/src")
+        extract_zip(filename, "#{SRC_DIR}")
         FileUtils.rm_rf filename
     }
 
-    FileUtils.rm_rf "#{BUILD_DIR}/#{SRC_PACKAGE}.zip"
-    zip_dir("#{BUILD_DIR}/src", "#{BUILD_DIR}/#{SRC_PACKAGE}.zip")
+    FileUtils.mkdir_p PKG_DIR
+    FileUtils.rm_rf "#{PKG_DIR}/#{SRC_PACKAGE}.zip"
+    zip_dir("#{SRC_DIR}", "#{PKG_DIR}/#{SRC_PACKAGE}.zip")
+
+    FileUtils.rm_rf "#{SRC_DIR}"
 end
 
 desc "Ensures that all the git submodules are pulled and at the HEAD of the master branch. You should commit and push all your changes first."
@@ -169,9 +175,11 @@ end
 
 desc "Packages binaries into a distribution ready archive."
 zip :dist_zip => [:build] do |z|
+    FileUtils.mkdir_p PKG_DIR
+
     z.directories_to_zip BIN_DIR
     z.output_file = "#{BIN_PACKAGE}.zip"
-    z.output_path = BUILD_DIR
+    z.output_path = PKG_DIR
 end
 
 desc "Runs any unit tests"
@@ -191,7 +199,7 @@ nsis :installer => [:installerfiles] do |n|
     n.installer_file = File.expand_path("Installer/Installer.nsi")
     n.verbosity = 4
     n.log_file = File.expand_path("#{BUILD_DIR}/installer.log")
-    n.defines :PRODUCT_VERSION => VERSION, :OUT_FILE => "#{BUILD_DIR}/#{INS_PACKAGE}.exe"
+    n.defines :PRODUCT_VERSION => VERSION, :OUT_FILE => "#{PKG_DIR}/#{INS_PACKAGE}.exe"
 end
 
 task :assemblyinfo => [:libasminfo, :testsasminfo, :cliasminfo, :winformsasminfo, :wpfasminfo]
@@ -252,8 +260,6 @@ task :build_doc, [:nohtmlhelp, :nolatexpdf, :nohtml] do |d, args|
 
     targets = targets.join(" ")
 
-    puts targets.inspect
-
     currentDir = Dir.pwd()
     Dir.chdir("doc")
       sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" #{targets}"
@@ -273,21 +279,59 @@ task :build_doc, [:nohtmlhelp, :nolatexpdf, :nohtml] do |d, args|
     FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}" if args[:nolatexpdf] == nil
 end
 
-desc "Runs sphinx to build the website."
-task :website do |t|
+namespace :build do
 
-    Rake::Task["build_doc"].invoke(true, true)
+    desc "Runs sphinx to build the website."
+    task :website do |t|
+        Rake::Task["build_doc"].invoke(true, true)
 
-    currentDir = Dir.pwd()
-    Dir.chdir("website")
-      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
-      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
-    Dir.chdir(currentDir)
+        currentDir = Dir.pwd()
+        Dir.chdir("website")
+        sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
+        sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
+        Dir.chdir(currentDir)
 
-    FileUtils.mkdir_p "#{BUILD_DIR}/web/"
-    FileUtils.cp_r FileList['website/.build/html/**'], "#{BUILD_DIR}/web/"
-    FileUtils.mkdir_p "#{BUILD_DIR}/web/doc"
-    FileUtils.cp_r FileList['doc/.build/html/**'], "#{BUILD_DIR}/web/doc/"
+        FileUtils.mkdir_p "#{WEB_DIR}"
+        FileUtils.cp_r FileList['website/.build/html/**'], "#{WEB_DIR}"
+        FileUtils.mkdir_p "#{BUILD_DIR}/web/doc"
+        FileUtils.cp_r FileList['doc/.build/html/**'], "#{WEB_DIR}/doc/"
+    end
+
+end
+
+namespace :deploy do
+
+    #task :packages => [:clean, :doc, :dist] do |t|
+    task :packages do |t|
+
+        packageReadme = "releasenotes/Release-#{VERSION}.rst"
+
+        unless File.exist?(packageReadme) 
+            fail "A release note is required to deploy this package.\nPlace a file named '#{packageReadme}' in the 'releasenotes' subdirectory and run this task again."
+        end
+
+        FileUtils.cp(packageReadme, "#{PKG_DIR}/README.rst")
+
+        RemoteHost = "frs.sourceforge.net"
+        RemoteDir  = "/home/pfs/project/s/sm/smoz/smoz/#{VERSION}"  # the trailing slash is important
+        UserName   = "spikiermonkey,smoz"
+
+        files =  FileList["build/packages"]
+
+        files.each { |f| sh "scp -r \"#{f}\" #{UserName}@#{RemoteHost}:#{RemoteDir}" }
+    end
+
+    desc "Uploads the build website files to the sourceforge server."
+    task :website => 'build:website' do |t|
+        RemoteHost = "web.sourceforge.net"
+        RemoteDir  = "/home/project-web/smoz/htdocs/new"
+        UserName   = "spikiermonkey,smoz"
+
+        files =  FileList["build/web/**"]
+
+        files.each { |f| sh "scp -r \"#{f}\" #{UserName}@#{RemoteHost}:#{RemoteDir}" }
+    end
+
 end
 
 desc "Generates a graph of all the tasks and their relationships."
