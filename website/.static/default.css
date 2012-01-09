@@ -369,12 +369,11 @@ div.topic {
 div.topic a {
     color: #000;
     font-weight: bold;
-    text-shadow: 0 0 1px #AAA;
+    text-shadow: 0 0 1px #ddd;
 }
 
 div.topic a:hover {
-    text-shadow: 0 0 1px #444;
-    text-decoration: none;
+    text-shadow: 0 0 1px #ccc;
 }
 
 div.topic li {
@@ -388,3 +387,23 @@ div.topic ul {
     padding-left: 15px;
     text-align: center;
 }
+
+
+@media screen and (max-width: 999px) {
+
+    body {
+        width: 100%;
+    }
+
+    div.topic ul {
+        text-align: left;
+    }
+
+    div.topic li {
+        display: list-item;
+        list-style: disc;
+        text-align: left;
+    }
+
+}
+
