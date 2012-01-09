@@ -1,25 +1,25 @@
 PRODUCT       = "SMOz"
 PRODUCT_LONG  = "SMOz (Start Menu Organizer)"
 DESCRIPTION   = "Start Menu Organizer"
-VERSION       = ENV['VERSION'] || "2.0.0"
+VERSION       = ENV['VERSION'] || "1.1.0"
 AUTHORS       = "Nithin Philips"
 COPYRIGHT     = "(c) 2004-2012 #{AUTHORS}"
 TRADEMARKS    = "Windows is a trademark of Microsoft Corporation"
 
-CONFIGURATION = "Release"
-SOLUTION_FILE = "SMOz.sln"
+CONFIGURATION = "Release"               # The configuration to build: Release or Debug.
+SOLUTION_FILE = "SMOz.sln"              # Name of the main visual studio solution/project file
 
 BUILD_DIR     = File.expand_path("build")
 OUTPUT_DIR    = "#{BUILD_DIR}/out"      # Where the output from msbuild is placed.
-BIN_DIR       = "#{BUILD_DIR}/bin"      # Where the input files for dist_zip and installer is placed.
-SRC_DIR       = "#{BUILD_DIR}/src"      # Where the source for dist_src is placed.
+BIN_DIR       = "#{BUILD_DIR}/bin"      # Where the input files for dist:bin and dist:installer are placed.
+SRC_DIR       = "#{BUILD_DIR}/src"      # Temp dir where the source for dist_src is placed.
 WEB_DIR       = "#{BUILD_DIR}/web"      # Where the built website is placed.
-PKG_DIR       = "#{BUILD_DIR}/packages" # Where the packages will go
+PKG_DIR       = "#{BUILD_DIR}/packages" # Where the packages will go.
 
-PACKAGE       = "#{PRODUCT}-#{VERSION}"
-BIN_PACKAGE   = "#{PACKAGE}-bin"
-SRC_PACKAGE   = "#{PACKAGE}-src"
-INS_PACKAGE   = "#{PACKAGE}-setup"
+PACKAGE       = "#{PRODUCT}-#{VERSION}" 
+BIN_PACKAGE   = "#{PACKAGE}-bin"        # Name of the archive with all the binaries/executables.
+SRC_PACKAGE   = "#{PACKAGE}-src"        # Name of the archive with the source code.
+INS_PACKAGE   = "#{PACKAGE}-setup"      # Name of the installer.
 
 require 'albacore'
 FileList["./albacore/*.rb"].each { |f| require f }
@@ -29,17 +29,16 @@ require 'zip/zip'
 require 'zip/zipfilesystem'
 require 'net/scp'
 
-desc "Runs the dist task"
 task :default => [:dist]
 
-desc "Builds the application, installer and packages source and binaries."
-task :dist    => [:dist_zip, :dist_src, :installer, :test]
+desc "Builds the application, installer and packages source and binaries (the default)."
+task :dist    => ["dist:bin", "dist:src", "dist:installer", :tests]
 
-desc "Builds the documentation and runs the dist task"
-task :doc     => [:build_doc, :libdoc, :dist]
+desc "Builds all documentation."
+task :doc     => ["doc:usr", "doc:dev"]
 
 desc "Cleans all the object files, binaries, dist packages etc."
-task :clean   => [:clean_sln, :clean_sln_old, :clean_doc, :clean_dist]
+task :clean   => ["clean:sln", "clean:sln_winforms", "clean:doc", "clean:dist"]
 
 Albacore.configure do |config|
     config.assemblyinfo do |a|
@@ -52,8 +51,9 @@ Albacore.configure do |config|
     end
 end
 
-desc "Compiles the application."
-msbuild :compile  => [:assemblyinfo, :compile_smoz_old] do |msb|
+# Compiles the application.
+msbuild :compile  => [:assemblyinfo] do |msb|
+    puts "Compiling #{SOLUTION_FILE}"
     msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
     msb.targets :Build
     msb.solution = SOLUTION_FILE
@@ -65,10 +65,9 @@ msbuild :compile  => [:assemblyinfo, :compile_smoz_old] do |msb|
     msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.log\""
 end
 
-################################################
-# SMOz WinForms targets. Remove when it is obselete
-################################################
-msbuild :compile_smoz_old  => :assemblyinfo do |msb|
+# Compiles the (legacy) windows forms version of the application.
+msbuild :compile_smoz_winforms  => :assemblyinfo do |msb|
+    puts "Compiling the legacy windows forms application"
     msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
     msb.targets :Build
     msb.solution = "src/SMOz.WinForms/SMOz.sln"
@@ -80,215 +79,226 @@ msbuild :compile_smoz_old  => :assemblyinfo do |msb|
     msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/msbuild.winforms.log\""
 end
 
-msbuild :clean_sln_old do |msb|
-    msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
-    msb.targets :Clean
-    msb.solution = "src/SMOz.WinForms/SMOz.sln"
-end
-###############################################
-
-msbuild :compile_libdoc  => :compile do |msb|
-    msb.properties :configuration => CONFIGURATION, "OutputPath" => "#{BUILD_DIR}/lib-doc"
-    msb.solution = File.expand_path("src/libSmoz/libSmoz.shfbproj")
-    msb.verbosity = "detailed"
-    msb.log_level = :verbose
-    FileUtils.mkdir_p(BUILD_DIR)
-    # Disable console logging and send output to a file.
-    msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/shfb.log\"", "/p:DocSourceDir=\"#{OUTPUT_DIR}\""
-end
-
-desc "Generates documentation for any class libraries."
-task :libdoc => :compile_libdoc  do |t|
-    # Copy chm files
-    chmfiles = FileList["#{BUILD_DIR}/lib-doc/*.chm"]
-    FileUtils.cp_r chmfiles, "#{BIN_DIR}/#{PACKAGE}/"
-
-    # Copy html libdoc files
-    #htmlfiles = FileList["#{BUILD_DIR}/lib-doc/*"].exclude(/\.chm$/).exclude(/\/Working/)
-    #FileUtils.mkdir_p  "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
-    #FileUtils.cp_r htmlfiles, "#{BIN_DIR}/#{PACKAGE}/libSMoz.Documentation"
-end
-
-# Copies the ouput from compile to a proper directory structure
-task :build => [:compile]  do
-    binaries = FileList["#{OUTPUT_DIR}/*.dll", "#{OUTPUT_DIR}/*.exe", "#{OUTPUT_DIR}/*.exe.config", "#{OUTPUT_DIR}/*.dll.config", "README.md", "COPYING"]
+desc "Compiles the application" # and copies the ouput from compile to a proper directory structure
+task :build => [:compile, :compile_smoz_winforms]  do
+    puts "Copying selected output to final destination"
+    binaries = FileList["#{OUTPUT_DIR}/*.dll", 
+                        "#{OUTPUT_DIR}/*.exe", 
+                        "#{OUTPUT_DIR}/*.exe.config", 
+                        "#{OUTPUT_DIR}/*.dll.config", 
+                        "README.md", 
+                        "COPYING",
+                        "res/Template.ini"]
 
     FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
     FileUtils.cp_r binaries, "#{BIN_DIR}/#{PACKAGE}/"
 end
 
-desc "Packages the source code"
-task :dist_src do |z|
-
-    gitModules = [
-        {"dir" => ".",                "prefix" => "#{PACKAGE}" },
-        {"dir" => "lib/Afterthought", "prefix" => "#{PACKAGE}/lib/Afterthought"},
-        {"dir" => "doc",              "prefix" => "#{PACKAGE}/doc"}
-    ]
-
-    workingdir = Dir.pwd
-    FileUtils.rm_rf "#{SRC_DIR}"
-
-    gitModules.each { |m|
-        prefix = m["prefix"]
-        filename = "#{BUILD_DIR}/src-temp.zip"
-        Dir.chdir(m["dir"])
-        sh "git archive HEAD --format=zip -9 --prefix=\"#{prefix}/\" > \"#{filename}\""
-        Dir.chdir(workingdir)
-        extract_zip(filename, "#{SRC_DIR}")
-        FileUtils.rm_rf filename
-    }
-
-    FileUtils.mkdir_p PKG_DIR
-    FileUtils.rm_rf "#{PKG_DIR}/#{SRC_PACKAGE}.zip"
-    zip_dir("#{SRC_DIR}", "#{PKG_DIR}/#{SRC_PACKAGE}.zip")
-
-    FileUtils.rm_rf "#{SRC_DIR}"
-end
-
-desc "Ensures that all the git submodules are pulled and at the HEAD of the master branch. You should commit and push all your changes first."
+# Ensures that all the git submodules are pulled and at the HEAD of the master
+# branch. You should commit and push all your changes first.
 task :update_submodules do
+    puts "Forwarding submodules to the tip of their master branch"
     system("git submodule init")
     system("git submodule update")
     system("git submodule foreach git checkout master")
     system("git submodule foreach git pull")
 end
 
-def zip_dir(dir, file)
-    path = File.expand_path(dir)
-    Zip::ZipFile.open(file, Zip::ZipFile::CREATE) do |zipfile|
-        Dir["#{path}/**/**"].each do |file|
-            zipfile.add(file.sub(path + '/',''),file)
-        end
+namespace :dist do
+    desc "Packages the source code into an archive."
+    task :src do |z|
+        puts "Packaging the source code"
+
+        gitModules = [
+            {"dir" => ".",                "prefix" => "#{PACKAGE}" },
+            {"dir" => "lib/Afterthought", "prefix" => "#{PACKAGE}/lib/Afterthought"},
+            {"dir" => "doc",              "prefix" => "#{PACKAGE}/doc"}
+        ]
+
+        workingdir = Dir.pwd
+        FileUtils.rm_rf "#{SRC_DIR}"
+
+        gitModules.each { |m|
+            prefix = m["prefix"]
+            filename = "#{BUILD_DIR}/src-temp.zip"
+            Dir.chdir(m["dir"])
+            sh "git archive HEAD --format=zip -9 --prefix=\"#{prefix}/\" > \"#{filename}\""
+            Dir.chdir(workingdir)
+            extract_zip(filename, "#{SRC_DIR}")
+            FileUtils.rm_rf filename
+        }
+
+        FileUtils.mkdir_p PKG_DIR
+        FileUtils.rm_rf "#{PKG_DIR}/#{SRC_PACKAGE}.zip"
+        zip_dir("#{SRC_DIR}", "#{PKG_DIR}/#{SRC_PACKAGE}.zip")
+
+        FileUtils.rm_rf "#{SRC_DIR}"
+    end
+
+    desc "Packages binaries into a distribution ready archive."
+    zip :bin => [:build] do |z|
+        FileUtils.mkdir_p PKG_DIR
+
+        z.directories_to_zip BIN_DIR
+        z.output_file = "#{BIN_PACKAGE}.zip"
+        z.output_path = PKG_DIR
+    end
+
+    nsisfilelist :installerfiles => [:build] do |n|
+        n.dirs << File.expand_path("#{BIN_DIR}/#{PACKAGE}/")
+        n.add_files_list = File.expand_path("installer/files_ADD.nsi")
+        n.remove_files_list = File.expand_path("installer/files_REM.nsi")
+    end
+
+    desc "Packages the binaries into a Windows installer."
+    nsis :installer => ["dist:installerfiles"] do |n|
+        puts "Building the installer"
+        n.installer_file = File.expand_path("Installer/Installer.nsi")
+        n.verbosity = 4
+        n.log_file = File.expand_path("#{BUILD_DIR}/installer.log")
+        n.defines :PRODUCT_VERSION => VERSION, :OUT_FILE => "#{PKG_DIR}/#{INS_PACKAGE}.exe"
     end
 end
 
-def extract_zip(file, dest)
-    Zip::ZipFile.open(file) { |zip_file|
-        zip_file.each { |f|
-            f_path=File.join(dest, f.name)
-            FileUtils.mkdir_p(File.dirname(f_path))
-            zip_file.extract(f, f_path) unless File.exist?(f_path)
-        }
-    }
-end
-
-desc "Packages binaries into a distribution ready archive."
-zip :dist_zip => [:build] do |z|
-    FileUtils.mkdir_p PKG_DIR
-
-    z.directories_to_zip BIN_DIR
-    z.output_file = "#{BIN_PACKAGE}.zip"
-    z.output_path = PKG_DIR
-end
-
-desc "Runs any unit tests"
-mstest :test => [:compile] do |test|
+desc "Runs any unit tests."
+mstest :tests => [:compile] do |test|
     test.command = "C:/Program Files (x86)/Microsoft Visual Studio 10.0/Common7/IDE/mstest.exe"
     test.assemblies "#{OUTPUT_DIR}/SMOz.Tests.dll"
 end
 
-nsisfilelist :installerfiles => [:build] do |n|
-    n.dirs << File.expand_path("#{BIN_DIR}/#{PACKAGE}/")
-    n.add_files_list = File.expand_path("installer/files_ADD.nsi")
-    n.remove_files_list = File.expand_path("installer/files_REM.nsi")
+task :assemblyinfo => ["asminfo:libsmoz", "asminfo:tests",
+                       "asminfo:cli", "asminfo:winforms", "asminfo:wpf"]
+
+namespace :asminfo do
+    assemblyinfo :libsmoz do |a|
+        a.title        = "libSmoz"
+        a.description  = "A supporting library for automated manipulation of the Windows start menu"
+        a.output_file  = "src/libSmoz/Properties/AssemblyInfo.cs"
+    end
+
+    assemblyinfo :tests do |a|
+        a.title        = "SMOz.Tests"
+        a.description  = "A set of unit tests for libSMOz features"
+        a.output_file  = "src/SMOz.Tests/Properties/AssemblyInfo.cs"
+    end
+
+    assemblyinfo :cli do |a|
+        a.title        = "SMOz.CLI"
+        a.description  = "The command-line interface of SMOz"
+        a.output_file  = "src/SMOz.CLI/Properties/AssemblyInfo.cs"
+    end
+
+    assemblyinfo :winforms do |a|
+        a.title        = "SMOz.WinForms"
+        a.description  = "The (legacy) Windows Forms based graphical user interface of SMOz"
+        a.output_file  = "src/SMOz.WinForms/Properties/AssemblyInfo.cs"
+    end
+
+    assemblyinfo :wpf do |a|
+        a.title        = "SMOz.WPF"
+        a.description  = "The next generation graphical user interface of SMOz"
+        a.output_file  = "src/SMOz.WPF/Properties/AssemblyInfo.cs"
+    end
 end
 
-desc "Builds the installer"
-nsis :installer => [:installerfiles] do |n|
-    n.installer_file = File.expand_path("Installer/Installer.nsi")
-    n.verbosity = 4
-    n.log_file = File.expand_path("#{BUILD_DIR}/installer.log")
-    n.defines :PRODUCT_VERSION => VERSION, :OUT_FILE => "#{PKG_DIR}/#{INS_PACKAGE}.exe"
+namespace :clean do
+    msbuild :sln do |msb|
+        msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
+        msb.targets :Clean
+        msb.solution = SOLUTION_FILE
+    end
+
+    task :dist do
+        FileUtils.rm_rf BUILD_DIR
+    end
+
+    task :doc do |d|
+        FileUtils.rm_rf "doc/.build"
+    end
+
+    msbuild :sln_winforms do |msb|
+        msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
+        msb.targets :Clean
+        msb.solution = "src/SMOz.WinForms/SMOz.sln"
+    end
 end
 
-task :assemblyinfo => [:libasminfo, :testsasminfo, :cliasminfo, :winformsasminfo, :wpfasminfo]
+namespace :doc do
+    desc "Builds the application user manual using Sphinx."
+    task :usr => ["doc:usr_html", "doc:usr_htmlhelp", "doc:usr_latexpdf", "doc:usr_linkcheck"]
 
-assemblyinfo :libasminfo do |a|
-    a.title        = "libSmoz"
-    a.description  = "A supporting library for automated manipulation of the Windows start menu"
-    a.output_file  = "src/libSmoz/Properties/AssemblyInfo.cs"
-end
+    task :usr_html do |d, args|
+        Rake::Task["dep_graph"].invoke
 
-assemblyinfo :testsasminfo do |a|
-    a.title        = "SMOz.Tests"
-    a.description  = "A set of unit tests for libSMOz features"
-    a.output_file  = "src/SMOz.Tests/Properties/AssemblyInfo.cs"
-end
+        currentDir = Dir.pwd()
+        Dir.chdir("doc")
+            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
+        Dir.chdir(currentDir)
+    end
 
-assemblyinfo :cliasminfo do |a|
-    a.title        = "SMOz.CLI"
-    a.description  = "The command-line interface of SMOz"
-    a.output_file  = "src/SMOz.CLI/Properties/AssemblyInfo.cs"
-end
+    task :usr_htmlhelp do |d, args|
+        Rake::Task["dep_graph"].invoke
 
-assemblyinfo :winformsasminfo do |a|
-    a.title        = "SMOz.WinForms"
-    a.description  = "The (legacy) Windows Forms based graphical user interface of SMOz"
-    a.output_file  = "src/SMOz.WinForms/Properties/AssemblyInfo.cs"
-end
+        currentDir = Dir.pwd()
+        Dir.chdir("doc")
+            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" htmlhelp"
 
-assemblyinfo :wpfasminfo do |a|
-    a.title        = "SMOz.WPF"
-    a.description  = "The next generation graphical user interface of SMOz"
-    a.output_file  = "src/SMOz.WPF/Properties/AssemblyInfo.cs"
-end
+            FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
+            result = system("hhc htmlhelp/SMOzdoc.hhp")
+            FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
+            FileUtils.rm_rf "htmlhelp"
+        Dir.chdir(currentDir)
 
-msbuild :clean_sln do |msb|
-    msb.properties :configuration => CONFIGURATION, "OutputPath" => OUTPUT_DIR
-    msb.targets :Clean
-    msb.solution = SOLUTION_FILE
-end
+        FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
+        FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}"
+    end
 
-task :clean_dist do
-    FileUtils.rm_rf BUILD_DIR
-end
+    task :usr_latexpdf do |d, args|
+        Rake::Task["dep_graph"].invoke
 
-task :clean_doc do |d|
-   FileUtils.rm_rf "doc/.build"
-end
+        currentDir = Dir.pwd()
+        Dir.chdir("doc")
+            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" latexpdf"
+        Dir.chdir(currentDir)
 
-desc "Runs Sphinx to build the documentation."
-task :build_doc, [:nohtmlhelp, :nolatexpdf, :nohtml] do |d, args|
-    # We don't want this littering the dep_graph, call it explicitly!
-    Rake::Task["dep_graph"].execute
+        FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
+        FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}" if args[:nolatexpdf] == nil
+    end
 
-    targets = []
-    targets << "html" if args[:nohtml] == nil
-    targets << "latexpdf" if args[:nolatexpdf] == nil
-    targets << "htmlhelp" if args[:nohtmlhelp] == nil
+    task :usr_linkcheck do |d, args|
+        Rake::Task["dep_graph"].invoke
 
-    targets = targets.join(" ")
+        currentDir = Dir.pwd()
+        Dir.chdir("doc")
+            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
+        Dir.chdir(currentDir)
+    end
 
-    currentDir = Dir.pwd()
-    Dir.chdir("doc")
-      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" #{targets}"
-      sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
+    msbuild :compile_dev  => :compile do |msb|
+        puts "Compiling library documentation"
+        msb.properties :configuration => CONFIGURATION, "OutputPath" => "#{BUILD_DIR}/lib-doc"
+        msb.solution = File.expand_path("src/libSmoz/libSmoz.shfbproj")
+        msb.verbosity = "detailed"
+        msb.log_level = :verbose
+        FileUtils.mkdir_p(BUILD_DIR)
+        # Disable console logging and send output to a file.
+        msb.parameters = "/nologo", "/noconsolelogger", "/fileLogger", "/fileloggerparameters:logfile=\"#{BUILD_DIR}/shfb.log\"", "/p:DocSourceDir=\"#{OUTPUT_DIR}\""
+    end
 
-      if args[:nohtmlhelp] == nil
-        FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
-        result = system("hhc htmlhelp/SMOzdoc.hhp")
-        FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
-        FileUtils.rm_rf "htmlhelp"
-     end
+    desc "Builds developer's documentation for any class libraries."
+    task :dev => "doc:compile_dev"  do |t|
+        # Copy chm files
+        chmfiles = FileList["#{BUILD_DIR}/lib-doc/*.chm"]
+        FileUtils.cp_r chmfiles, "#{BIN_DIR}/#{PACKAGE}/"
+    end
 
-    Dir.chdir(currentDir)
-
-    FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
-    FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}" if args[:nohtmlhelp] == nil
-    FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}" if args[:nolatexpdf] == nil
-end
-
-namespace :build do
-
-    desc "Runs sphinx to build the website."
-    task :website do |t|
-        Rake::Task["build_doc"].invoke(true, true)
+    desc "Builds the website using Sphinx."
+    task :website => ["doc:usr_html", "doc:usr_linkcheck"] do |t|
 
         currentDir = Dir.pwd()
         Dir.chdir("website")
-        sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
-        sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
+            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
+            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
         Dir.chdir(currentDir)
 
         FileUtils.mkdir_p "#{WEB_DIR}"
@@ -296,13 +306,13 @@ namespace :build do
         FileUtils.mkdir_p "#{BUILD_DIR}/web/doc"
         FileUtils.cp_r FileList['doc/.build/html/**'], "#{WEB_DIR}/doc/"
     end
-
 end
 
 namespace :deploy do
 
-    #task :packages => [:clean, :doc, :dist] do |t|
-    task :packages do |t|
+    desc "Packages the application and uploads it to the SourceForge website."
+    task :packages => [:clean, :doc, :dist] do |t|
+    #task :packages do |t|
 
         packageReadme = "releasenotes/Release-#{VERSION}.rst"
 
@@ -321,8 +331,8 @@ namespace :deploy do
         files.each { |f| sh "scp -r \"#{f}\" #{UserName}@#{RemoteHost}:#{RemoteDir}" }
     end
 
-    desc "Uploads the build website files to the sourceforge server."
-    task :website => 'build:website' do |t|
+    desc "Builds and uploads the website to the SourceForge server."
+    task :website => 'doc:website' do |t|
         RemoteHost = "web.sourceforge.net"
         RemoteDir  = "/home/project-web/smoz/htdocs/new"
         UserName   = "spikiermonkey,smoz"
@@ -331,7 +341,6 @@ namespace :deploy do
 
         files.each { |f| sh "scp -r \"#{f}\" #{UserName}@#{RemoteHost}:#{RemoteDir}" }
     end
-
 end
 
 desc "Generates a graph of all the tasks and their relationships."
@@ -360,4 +369,23 @@ task :dep_graph do |task|
     else
         puts "doc/images directory not found. NOT copying files."
     end
+end
+
+def zip_dir(dir, file)
+    path = File.expand_path(dir)
+    Zip::ZipFile.open(file, Zip::ZipFile::CREATE) do |zipfile|
+        Dir["#{path}/**/**"].each do |file|
+            zipfile.add(file.sub(path + '/',''),file)
+        end
+    end
+end
+
+def extract_zip(file, dest)
+    Zip::ZipFile.open(file) { |zip_file|
+        zip_file.each { |f|
+            f_path=File.join(dest, f.name)
+            FileUtils.mkdir_p(File.dirname(f_path))
+            zip_file.extract(f, f_path) unless File.exist?(f_path)
+        }
+    }
 end
