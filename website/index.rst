@@ -15,18 +15,19 @@ SMOz (Start Menu Organizer)
 
    A Start Menu after using SMOz.
 
-SMOz (Start Menu Organizer) is a program that can help you keep your Windows
-start menu organized.
+SMOz (Start Menu Organizer) helps you keep your Windows start menu organized.
 
-SMOz categorizes the items in the start menu according to a template file which
-can be easily modified to fit your needs. A sample template file in included in
-the release. A template file consists of categories and values (similar to ini
-files). Files/Directories that match value, which can be simple text or a
-regular expression, are moved to directories specified on categories. This
-keeps your start menu clean with out the pain of manually organizing it every
-time you re-install windows.
+SMOz provides an explorer-like view of the start menu where you can
+simultaneously organize the start menu shortcuts that are spread
+apart in multiple folders. You can quickly and easily drag and drop shortcuts
+to categories of your choice. With unlimited undo-redo support, there is risk.
 
-SMOz is tested to work on Windows XP with .NET framework v2.0.
+SMOz also supports storing the categorization you have done to the start menu
+as a template file. Whether you are a power user or a system administrator,
+you'll never have to repeat the work you've done.
+
+Furthermore, SMOz templates also support `regular expression
+<https://en.wikipedia.org/wiki/Regular_expression>`_ rules that give you a truly powerful way.
 
 .. container:: download_link
 
@@ -99,7 +100,7 @@ Screenshots
 What's New
 ----------
 
-.. include:: ../releasenotes/Release-0.0.0.rst
+.. include:: releasenote.rst
    :start-after: .. begin block
    :end-before: .. end block
 
@@ -116,10 +117,6 @@ Download: installer_, `zipped package`_ or `source code`_.
 * See `all releases`_.
 * Visit `project page`_ at sourceforge_.
 * `Browse source code`_.
-
-.. _installer: http://sourceforge.net/projects/smoz/files/smoz/0.7.1/SMOz-0.7.1-Setup.exe/download
-.. _zipped package: http://sourceforge.net/projects/smoz/files/smoz/0.7.1/smoz-0.7.1-bin.zip/download
-.. _source code: http://sourceforge.net/projects/smoz/files/smoz/0.7.1/smoz-0.7.1-src.zip/download
 
 .. _all releases: http://sourceforge.net/projects/smoz/files/smoz/
 .. _browse source code: http://smoz.git.sourceforge.net/

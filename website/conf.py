@@ -86,12 +86,7 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-rst_epilog = """
-.. |copyright| replace:: \(C\) 2011 Keith Brooke, Nithin Philips
-.. |GNU| replace:: :abbr:`GNU (GNU is Not UNIX)`
-.. |GPL| replace:: :abbr:`GPL (General Public License)`
-.. |FDL| replace:: :abbr:`FDL (Free Documentation License)`
-"""
+rst_epilog = open('rst_dynamic_links.txt', 'r').read()
 
 todo_include_todos = True
 

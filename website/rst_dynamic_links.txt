@@ -1,0 +1,3 @@
+.. _installer: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-setup.exe/download
+.. _zipped package: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-bin.zip/download
+.. _source code: http://sourceforge.net/projects/smoz/files/smoz//1.1.0/SMOz-1.1.0-src.zip/download
