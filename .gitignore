@@ -1,4 +1,5 @@
 build/
+.build/
 TestResults/
 bin/
 obj/
@@ -16,3 +17,6 @@ build_bbapp6.yml
 sign_cod.yml
 MusicSync.Installer/*.exe
 dep_graph.*
+libSmoz.XML
+*.shfbproj_*
+XPTable.xml
