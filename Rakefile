@@ -6,20 +6,24 @@ AUTHORS       = "Nithin Philips"
 COPYRIGHT     = "(c) 2004-2012 #{AUTHORS}"
 TRADEMARKS    = "Windows is a trademark of Microsoft Corporation"
 
-CONFIGURATION = "Release"               # The configuration to build: Release or Debug.
-SOLUTION_FILE = "SMOz.sln"              # Name of the main visual studio solution/project file
+CONFIGURATION = ENV['CONFIGURATION'] || "Release" # The configuration to build: Release or Debug.
+RELEASE_LEVEL = ENV['REL'] || "beta"
+SOLUTION_FILE = "SMOz.sln"               # Name of the main visual studio solution/project file
 
 BUILD_DIR     = File.expand_path("build")
 OUTPUT_DIR    = "#{BUILD_DIR}/out"      # Where the output from msbuild is placed.
 BIN_DIR       = "#{BUILD_DIR}/bin"      # Where the input files for dist:bin and dist:installer are placed.
 SRC_DIR       = "#{BUILD_DIR}/src"      # Temp dir where the source for dist_src is placed.
-WEB_DIR       = "#{BUILD_DIR}/web"      # Where the built website is placed.
 PKG_DIR       = "#{BUILD_DIR}/packages" # Where the packages will go.
+WEB_DIR       = "build/web"             # Where the built website is placed.
+DOC_DIR       = "build/doc"
 
 PACKAGE       = "#{PRODUCT}-#{VERSION}" 
 BIN_PACKAGE   = "#{PACKAGE}-bin"        # Name of the archive with all the binaries/executables.
 SRC_PACKAGE   = "#{PACKAGE}-src"        # Name of the archive with the source code.
 INS_PACKAGE   = "#{PACKAGE}-setup"      # Name of the installer.
+
+README_FILE   = "releasenotes/Release-#{VERSION}.rst"
 
 require 'albacore'
 FileList["./albacore/*.rb"].each { |f| require f }
@@ -38,7 +42,7 @@ desc "Builds all documentation."
 task :doc     => ["doc:usr", "doc:dev"]
 
 desc "Cleans all the object files, binaries, dist packages etc."
-task :clean   => ["clean:sln", "clean:sln_winforms", "clean:doc", "clean:dist"]
+task :clean   => ["clean:sln", "clean:sln_winforms", "clean:doc", "clean:website", "clean:dist"]
 
 Albacore.configure do |config|
     config.assemblyinfo do |a|
@@ -48,6 +52,13 @@ Albacore.configure do |config|
         a.copyright    = COPYRIGHT
         a.company_name = AUTHORS
         a.trademark    = TRADEMARKS
+    end
+
+    config.sphinx do |s|
+        s.sphinxbuild_script  = "/usr/bin/sphinx-build"
+        s.sourcedir = "doc"
+        s.builddir  = DOC_DIR
+        s.define = { "version" => VERSION, "release" => VERSION, "releaselevel" => RELEASE_LEVEL }
     end
 end
 
@@ -213,7 +224,11 @@ namespace :clean do
     end
 
     task :doc do |d|
-        FileUtils.rm_rf "doc/.build"
+        FileUtils.rm_rf DOC_DIR
+    end
+
+    task :website do |d|
+        FileUtils.rm_rf WEB_DIR
     end
 
     msbuild :sln_winforms do |msb|
@@ -225,53 +240,35 @@ end
 
 namespace :doc do
     desc "Builds the application user manual using Sphinx."
-    task :usr => ["doc:usr_html", "doc:usr_htmlhelp", "doc:usr_latexpdf", "doc:usr_linkcheck"]
-
-    task :usr_html do |d, args|
-        Rake::Task["dep_graph"].invoke
-
-        currentDir = Dir.pwd()
-        Dir.chdir("doc")
-            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
-        Dir.chdir(currentDir)
-    end
-
-    task :usr_htmlhelp do |d, args|
-        Rake::Task["dep_graph"].invoke
-
-        currentDir = Dir.pwd()
-        Dir.chdir("doc")
-            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" htmlhelp"
-
-            FileUtils.cp_r '.build/htmlhelp/.', 'htmlhelp'
-            result = system("hhc htmlhelp/SMOzdoc.hhp")
-            FileUtils.cp_r FileList['htmlhelp/*.chm'], '.build/htmlhelp'
-            FileUtils.rm_rf "htmlhelp"
-        Dir.chdir(currentDir)
+    task :usr => ["doc:usr_html", "doc:usr_htmlhelp", "doc:usr_latexpdf", "doc:usr_linkcheck"] do
 
         FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
-        FileUtils.cp_r FileList['doc/.build/htmlhelp/*.chm'], "#{BIN_DIR}/#{PACKAGE}"
+        FileUtils.cp_r FileList["#{DOC_DIR}/htmlhelp/*.chm"], "#{BIN_DIR}/#{PACKAGE}"
+        FileUtils.cp_r FileList["#{DOC_DIR}/latex/SMOz.pdf"], "#{BIN_DIR}/#{PACKAGE}"
     end
 
-    task :usr_latexpdf do |d, args|
+    sphinx :usr_html do |s|
         Rake::Task["dep_graph"].invoke
-
-        currentDir = Dir.pwd()
-        Dir.chdir("doc")
-            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" latexpdf"
-        Dir.chdir(currentDir)
-
-        FileUtils.mkdir_p "#{BIN_DIR}/#{PACKAGE}/"
-        FileUtils.cp_r FileList['doc/.build/latex/SMOz.pdf'], "#{BIN_DIR}/#{PACKAGE}" if args[:nolatexpdf] == nil
+        s.builder = :html
+        puts "Building documentation in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
     end
 
-    task :usr_linkcheck do |d, args|
+    sphinx :usr_htmlhelp do |s|
         Rake::Task["dep_graph"].invoke
+        s.builder = :htmlhelp
+        puts "Building documentation in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
+    end
 
-        currentDir = Dir.pwd()
-        Dir.chdir("doc")
-            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
-        Dir.chdir(currentDir)
+    sphinx :usr_latexpdf do |s|
+        Rake::Task["dep_graph"].invoke
+        s.builder = :latexpdf
+        puts "Building documentation in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
+    end
+
+    sphinx :usr_linkcheck do |s|
+        Rake::Task["dep_graph"].invoke
+        s.builder = :linkcheck
+        puts "Checking links in documentation built from #{s.sourcedir} into #{s.builddir}."
     end
 
     msbuild :compile_dev  => :compile do |msb|
@@ -293,53 +290,76 @@ namespace :doc do
     end
 
     desc "Builds the website using Sphinx."
-    task :website => ["doc:usr_html", "doc:usr_linkcheck"] do |t|
+    task :website => ["doc:usr_html", "doc:website_html"] do |t|
+        FileUtils.mkdir_p "#{WEB_DIR}/html/doc"
+        FileUtils.cp_r FileList["#{DOC_DIR}/html/**"], "#{WEB_DIR}/html/doc/"
+    end
 
-        currentDir = Dir.pwd()
-        Dir.chdir("website")
-            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" html"
-            sh "make SPHINXOPTS=\"-D version=#{VERSION} -D release=#{VERSION}\" linkcheck"
-        Dir.chdir(currentDir)
+    sphinx :website_html do |s|
 
-        FileUtils.mkdir_p "#{WEB_DIR}"
-        FileUtils.cp_r FileList['website/.build/html/**'], "#{WEB_DIR}"
-        FileUtils.mkdir_p "#{BUILD_DIR}/web/doc"
-        FileUtils.cp_r FileList['doc/.build/html/**'], "#{WEB_DIR}/doc/"
+        # These links in the website reST are changes based on version.
+        # Provide them via the rst_epilog file.
+        File.open("website/rst_dynamic_links.txt", 'w') do |f|
+            f.puts ".. _Installer: http://sourceforge.net/projects/smoz/files/smoz/#{VERSION}/#{INS_PACKAGE}.exe/download"
+            f.puts ".. _Zipped Package: http://sourceforge.net/projects/smoz/files/smoz/#{VERSION}/#{BIN_PACKAGE}.zip/download"
+            f.puts ".. _Source Code: http://sourceforge.net/projects/smoz/files/smoz/#{VERSION}/#{SRC_PACKAGE}.zip/download"
+        end
+
+        unless File.exist?(README_FILE) 
+            fail "A release note is required to build the website.\nWrite one named '#{README_FILE}' and place it in the 'releasenotes' subdirectory and run this task again."
+        end
+
+        FileUtils.cp_r README_FILE, "website/releasenote.rst"
+
+        s.sourcedir = "website"
+        s.builddir = WEB_DIR
+        s.builder = :html
+        puts "Building website in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
+    end
+
+    sphinx :website_linkcheck do |s|
+        s.sourcedir = "website"
+        s.builddir = WEB_DIR
+        s.builder = :linkcheck
+        puts "Checking links in website built from #{s.sourcedir} into #{s.builddir}."
     end
 end
 
+desc "Deploys the packages, then the website"
+task :deploy => ["deploy:packages", "deploy:website"]
+
 namespace :deploy do
+
+    SourceforgeUsername   = "spikiermonkey,smoz"
+    WebsiteRemoteHost = "web.sourceforge.net"
+    WebsiteRemoteDir  = "/home/project-web/smoz/htdocs/"
+    FilesRemoteHost = "frs.sourceforge.net"
+    FilesRemoteDir  = "/home/pfs/project/s/sm/smoz/smoz/#{VERSION}/"  # the trailing slash is important
 
     desc "Packages the application and uploads it to the SourceForge website."
     task :packages => [:clean, :doc, :dist] do |t|
-    #task :packages do |t|
 
-        packageReadme = "releasenotes/Release-#{VERSION}.rst"
-
-        unless File.exist?(packageReadme) 
-            fail "A release note is required to deploy this package.\nPlace a file named '#{packageReadme}' in the 'releasenotes' subdirectory and run this task again."
+        unless File.exist?(README_FILE) 
+            fail "A release note is required to deploy this package.\nWrite one named '#{README_FILE}' and place it in the 'releasenotes' subdirectory and run this task again."
         end
-
-        FileUtils.cp(packageReadme, "#{PKG_DIR}/README.rst")
-
-        RemoteHost = "frs.sourceforge.net"
-        RemoteDir  = "/home/pfs/project/s/sm/smoz/smoz/#{VERSION}"  # the trailing slash is important
-        UserName   = "spikiermonkey,smoz"
+        FileUtils.cp(README_FILE, "#{PKG_DIR}/README.rst")
 
         files =  FileList["build/packages"]
-
-        files.each { |f| sh "scp -r \"#{f}\" #{UserName}@#{RemoteHost}:#{RemoteDir}" }
+        files.each { |f| sh "scp -r \"#{f}\" #{SourceforgeUsername}@#{FilesRemoteHost}:#{FilesRemoteDir}" }
     end
 
     desc "Builds and uploads the website to the SourceForge server."
-    task :website => 'doc:website' do |t|
-        RemoteHost = "web.sourceforge.net"
-        RemoteDir  = "/home/project-web/smoz/htdocs/new"
-        UserName   = "spikiermonkey,smoz"
+    task :website => ['doc:website', "doc:usr_linkcheck", "doc:website_linkcheck"] do |t|
+        puts "Deploying website to #{SourceforgeUsername}@#{WebsiteRemoteHost}:#{WebsiteRemoteDir}"
+        files =  FileList["#{WEB_DIR}/html/**"]
+        files.each { |f| sh "scp -r \"#{f}\" #{SourceforgeUsername}@#{WebsiteRemoteHost}:#{WebsiteRemoteDir}" }
+    end
+end
 
-        files =  FileList["build/web/**"]
-
-        files.each { |f| sh "scp -r \"#{f}\" #{UserName}@#{RemoteHost}:#{RemoteDir}" }
+namespace :stage do
+    task :website do
+            WebsiteRemoteDir = "/home/project-web/smoz/htdocs/staging"
+            Rake::Task["deploy:website"].invoke
     end
 end
 
