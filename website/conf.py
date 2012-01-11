@@ -18,6 +18,10 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+def setup(app):
+    app.add_config_value('releaselevel', '', True)
+
+
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -25,7 +29,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.todo']
+extensions = ['sphinx.ext.todo', 'sphinx.ext.ifconfig', 'sphinx.ext.extlinks']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -283,3 +287,12 @@ epub_copyright = u'2011, Keith Brooke, Nithin Philips'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+# -- Options for sphinx.ext.ifconfig -------------------------------------------
+
+releaselevel = 'beta'
+
+# -- Options for sphinx.ext.extlinks -------------------------------------------
+
+extlinks = { 'commit': ('https://github.com/nithinphilips/SMOz/commit/%s', 'commit '), 'wikipedia': ('https://en.wikipedia.org/wiki/%s', '') }
+

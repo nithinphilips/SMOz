@@ -1,10 +1,102 @@
 {% extends '!layout.html' %}
 
+{%- block relbar1 %}{% endblock %}
+{%- block relbar2 %}{% endblock %}
+
+{%- block extrahead %}
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> 
+  google.load('search', '1', {language : 'en'});
+  google.setOnLoadCallback(function() {
+    var customSearchControl = new google.search.CustomSearchControl(
+      '012431854288267922802:-hf_v2elzxo');
+
+    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+    var options = new google.search.DrawOptions();
+    options.enableSearchboxOnly("http://www.google.com/cse?cx=012431854288267922802:-hf_v2elzxo");
+    customSearchControl.draw('cse-search-form', options);
+  }, true);
+</script>
+<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+
+<style type="text/css">
+    form.gsc-search-box {
+        float: right;
+        width: 350px;
+        margin: 45px 0 4px;
+    }
+</style>
+
+
+<script src="_static/js/github.commits.widget-min.js" type="text/javascript"></script>
+
+<script>
+    $(function() {
+        $('.github-commits').githubInfoWidget(
+        { user: 'nithinphilips', repo: 'SMOz', branch: 'master', last: 10, limitMessageTo: 75 });
+    });
+</script>
+{% endblock %}
+
+{%- block header %}
+<div class="header">
+    <img src="_static/Logo.png" />
+    <div id="cse-search-form"></div>
+    <h1>SMOz</h1>
+    <p><em>The Smart Menu Organizer</em></p>
+</div>
+{% endblock %}
+
 {%- block footer %}
-    <div class="footer">
-        <span style="float:right; margin-right: 10px;"><a href="http://sourceforge.net/" title="visit SourceForge.net">
+<div class="footer">
+
+    <div class="footcolumn">
+        <h4>SMOz</h4>
+        <ul>
+            <li><a href="http://sourceforge.net/projects/smoz/">Project Website</a></li>
+            <li><a href="https://lists.sourceforge.net/lists/listinfo/smoz-users">Mailing List</a></li>
+            <li><strong>Source Code:</strong>
+            <ul>
+                <li><a href="http://smoz.git.sourceforge.net/">@SourceForge</a></li>
+                <li><a href="https://github.com/nithinphilips/SMOz">@Github</a></li>
+            </ul>
+            </li>
+            <li><a href="doc/index.html">User Manual</a></li>
+            <li><a href="https://www.gnu.org/philosophy/free-sw.html">What is free software?</a></li>
+            <li><a href="https://www.gnu.org/copyleft/gpl.html">GNU GPL License</a></li>
+        </ul>
+
+    </div>
+    <div class="footcolumn">
+        <h4>Spread The Word</h4>
+            <p>If you have found SMOz useful, please tell your friends about it.</p>
+            <!-- AddThis Button BEGIN -->
+            <div class="addthis_toolbox addthis_default_style ">
+                <a href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=ra-4d97562344fe8d5e" class="addthis_button_compact">Share</a>
+                <span class="addthis_separator">|</span>
+                <a class="addthis_button_preferred_1"></a>
+                <a class="addthis_button_preferred_2"></a>
+                <a class="addthis_button_preferred_3"></a>
+                <a class="addthis_button_preferred_4"></a>
+            </div>
+            <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4d97562344fe8d5e"></script>
+            <!-- AddThis Button END -->
+    </div>
+    <div class="footcolumn">
+        <h4>Contribute</h4>
+        <p>Development of SMOz is a volunteer effort. Anyone is welcome to join
+        regardless of prior experience. If you are interested, <a href="mailto:nithin@nithinphilips.com">get in touch</a></p>
+    </div>
+    <div class="footcolumn">
+        <h4>Feedback</h4>
+        <p>Send your comments or suggestions to the <a href="mailto:smoz-users@lists.sourceforge.net">smoz-users</a> mailing list.</p>
+    </div>
+
+    <hr />
+
+        <div id="sflogo"><a href="http://sourceforge.net/" title="visit SourceForge.net">
                 <img alt="SourceForge.net Logo" src="http://sourceforge.net/sflogo.php?group_id=114998&amp;type=13"/></a>
-        </span>
+        </div>
     {%- if show_copyright %}
       {%- if hasdoc('copyright') %}
         {% trans path=pathto('copyright'), copyright=copyright|e %} (C) <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
@@ -13,9 +105,9 @@
       {%- endif %}
     {%- endif %}
     Use contents under 
-    <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" title="View Creative Commons Attr-NC-SA License">CC BY-NC-SA</a> | 
-    <a href="http://validator.w3.org/check/referer" title="Validate XHTML 2.0 Compliance">XHTML 1.0</a> | 
-    <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3" title="Validate CSS 3 Compliance">CSS 3</a>
+    <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" title="View Creative Commons Attr-NC-SA License">CC&nbsp;BY-NC-SA</a> |
+    <a href="http://validator.w3.org/check/referer" title="Validate XHTML 2.0 Compliance">XHTML&nbsp;1.0</a> |
+    <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3" title="Validate CSS 3 Compliance">CSS&nbsp;3</a>
     {%- if show_source and has_source and sourcename %}
         | <a href="{{ pathto('_sources/' + sourcename, true)|e }}" rel="nofollow">{{ _('Show Source') }}</a>.
     {%- else %}

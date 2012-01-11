@@ -1,5 +1,10 @@
 SMOz (Start Menu Organizer)
 ===========================
+
+.. contents::
+   :local:
+   :depth: 1
+
 SMOz (Start Menu Organizer) is a tool that can organize the Windows start menu.
 SMOz has an easy to use interface with undo/redo support, batch organization,
 and can associate start menu items with installed programs to ease management
@@ -15,39 +20,27 @@ Release 0.0.0 (2011-10-25)
 
 This is a template for the release file.
 
-**NOTE:** The directory structure of the files installed by the installer has
-changed. In order to avoid conflicts, you **MUST** manually uninstall any
-previous versions before installing 0.3.
+.. Note:: This version is self-aware. Proceed with caution.
 
 New Features
 ^^^^^^^^^^^^
 
-+ Feature One
++ Like `Skynet <https://en.wikipedia.org/wiki/Skynet_%28Terminator%29>`_ before it, SMOz is now self-aware.
++ New World Domination mode.
 
-  + One.One
-
-+ Feature Two
-
-  + Two.One
-
-+ Feature Three
-+ Feature Four
+.. Warning:: Do not allow SMOz access to any sensitive military systems.
 
 Changes & Bug Fixes
 ^^^^^^^^^^^^^^^^^^^
 
-+ Change
-+ Change
-+ Change
-+ Change
-+ Change
-+ Change
++ The AI can now learn and adapt.
 
 .. end block
 
 Credits
 -------
 
++
 
 License
 -------
