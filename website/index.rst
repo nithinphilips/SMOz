@@ -70,41 +70,43 @@ If you have found a bug, you can report it by sending an email to the `mailing l
 Screenshots
 -----------
 
-.. figure:: images/SMOz.png
-   :height: 200px
-   :scale: 100%
+.. container:: screenshots
 
-   The main window of SMOz
-
-.. figure:: images/Review.Changes.png
-   :height: 200px
-   :scale: 100%
-
-   Review Changes window before applying a template.
-
-.. figure:: images/Template.Editor.png
-   :height: 200px
-   :scale: 100%
-
-   The template editor.
-
-.. figure:: images/Review.Changes.2.png
-   :height: 200px
-   :scale: 100%
-
-   Review Changes window before applying changes to the start menu.
-
-.. figure:: images/Preferences.png
-   :height: 200px
-   :scale: 100%
-
-   Preferences: A list of files to always ignore.
-
-.. figure:: images/Preferences.2.png
-   :height: 200px
-   :scale: 100%
-
-   Preferences: A list of start menu folders.
+   .. figure:: images/SMOz.png
+      :height: 200px
+      :scale: 100%
+   
+      The main window of SMOz
+   
+   .. figure:: images/Review.Changes.png
+      :height: 200px
+      :scale: 100%
+   
+      Review Changes window before applying a template.
+   
+   .. figure:: images/Template.Editor.png
+      :height: 200px
+      :scale: 100%
+   
+      The template editor.
+   
+   .. figure:: images/Review.Changes.2.png
+      :height: 200px
+      :scale: 100%
+   
+      Review Changes window before applying changes to the start menu.
+   
+   .. figure:: images/Preferences.png
+      :height: 200px
+      :scale: 100%
+   
+      Preferences: A list of files to always ignore.
+   
+   .. figure:: images/Preferences.2.png
+      :height: 200px
+      :scale: 100%
+   
+      Preferences: A list of start menu folders.
 
 What's New
 ----------
@@ -131,7 +133,7 @@ Download
 --------
 The latest version is |release|.
 
-Download: |i-pkg| Installer_, |i-zip| `Zipped Package`_ or |i-src| `Source Code`_.
+Download: |i-pkg| Installer_, |i-zip| `Zipped Package`_ or |i-src| `Source Code`_.
 
 **Other Options:**
 

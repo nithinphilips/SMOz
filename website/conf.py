@@ -11,7 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys, os, codecs
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -90,7 +90,7 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-rst_epilog = open('rst_dynamic_links.txt', 'r').read()
+rst_epilog = codecs.open('rst_dynamic_links.txt', 'r', 'utf-8').read()
 
 todo_include_todos = True
 

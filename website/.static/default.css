@@ -401,6 +401,10 @@ div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
     );
 }
 
+.screenshots {
+    overflow: hidden;
+}
+
 .figure {
     background-color: #E5E9E9;
     border: 1px solid #878787;
@@ -615,7 +619,7 @@ div#sflogo{
     }
 
     .download-link a[href="#download"], a[href$="/download"]{
-        border: none:
+        border: none;
         padding: 0;
     }
 

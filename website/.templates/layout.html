@@ -21,16 +21,25 @@
 
 <style type="text/css">
     form.gsc-search-box {
+        padding: 10px 0 0;
         float: right;
         width: 350px;
-        margin: 45px 0 4px;
+        margin: -30px 0 4px;
     }
+
+@media screen and (max-width: 999px) {
+    form.gsc-search-box {
+        float: none;
+        width: auto;
+        margin: 0;
+    }
+}
 </style>
 
 
 <script src="_static/js/github.commits.widget-min.js" type="text/javascript"></script>
 
-<script>
+<script type="text/javascript">
     $(function() {
         $('.github-commits').githubInfoWidget(
         { user: 'nithinphilips', repo: 'SMOz', branch: 'master', last: 10, limitMessageTo: 75 });
@@ -40,10 +49,10 @@
 
 {%- block header %}
 <div class="header">
-    <img src="_static/Logo.png" />
-    <div id="cse-search-form"></div>
+    <img alt="SMOz Logo" src="_static/Logo.png" />
     <h1>SMOz</h1>
-    <p><em>The Smart Menu Organizer</em></p>
+    <p>The <em>Smart</em> Menu Organizer</p>
+    <div id="cse-search-form"></div>
 </div>
 {% endblock %}
 
