@@ -4,56 +4,59 @@
 {%- block relbar2 %}{% endblock %}
 
 {%- block extrahead %}
-<script src="http://www.google.com/jsapi" type="text/javascript"></script>
-<script type="text/javascript"> 
-  google.load('search', '1', {language : 'en'});
-  google.setOnLoadCallback(function() {
-    var customSearchControl = new google.search.CustomSearchControl(
-      '012431854288267922802:-hf_v2elzxo');
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+        google.load('search', '1', {language : 'en'});
+        google.setOnLoadCallback(function() {
+            var customSearchControl = new google.search.CustomSearchControl(
+            '012431854288267922802:-hf_v2elzxo');
 
-    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
-    var options = new google.search.DrawOptions();
-    options.enableSearchboxOnly("http://www.google.com/cse?cx=012431854288267922802:-hf_v2elzxo");
-    customSearchControl.draw('cse-search-form', options);
-  }, true);
-</script>
-<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+            customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+            var options = new google.search.DrawOptions();
+            options.enableSearchboxOnly("http://www.google.com/cse?cx=012431854288267922802:-hf_v2elzxo");
+            customSearchControl.draw('cse-search-form', options);
+        }, true);
+    </script>
+    <link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
 
-<style type="text/css">
-    form.gsc-search-box {
-        padding: 10px 0 0;
-        float: right;
-        width: 350px;
-        margin: -30px 0 4px;
-    }
+    <style type="text/css">
+        form.gsc-search-box {
+            padding: 10px 0 0;
+            float: right;
+            width: 350px;
+            margin: -30px 0 4px;
+        }
 
-@media screen and (max-width: 999px) {
-    form.gsc-search-box {
-        float: none;
-        width: auto;
-        margin: 0;
-    }
-}
-</style>
+        @media screen and (max-width: 999px) {
+            form.gsc-search-box {
+                float: none;
+                width: auto;
+                margin: 0;
+            }
+        }
+    </style>
 
+    <script src="_static/js/github.commits.widget-min.js" type="text/javascript"></script>
 
-<script src="_static/js/github.commits.widget-min.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-    $(function() {
-        $('.github-commits').githubInfoWidget(
-        { user: 'nithinphilips', repo: 'SMOz', branch: 'master', last: 10, limitMessageTo: 75 });
-    });
-</script>
+    <script type="text/javascript">
+        $(function() {
+            $('.github-commits').githubInfoWidget(
+            { user: 'nithinphilips', repo: 'SMOz', branch: 'master', last: 10, limitMessageTo: 70 });
+        });
+    </script>
 {% endblock %}
 
 {%- block header %}
-<div class="header">
-    <img alt="SMOz Logo" src="_static/Logo.png" />
-    <h1>SMOz</h1>
-    <p>The <em>Smart</em> Menu Organizer</p>
-    <div id="cse-search-form"></div>
-</div>
+    <div class="header">
+        <a href="{{ pathto(master_doc) }}">
+            <img alt="SMOz Logo" src="{{ pathto('_static/Logo.png', 1)}}" />
+        </a>
+        <h1><a href="{{ pathto(master_doc) }}">SMOz</a></h1>
+        <p>The <em>Smart</em> Menu Organizer</p>
+        <div id="cse-search-form"></div>
+
+        {{ toctree(maxdepth = -1, collapse = true) }}
+    </div>
 {% endblock %}
 
 {%- block footer %}
@@ -103,9 +106,12 @@
 
     <hr />
 
-        <div id="sflogo"><a href="http://sourceforge.net/" title="visit SourceForge.net">
-                <img alt="SourceForge.net Logo" src="http://sourceforge.net/sflogo.php?group_id=114998&amp;type=13"/></a>
-        </div>
+    <div id="sflogo">
+        <a href="http://sourceforge.net/" title="visit SourceForge.net">
+            <img alt="SourceForge.net Logo" src="http://sourceforge.net/sflogo.php?group_id=114998&amp;type=13"/>
+        </a>
+    </div>
+
     {%- if show_copyright %}
       {%- if hasdoc('copyright') %}
         {% trans path=pathto('copyright'), copyright=copyright|e %} (C) <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
@@ -116,7 +122,7 @@
     Use contents under 
     <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/" title="View Creative Commons Attr-NC-SA License">CC&nbsp;BY-NC-SA</a> |
     <a href="http://validator.w3.org/check/referer" title="Validate XHTML 2.0 Compliance">XHTML&nbsp;1.0</a> |
-    <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3" title="Validate CSS 3 Compliance">CSS&nbsp;3</a>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer?profile=css3&amp;vextwarning=true" title="Validate CSS 3 Compliance">CSS&nbsp;3</a>
     {%- if show_source and has_source and sourcename %}
         | <a href="{{ pathto('_sources/' + sourcename, true)|e }}" rel="nofollow">{{ _('Show Source') }}</a>.
     {%- else %}
