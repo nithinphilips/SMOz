@@ -83,43 +83,41 @@ If you have found a bug, please report it by sending an email to the `mailing li
 Screenshots
 -----------
 
-.. container:: screenshots
+.. figure:: .static/images/SMOz.png
+    :width: 240px
+    :scale: 100%
 
-   .. figure:: .static/images/SMOz.png
-      :height: 200px
-      :scale: 100%
-   
-      The main window of SMOz
-   
-   .. figure:: .static/images/Review.Changes.png
-      :height: 200px
-      :scale: 100%
-   
-      Review Changes window before applying a template.
-   
-   .. figure:: .static/images/Template.Editor.png
-      :height: 200px
-      :scale: 100%
-   
-      The template editor.
-   
-   .. figure:: .static/images/Review.Changes.2.png
-      :height: 200px
-      :scale: 100%
-   
-      Review Changes window before applying changes to the start menu.
-   
-   .. figure:: .static/images/Preferences.png
-      :height: 200px
-      :scale: 100%
-   
-      Preferences: A list of files to always ignore.
-   
-   .. figure:: .static/images/Preferences.2.png
-      :height: 200px
-      :scale: 100%
-   
-      Preferences: A list of start menu folders.
+    The main window of SMOz. You can apply templates, preview changes and manually organize the Start Menu here.
+
+.. figure:: .static/images/Review.Changes.png
+    :width: 240px
+    :scale: 100%
+
+    Review Changes window before applying a template.
+
+.. figure:: .static/images/Template.Editor.png
+    :width: 240px
+    :scale: 100%
+
+    The template editor.
+
+.. figure:: .static/images/Review.Changes.2.png
+    :width: 240px
+    :scale: 100%
+
+    Review Changes window before applying changes to the start menu.
+
+.. figure:: .static/images/Preferences.png
+    :width: 240px
+    :scale: 100%
+
+    Preferences: A list of files to always ignore.
+
+.. figure:: .static/images/Preferences.2.png
+    :width: 240px
+    :scale: 100%
+
+    Preferences: A list of start menu folders.
 
 What's New
 ----------
