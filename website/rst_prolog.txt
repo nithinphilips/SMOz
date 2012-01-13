@@ -1,0 +1,5 @@
+.. ifconfig:: releaselevel in ('beta', 'alpha', 'rc')
+
+   .. Note::
+      This is a preliminary draft version. It may contain wildly inaccurate information.
+
