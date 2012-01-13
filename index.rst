@@ -1,3 +1,9 @@
+.. include:: common.h
+
+.. raw:: latex
+
+      \pagenumbering{arabic}
+
 .. SMOz documentation master file, created by
    sphinx-quickstart on Mon Dec 26 17:50:40 2011.
    You can adapt this file completely to your liking, but it should at least
@@ -9,17 +15,17 @@ Welcome to SMOz's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   Preface
    Introduction
-   Building-SMOz
-
-.. todolist::
-
-Index and Search
-================
-
+   Installation
+   Tutorial
+   Designing
+   Configuring
+   Command
+   Appendices
 * :ref:`genindex`
 * :ref:`search`
+
+.. todolist::
 
