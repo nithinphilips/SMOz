@@ -1,8 +1,8 @@
 Building SMOz
 =============
-You can use either :program:`Visual Studio` or `Rake
+You can use either Visual Studio or `Rake
 <http://rake.rubyforge.org/>`_  with `Albacore <http://albacorebuild.net/>`_ to
-build the project. Building with :program:`Rake` is the preferred method and it
+build the project. Building with Rake is the preferred method and it
 is described here.
 
 .. index:: Ruby, .NET 4.0 SDK, Rake, Albacore, RubyZip, Rgl, Git
@@ -21,8 +21,8 @@ Setting Up the Build Environment
     gem install rgl
     gem install rubyzip
 
-5. Make sure that the paths to the tools, :program:`git`, .NET framework tools
-   and :program:`ruby` are in your ``PATH``.
+5. Make sure that the paths to the tools, git, .NET framework tools
+   and ruby are in your ``PATH``.
 
 For more information on Albacore, visit the `Albacore wiki
 <https://github.com/derickbailey/Albacore/wiki/>`_.
@@ -107,31 +107,50 @@ To build SMOz, open the Command prompt at the project root and run::
 
     rake
 
-The default target compiles the code, builds the installer and creates all the
-packages necessary for distribution. There are a few different targets
-available for other tasks:
+The default task compiles the code, builds the installer and creates all the
+packages necessary for distribution.
+
+The default task does not build the documentation. To include the documentation
+in your distribution, run::
+
+    rake doc dist
+
+To see a list of all available tasks, run::
+
+    rake -T
+
+These are the currently available tasks:
 
 ================== ============================================================
   Target                            Description
 ================== ============================================================
-build_doc           Runs Sphinx to build the documentation.
-clean               Cleans all the object files, binaries, dist packages etc.
-compile             Compiles the application.
-default             Runs the dist task
-dep_graph           Generates a graph of all the tasks and their relationships.
-dist                Builds the application, installer and packages source and
-                    binaries.
-dist_src            Packages the source code
-dist_zip            Packages binaries into a distribution ready archive.
-doc                 Builds the documentation and runs the dist task
-installer           Builds the installer
-test                Runs any unit tests
-update_submodules   Ensures that all the git submodules are pulled and at the
-                    HEAD of the master branch.
+build              Compiles the application
+clean              Cleans all the object files, binaries, dist packages etc.
+dep_graph          Generates a graph of all the tasks and their relationships.
+deploy:packages    Packages the application and uploads it to the SourceForge
+                   website.
+deploy:website     Builds and uploads the website to the SourceForge server.
+dist               Builds the application, installer and packages source and
+                   binaries (the default).
+dist:bin           Packages binaries into a distribution ready archive.
+dist:installer     Packages the binaries into a Windows installer.
+dist:src           Packages the source code into an archive.
+doc                Builds the documentation.
+doc:dev            Builds developer's documentation for any class libraries.
+doc:usr            Builds the application user manual using Sphinx.
+doc:website        Builds the website using Sphinx.
+tests              Runs any unit tests.
 ================== ============================================================
 
-To run tasks, add the task name after the rake command. For example:  ``rake
-dist``.
+.. index:: Dependency graph
+
+Rake tasks are often dependent on other tasks to perform parts of their job.
+The following graph has a complete list all tasks in the SMOz Rakefile and
+their relationship to each other. It may be helpful when trying to achieve
+something that is not already supported.
+
+.. image:: images/dep_graph.*
+   :alt: Detailed dependency graph of SMOz Rakefile
 
 .. index:: HTML documentation, CHM documentation, PDF documentation
 
@@ -170,11 +189,3 @@ The following targets are available:
  info        to make Texinfo files and run them through makeinfo
  linkcheck   to check all external links for integrity
 =========== ===================================================================
-
-.. index:: Dependency graph
-
-SMOz Rakefile Dependency
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: images/dep_graph.*
-   :alt: Detailed dependency graph of SMOz Rakefile
