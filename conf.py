@@ -86,6 +86,8 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+rst_prolog = open('common.h', 'r').read()
+
 rst_epilog = """
 .. |copyright| replace:: \(C\) 2011 Keith Brooke, Nithin Philips
 .. |GNU| replace:: :abbr:`GNU (GNU is Not UNIX)`
@@ -189,6 +191,8 @@ latex_elements = {
 'papersize': 'letterpaper',
 'pointsize': '11pt',
 'fontpkg': '\\usepackage{palatino}',
+'babel': '\\usepackage[english]{babel}',
+'classoptions': ',openany' ',oneside',
 'preamble': '\\hypersetup { pdfstartview={FitH}, pdftitle={SMOz Documentation}, pdfauthor={Keith Brooke} {Nithin Philips}, pdfsubject={SMOz Documentation}, pdfkeywords={smoz} {documentation} }'
 }
 
