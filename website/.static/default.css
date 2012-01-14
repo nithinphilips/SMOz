@@ -17,13 +17,25 @@
 
 /* -- page layout ----------------------------------------------------------- */
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-size: 100%;
     background-color: #999990;
     color: #000;
-    margin: 0 auto;
+    margin: 0;
     padding: 0;
+}
+
+div.inner-footer, div.inner-header, div.document {
     width: 1000px;
+    margin: auto;
+}
+
+div.header ul {
+    width: 980px;
 }
 
 div.documentwrapper {
@@ -122,7 +134,6 @@ div.sphinxsidebar input {
 
 a {
     color: #355f7c;
-    text-decoration: none;
 }
 
 a:visited {
@@ -177,8 +188,8 @@ div.body p, div.body dd, div.body li {
     line-height: 130%;
 }
 
-div.admonition p.admonition-title + p {
-    display: inline;
+div.admonition {
+    padding-top: 0;
 }
 
 div.admonition p {
@@ -193,14 +204,41 @@ div.admonition ul, div.admonition ol {
     margin-bottom: 5px;
 }
 
+div.admonition p.admonition-title {
+    margin: -7px;
+    padding: 2px 7px;
+}
+
 div.note {
     background-color: #eee;
     border: 1px solid #ccc;
 }
 
+div.note p.admonition-title {
+    background-color: #ccc;
+
+    background-image: linear-gradient(bottom, #ccc 0%, #ddd 71%);
+    background-image: -o-linear-gradient(bottom, #ccc 0%, #ddd 71%);
+    background-image: -moz-linear-gradient(bottom, #ccc 0%, #ddd 71%);
+    background-image: -webkit-linear-gradient(bottom, #ccc 0%, #ddd 71%);
+    background-image: -ms-linear-gradient(bottom, #ccc 0%, #ddd 71%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, #ccc),
+        color-stop(0.71, #ddd)
+    );
+}
+
 div.seealso {
     background-color: #ffc;
     border: 1px solid #ff6;
+}
+
+div.seealso p.admonition-title {
+    background-color: #ff6;
 }
 
 div.topic {
@@ -212,12 +250,8 @@ div.warning {
     border: 1px solid #f66;
 }
 
-p.admonition-title {
-    display: inline;
-}
-
-p.admonition-title:after {
-    content: ":";
+div.warning p.admonition-title {
+    background-color: #f66;
 }
 
 pre {
@@ -281,7 +315,7 @@ div.footer {
     font-size: 0.7em;
 }
 
-div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
     font-family: 'JuraDemiBold', Arial, sans-serif;
 }
 
@@ -294,12 +328,18 @@ body {
     background-color: #f2f2f2;
 }
 
-div.body h1 { 
-    display: none;
-}
-
 div.documentwrapper {
     float: none;
+}
+
+a.internal em {
+    font-style: normal;
+}
+
+pre {
+    background-color: #eee;
+    border-color: #ddd;
+    border-radius: 5px;
 }
 
 div.header, div.footer {
@@ -310,7 +350,7 @@ div.header {
     background-color: #476D7D;
     color: #fff;
     border-top: none;
-    margin-bottom: 15px;
+    margin-bottom: 55px;
     padding: 10px;
     background-image: linear-gradient(bottom, rgb(16,69,92) 14%, rgb(73,109,125) 96%);
     background-image: -o-linear-gradient(bottom, rgb(16,69,92) 14%, rgb(73,109,125) 96%);
@@ -364,10 +404,13 @@ background-image: -webkit-gradient(
 );
 
 
-    border-top: 1px solid rgb(73,109,125);
+    border: 1px solid rgb(73,109,125);
     font-weight: bold;
-    margin: 10px -10px -10px;
     padding: 5px 10px 10px;
+    float: left;
+    margin: 15px 0 0;
+    border-radius: 0 0 1px 1px;
+    box-shadow: 0 0 2px #ddd;
 }
 
 div.header ul li ul { 
@@ -391,7 +434,7 @@ div.header ul li:first-child:before {
     content: '';
 }
 
-div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
+div.body h1, div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
     background-color: inherit;
     clear: both;
 }
@@ -402,7 +445,7 @@ div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
     content: "\002193 ";
 }
 
-.download-link a[href="#download"], a[href$="/download"] {
+div#smoz a[href$="download.html"], a[href$="/download"] {
     color: #eee;
     background-color: #444;
     padding: 1px 10px;
@@ -427,7 +470,7 @@ div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
     );
 }
 
-.download-link a[href="#download"]:hover, a[href$="/download"]:hover {
+div#smoz a[href$="download.html"]:hover, a[href$="/download"]:hover {
     text-shadow: 0 0 5px #AEAEAE;
     background-image: linear-gradient(bottom, rgb(119,119,119) 29%, rgb(219,219,219) 100%);
     background-image: -o-linear-gradient(bottom, rgb(119,119,119) 29%, rgb(219,219,219) 100%);
@@ -450,6 +493,20 @@ div.body h2, div.body h3, div.body h4, div.body h5, div.body h6 {
     border-radius: 10px 10px 10px 10px;
     box-shadow: 2px 2px 10px #AAAAAA;
     padding: 10px 10px 0;
+
+    background-image: linear-gradient(bottom, #dedede 0%, #ededed 71%);
+    background-image: -o-linear-gradient(bottom, #dedede 0%, #ededed 71%);
+    background-image: -moz-linear-gradient(bottom, #dedede 0%, #ededed 71%);
+    background-image: -webkit-linear-gradient(bottom, #dedede 0%, #ededed 71%);
+    background-image: -ms-linear-gradient(bottom, #dedede 0%, #ededed 71%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, #dedede),
+        color-stop(0.71, #ededed)
+    );
 }
 
 .figure img {
@@ -481,6 +538,10 @@ div.figure p.caption {
     margin: 16px 0;
 }
 
+.github-commits a {
+    text-decoration: none;
+}
+
 .github-commits ul {
     list-style: none;
     padding-left: 0;
@@ -491,16 +552,30 @@ p.github-commits-widget-by {
 }
 
 
-#download {
+#download #id1 {
     background-color: #FFFDD7;
     border-top: 1px solid #F1BAB0;
+    border-bottom: 1px solid #F1BAB0;
     padding: 15px 20px 6px;
     margin-left: -20px;
     margin-right: -20px;
-    margin-bottom: -30px;
+
+    background-image: linear-gradient(bottom, rgb(242,238,169) 0%, rgb(255,253,215) 71%);
+    background-image: -o-linear-gradient(bottom, rgb(242,238,169) 0%, rgb(255,253,215) 71%);
+    background-image: -moz-linear-gradient(bottom, rgb(242,238,169) 0%, rgb(255,253,215) 71%);
+    background-image: -webkit-linear-gradient(bottom, rgb(242,238,169) 0%, rgb(255,253,215) 71%);
+    background-image: -ms-linear-gradient(bottom, rgb(242,238,169) 0%, rgb(255,253,215) 71%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, rgb(242,238,169)),
+        color-stop(0.71, rgb(255,253,215))
+    );
 }
 
-#download h2 {
+#download #id1 h2 {
     border-bottom: 1px solid #000000;
     background-color: inherit;
     color: #000;
@@ -508,7 +583,7 @@ p.github-commits-widget-by {
     padding: 0;
 }
 
-#download p img {
+#download #id1 p img, #code p img {
     vertical-align: text-bottom;
 }
 
@@ -521,9 +596,8 @@ div.document {
 div.footer {
     margin-top: 15px;
     background-color: white;
-    border: 1px solid #aaa;
     text-align: left;
-    padding: 10px 20px 10px;
+    padding: 10px 20px 80px;
 }
 
 div.footer div.footcolumn ul a {
@@ -557,7 +631,7 @@ div.footer ul, div.footer p {
     margin-top: 0;
 }
 
-div.footer hr {
+hr {
     clear: both;
     border: none;
     color: inherit;
@@ -606,14 +680,28 @@ div#sflogo{
     display: none;
 }
 
+blockquote {
+    font-style: italic;
+    background-image: url("images/quotes.png");
+    background-repeat: no-repeat;
+    font-style: italic;
+    padding: 25px 60px;
+}
+
 /*
  * Alternative layouts
  */
 
 @media screen and (max-width: 999px) {
 
-    body {
+    div.slider-wrapper {
+        display: none;
+    }
+
+    div.inner-footer, div.inner-header, div.document {
         width: 100%;
+        border-left: none;
+        border-right: none;
     }
 
     div.topic ul, div.topic li {
@@ -623,6 +711,16 @@ div#sflogo{
 
     div.topic li, div.header ul li {
         display: list-item;
+    }
+
+    div.header {
+        margin-bottom: 15px;
+    }
+
+    div.header ul {
+        float: none;
+        margin: 10px -10px -10px;
+        width: 100%;
     }
 
     div.header ul li:before {
@@ -671,7 +769,7 @@ div#sflogo{
        display: block;
     }
 
-    .download-link a[href="#download"], a[href$="/download"]{
+    div#smoz a[href$="download.html"], a[href$="/download"]{
         border: none;
         padding: 0;
     }

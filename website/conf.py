@@ -90,7 +90,9 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-rst_epilog = codecs.open('rst_dynamic_links.txt', 'r', 'utf-8').read()
+rst_prolog = codecs.open('rst_prolog.txt', 'r', 'utf-8').read()
+
+rst_epilog = codecs.open('rst_epilog.txt', 'r', 'utf-8').read()
 
 todo_include_todos = True
 

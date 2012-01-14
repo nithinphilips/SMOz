@@ -6,24 +6,17 @@
    :maxdepth: 1
 
    Home <self>
-   Documentation <http://smoz.sourceforge.net/doc/index.html>
-   Reviews <http://sourceforge.net/projects/smoz/reviews/>
-   Mailing List <http://sourceforge.net/mail/?group_id=114998>
-   Code <http://sourceforge.net/scm/?type=git&group_id=114998>
+   reviews
+   screenshots
+   download
+   documentation
+   support
+   code
 
 SMOz
 ====
 
-.. ifconfig:: releaselevel in ('beta', 'alpha', 'rc')
-
-   .. Note::
-      This is a preliminary draft version. It may contain wildly inaccurate information.
-
-.. contents::
-   :local:
-   :depth: 1
-
-.. figure:: .static/images/start.png
+.. figure:: .static/screenshots/start.png
    :align: right
    :height: 250px
    :scale: 100%
@@ -44,9 +37,7 @@ With support for :wikipedia:`regular expression <Regular_expression>` rules in
 the template, SMOz allows you to write complex templates. Advanced users can
 thus quickly write powerful templates with little effort.
 
-.. container:: download_link
-
-   `Download Links <#download>`_ are below.
+:doc:`Download Now<download>`
 
 Features
 --------
@@ -59,75 +50,8 @@ Features
 * Atomically applies changes to the file system.
 * Designed to be more easy to expand.
 
-Documentation
--------------
-A user manual can be `viewed online`_ and a copy is included with the application.
-
-You can also view the `latest draft copy`_ of the user manual.
-
-.. _viewed online: doc/index.html
-.. _latest draft copy: https://github.com/nithinphilips/SMOz/wiki
-
-Getting Help
-------------
-If you need help send an email to the `mailing list`_ at
-<smoz-users@lists.sourceforge.net>. You can `subscribe`_ to it or `browse`_
-the archives. 
-
-If you have found a bug, please report it by sending an email to the `mailing list`_.
-
-.. _subscribe:
-.. _mailing list: https://lists.sourceforge.net/lists/listinfo/smoz-users
-.. _browse: http://sourceforge.net/mailarchive/forum.php?forum_name=smoz-users
-
-Screenshots
------------
-
-.. figure:: .static/images/SMOz.png
-    :width: 240px
-    :scale: 100%
-
-    The main window of SMOz. You can apply templates, preview changes and manually organize the Start Menu here.
-
-.. figure:: .static/images/Review.Changes.png
-    :width: 240px
-    :scale: 100%
-
-    Review Changes window before applying a template.
-
-.. figure:: .static/images/Template.Editor.png
-    :width: 240px
-    :scale: 100%
-
-    The template editor.
-
-.. figure:: .static/images/Review.Changes.2.png
-    :width: 240px
-    :scale: 100%
-
-    Review Changes window before applying changes to the start menu.
-
-.. figure:: .static/images/Preferences.png
-    :width: 240px
-    :scale: 100%
-
-    Preferences: A list of files to always ignore.
-
-.. figure:: .static/images/Preferences.2.png
-    :width: 240px
-    :scale: 100%
-
-    Preferences: A list of start menu folders.
-
-What's New
-----------
-
-.. include:: releasenote.rst
-   :start-after: .. begin block
-   :end-before: .. end block
-
-Latest Commits
-^^^^^^^^^^^^^^
+Development Activity
+--------------------
 
 .. If Javascript is enabled, the following container will be replaced with
    a list of most recent commits. See layout.html for more.
@@ -138,23 +62,4 @@ Latest Commits
    <http://smoz.git.sourceforge.net/git/gitweb.cgi?p=smoz/smoz;a=log>`_ or at
    `GitHub <https://github.com/nithinphilips/SMOz/commits>`_ .
 
-Download
---------
-The latest version is |release|.
 
-**System Requirements:**
-   Any version of Windows supported by `.NET Framework 3.5`_.
-
-   Supports Windows XP, Vista, 7, Server 2003 and Server 2008.
-
-Download: |i-pkg| Installer_, |i-zip| `Zipped Package`_ or |i-src| `Source Code`_.
-
-**Other Options:**
-
-* `See all releases <http://sourceforge.net/projects/smoz/files/smoz/>`_.
-* `Browse source code <http://smoz.git.sourceforge.net/>`_.
-
-.. |i-pkg| image:: .static/images/wine.png
-.. |i-zip| image:: .static/images/application-x-zip.png
-.. |i-src| image:: .static/images/gnome-mime-text-x-csharp.png
-.. _.NET Framework 3.5: http://www.microsoft.com/download/en/details.aspx?id=21#system-requirements

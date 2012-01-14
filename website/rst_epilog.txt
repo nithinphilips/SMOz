@@ -1,0 +1,5 @@
+.. enter content you want to appear in rst_epilog.txt
+.. _Installer: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-setup.exe/download
+.. _Zipped Package: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-bin.zip/download
+.. _Source Code: http://sourcefrge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-src.zip/download
+.. |releasedate| replace:: Fri Jan 13, 2012

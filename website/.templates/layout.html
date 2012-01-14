@@ -24,7 +24,7 @@
             padding: 10px 0 0;
             float: right;
             width: 350px;
-            margin: -30px 0 4px;
+            margin: -85px 0 4px;
         }
 
         @media screen and (max-width: 999px) {
@@ -36,31 +36,55 @@
         }
     </style>
 
+
     <script src="_static/js/github.commits.widget-min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         $(function() {
             $('.github-commits').githubInfoWidget(
-            { user: 'nithinphilips', repo: 'SMOz', branch: 'master', last: 10, limitMessageTo: 70 });
+                { user: 'nithinphilips', repo: 'SMOz', branch: 'master', last: 10, limitMessageTo: 70 });
+
+            // Make the footer takeup all available height (on pages that are too short).
+            // Too lazy to change the page layout.
+            // Instead, we calculate the height on-demand.
+            footer = $('.footer')
+            calculatedHeight = window.innerHeight
+                - footer.position().top
+                - parseInt(footer.css('padding-top'), 0)
+                - parseInt(footer.css('padding-bottom'), 0)
+                - parseInt(footer.css('margin-top'), 0)
+                - parseInt(footer.css('margin-bottom'), 0);
+
+            if(calculatedHeight > $('.footer').height()){
+                $('.footer').css('height', calculatedHeight + 'px');
+            }
         });
     </script>
 {% endblock %}
 
 {%- block header %}
     <div class="header">
-        <a href="{{ pathto(master_doc) }}">
-            <img alt="SMOz Logo" src="{{ pathto('_static/Logo.png', 1)}}" />
-        </a>
-        <h1><a href="{{ pathto(master_doc) }}">SMOz</a></h1>
-        <p>The <em>Smart</em> Menu Organizer</p>
-        <div id="cse-search-form"></div>
+        <div class="inner-header">
+            <a href="{{ pathto(master_doc) }}">
+                <img alt="SMOz Logo" src="{{ pathto('_static/Logo.png', 1)}}" />
+            </a>
+            <h1><a href="{{ pathto(master_doc) }}">SMOz</a></h1>
+            <p>The <em>Smart</em> Menu Organizer</p>
 
-        {{ toctree(maxdepth = -1, collapse = true) }}
+            {{ toctree(maxdepth = -1, collapse = true) }}
+            <div id="cse-search-form"></div>
+        </div>
     </div>
+
+    {%- if pagename == master_doc %}
+        {% include "slideshow.html" %}
+    {% endif %}
+
 {% endblock %}
 
 {%- block footer %}
 <div class="footer">
+<div class="inner-footer">
 
     <div class="footcolumn">
         <h4>SMOz</h4>
@@ -135,5 +159,6 @@
     {%- if show_sphinx %}
       {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
     {%- endif %}
+    </div>
     </div>
 {%- endblock %}

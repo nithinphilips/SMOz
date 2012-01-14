@@ -1,9 +1,11 @@
 Documentation
 =============
-A user manual can be `viewed online`_ and a copy is included with the application.
+The user manual is maintained by Keith Brooke <wkb@execulink.com>.
 
-You can also view the `latest draft copy`_ of the user manual.
+You can `view it online`_ and a copy is included with the application.
 
-.. _viewed online: doc/index.html
+You can also view the `latest draft copy`_ of the user manual at the SMOz
+Github wiki.
+
+.. _view it online: doc/index.html
 .. _latest draft copy: https://github.com/nithinphilips/SMOz/wiki
-

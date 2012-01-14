@@ -16,7 +16,7 @@ Download
 **System Requirements:**
    Any version of Windows supported by `.NET Framework 3.5`_.
 
-   Supports Windows XP, Vista, 7, Server 2003 and Server 2008.
+   Supports Windows XP, Vista, Windows 7, Server 2003 and Server 2008.
 
 Download: |i-pkg| Installer_, |i-zip| `Zipped Package`_ or |i-src| `Source Code`_.
 
