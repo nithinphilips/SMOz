@@ -28,6 +28,7 @@ if "%1" == "help" (
 	echo.  devhelp    to make HTML files and a Devhelp project
 	echo.  epub       to make an epub
 	echo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
+	echo.  latexpdf   to make LaTeX files and run them through pdflatex
 	echo.  text       to make text files
 	echo.  man        to make manual pages
 	echo.  texinfo    to make Texinfo files
@@ -134,12 +135,12 @@ if "%1" == "latexpdf" (
     if errorlevel 1 exit /b 1
     pushd ".build/latex"
     for /r %%i in (*.tex) do (
-        pdftex -progname=pdflatex "%%~ni"
-        pdftex -progname=pdflatex "%%~ni"
-        pdftex -progname=pdflatex "%%~ni"
+        pdflatex "%%~ni"
+        pdflatex "%%~ni"
+        pdflatex "%%~ni"
         makeindex -s python.ist "%%~ni.idx"
-        pdftex -progname=pdflatex "%%~ni"
-        pdftex -progname=pdflatex "%%~ni"
+        pdflatex "%%~ni"
+        pdflatex "%%~ni"
     )
     popd
 	echo.

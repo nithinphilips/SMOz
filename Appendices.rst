@@ -1,3 +1,73 @@
+
+**********
+Appendices
+**********
+
+.. index:: GPL license
+.. index:: FDL license
+
+License
+=======
+
+This document is published under the GNU FDL::
+
+    Copyright (C) 2011 Keith Brooke, Nithin Philips
+
+    Permission is granted to copy, distribute and/or modify this document
+    under the terms of the GNU Free Documentation License, Version 1.3
+    or any later version published by the Free Software Foundation;
+    with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+
+A copy of the license is available at <http://www.gnu.org/licenses/fdl.html>.
+
+SMOz is free software::
+
+    Copyright (C) 2011 Nithin Philips <nithin@nithinphilips.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Credits
+=======
+
+.. todo:: Write Credits
+
+.. index:: Help, Mailing list, SourceForge support website
+.. index:: see: Support; Help
+
+Getting Help
+============
+Check the SourceForge website to see the best way to receive support:
+https://sourceforge.net/projects/smoz/support
+
+A mailing list is available at <smoz-users@lists.sourceforge.net> . You
+can `subscribe <https://lists.sourceforge.net/lists/listinfo/smoz-users>`_ to it or
+`browse <https://sourceforge.net/mailarchive/forum.php?forum_name=smoz-users>`_
+archives.
+
+Contributing
+============
+It's easy to contribute to SMOz.
+
+If you are a user, help is needed in providing support for other users,
+maintaining the website and the user manual, and more. If you'd like to help,
+please get in touch: <nithin@nithinphilips.com>
+
+If you are a programmer, you can `fork <http://help.github.com/fork-a-repo/>`_
+the repository at GitHub, make changes to SMOz, and when you're ready, send me a `pull request
+<http://help.github.com/send-pull-requests/>`_ to have your changes integrated
+into the primary repo. You can also send your changes as standard patch files.
+
 Building SMOz
 =============
 You can use either Visual Studio or `Rake
@@ -28,6 +98,66 @@ For more information on Albacore, visit the `Albacore wiki
 <https://github.com/derickbailey/Albacore/wiki/>`_.
 
 .. index:: Python, Sphinx, HTML Help Workshop, TeX Live, Github, Cygwin
+
+Getting the Source and Building
+-------------------------------
+You can checkout the latest source code via git. Two public mirrors are
+available, at `SourceForge
+<http://smoz.git.sourceforge.net/git/gitweb.cgi?p=smoz/smoz>`_
+and `GitHub <https://github.com/nithinphilips/SMOz>`_.
+
+From SourceForge::
+
+    git clone git://smoz.git.sourceforge.net/gitroot/smoz/smoz
+
+Or, from GitHub::
+
+    git clone git://github.com/nithinphilips/SMOz.git
+
+To build SMOz, open the Command prompt at the project root and run::
+
+    rake
+
+The default target compiles the code, builds the installer and creates all the
+packages necessary for distribution. There are a few different targets
+available for other tasks:
+
+================== ============================================================
+  Target                            Description
+================== ============================================================
+build_doc           Runs Sphinx to build the documentation.
+clean               Cleans all the object files, binaries, dist packages etc.
+compile             Compiles the application.
+default             Runs the dist task
+dep_graph           Generates a graph of all the tasks and their relationships.
+dist                Builds the application, installer and packages source and
+                    binaries.
+dist_src            Packages the source code
+dist_zip            Packages binaries into a distribution ready archive.
+doc                 Builds the documentation and runs the dist task
+installer           Builds the installer
+test                Runs any unit tests
+update_submodules   Ensures that all the git submodules are pulled and at the
+                    HEAD of the master branch.
+================== ============================================================
+
+To run tasks, add the task name after the rake command. For example:  ``rake
+dist``.
+
+.. index:: HTML documentation, CHM documentation, PDF documentation
+
+.. index:: Dependency graph
+
+SMOz Rakefile Dependency
+------------------------
+
+.. image:: images/dep_graph.*
+   :alt: Detailed dependency graph of SMOz Rakefile
+
+|pagebreak|
+
+Building the SMOz Documentation
+===============================
 
 Setting up the Documentation Build Environment
 -----------------------------------------------
@@ -151,41 +281,3 @@ something that is not already supported.
 
 .. image:: images/dep_graph.*
    :alt: Detailed dependency graph of SMOz Rakefile
-
-.. index:: HTML documentation, CHM documentation, PDF documentation
-
-Getting the Documentation Source and Building
----------------------------------------------
-The Documentation is hosted at GitHub.
-
-To checkout the source, run::
-
-    git clone git://github.com/nithinphilips/SMOz.wiki.git
-
-The documentation uses a ``makefile`` to build. To build the ``html`` output
-format, run::
-
-    make html
-
-The following targets are available:
-
-=========== ===================================================================
-  Target                              Description
-=========== ===================================================================
- html        to make standalone HTML files
- dirhtml     to make HTML files named index.html in directories
- singlehtml  to make a single large HTML file
- pickle      to make pickle files
- json        to make JSON files
- htmlhelp    to make HTML files and a HTML help project
- qthelp      to make HTML files and a qthelp project
- devhelp     to make HTML files and a Devhelp project
- epub        to make an epub
- latex       to make LaTeX files, you can set PAPER=a4 or PAPER=letter
- latexpdf    to make LaTeX files and run them through pdflatex
- text        to make text files
- man         to make manual pages
- texinfo     to make Texinfo files
- info        to make Texinfo files and run them through makeinfo
- linkcheck   to check all external links for integrity
-=========== ===================================================================

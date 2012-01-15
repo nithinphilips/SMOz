@@ -86,6 +86,8 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+rst_prolog = open('common.h', 'r').read()
+
 rst_epilog = """
 .. |copyright| replace:: \(C\) 2011 Keith Brooke, Nithin Philips
 .. |GNU| replace:: :abbr:`GNU (GNU is Not UNIX)`
@@ -99,7 +101,14 @@ todo_include_todos = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'smoz_theme'
+
+# The style sheet to use for HTML pages. A file of that name must exist either
+# in Sphinx’ static/ path, or in one of the custom paths given in html_static_path.
+# Default is the stylesheet given by the selected theme. If you only want to add
+# or override a few things compared to the theme’s stylesheet, use CSS @import to
+# import the theme’s stylesheet.
+#html_style = []
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -107,7 +116,7 @@ html_theme = 'default'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = ['themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -182,6 +191,8 @@ latex_elements = {
 'papersize': 'letterpaper',
 'pointsize': '11pt',
 'fontpkg': '\\usepackage{palatino}',
+'babel': '\\usepackage[english]{babel}',
+'classoptions': ',openany' ',oneside',
 'preamble': '\\hypersetup { pdfstartview={FitH}, pdftitle={SMOz Documentation}, pdfauthor={Keith Brooke} {Nithin Philips}, pdfsubject={SMOz Documentation}, pdfkeywords={smoz} {documentation} }'
 }
 

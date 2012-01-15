@@ -1,0 +1,20 @@
+/*
+ * smoz-sphinx-styles.css
+ *
+ * Sphinx theme for SMOz
+ *
+ */
+
+@import url("basic.css");
+@import url("default.css");
+@import url("sphinxdoc.css");
+@import url("styles.css");
+
+/* Provide some space between text and images */
+
+.bordered {
+border-style: solid;
+border-width: 15px;
+border-color: white;
+}
+
