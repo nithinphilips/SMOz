@@ -347,7 +347,7 @@ div.header, div.footer {
 }
 
 div.header {
-    background-color: #476D7D;
+    background-color: rgb(16,69,92);
     color: #fff;
     border-top: none;
     margin-bottom: 55px;
@@ -388,29 +388,13 @@ div.header a {
 }
 
 div.header ul {
-    background-color: rgb(73,109,125) 96%;
-background-image: linear-gradient(bottom, rgb(17,69,92) 6%, rgb(72,109,125) 78%);
-background-image: -o-linear-gradient(bottom, rgb(17,69,92) 6%, rgb(72,109,125) 78%);
-background-image: -moz-linear-gradient(bottom, rgb(17,69,92) 6%, rgb(72,109,125) 78%);
-background-image: -webkit-linear-gradient(bottom, rgb(17,69,92) 6%, rgb(72,109,125) 78%);
-background-image: -ms-linear-gradient(bottom, rgb(17,69,92) 6%, rgb(72,109,125) 78%);
-
-background-image: -webkit-gradient(
-	linear,
-	left bottom,
-	left top,
-	color-stop(0.06, rgb(17,69,92)),
-	color-stop(0.78, rgb(72,109,125))
-);
-
-
-    border: 1px solid rgb(73,109,125);
+    background-color: rgb(16,69,92);
     font-weight: bold;
     padding: 5px 10px 10px;
     float: left;
-    margin: 15px 0 0;
-    border-radius: 0 0 1px 1px;
-    box-shadow: 0 0 2px #ddd;
+    margin: 4px 0 0;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 3px 2px #ddd;
 }
 
 div.header ul li ul { 
