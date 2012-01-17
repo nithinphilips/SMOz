@@ -2,4 +2,4 @@
 .. _Installer: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-setup.exe/download
 .. _Zipped Package: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-bin.zip/download
 .. _Source Code: http://sourceforge.net/projects/smoz/files/smoz/1.1.0/SMOz-1.1.0-src.zip/download
-.. |releasedate| replace:: Mon Jan 16, 2012
+.. |releasedate| replace:: Tue Jan 17, 2012
