@@ -1,0 +1,346 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+//-----------------------------------------------------------------------------
+//
+// Copyright (c) VC3, Inc. All rights reserved.
+// This code is licensed under the Microsoft Public License.
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+//-----------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Reflection;
+using System.Collections;
+
+namespace Afterthought
+{
+<#
+	for (int i = 0; i <= 10; i++)
+	{
+		var typeParams = "";
+		var typeParamsWithResult = "";
+		var typeSet = "";
+		var refArgs = "";
+		var args = "";
+		if (i > 0)
+		{
+			for (int j = 1; j <= i; j++)
+			{
+				typeSet += ", typeof(P" + j + ")";
+				typeParams += j > 1 ? ", P" + j : "P" + j;
+				refArgs += ", ref P" + j + " param" + j;
+				args += ", P" + j + " param" + j;
+			}
+			typeParamsWithResult = "<" + typeParams + ", TResult>";
+			typeParams = "<" + typeParams + ">";
+		}
+		else
+			typeParamsWithResult = "<TResult>";
+
+#>
+	#region Amendment<TType, TAmended>.Constructor<#= typeParams #>
+
+	public partial class Amendment<TType, TAmended> : Amendment
+	{
+		/// <summary>
+		/// Represents an amendment for a new or existing constructor on a type.
+		/// </summary>
+		public partial class Constructor<#= typeParams #> : Amendment.Constructor
+		{
+			#region Constructors
+
+			internal Constructor(string name)
+				: base(name)
+			{ }
+
+			internal Constructor(ConstructorInfo constructor)
+				: base(constructor)
+			{ }
+
+			#endregion
+
+			#region Delegates
+
+			public delegate void ImplementConstructor(TAmended instance<#= args #>);
+
+			public delegate void BeforeConstructor(TAmended instance<#= refArgs #>);
+
+			public delegate void AfterConstructor(TAmended instance<#= args #>);
+
+			public delegate void CatchConstructor<TException>(TAmended instance, TException exception<#= args #>)
+				where TException : Exception;
+
+			public delegate void FinallyConstructor(TAmended instance<#= args #>);
+
+			#endregion
+
+			#region Constructors
+			
+			/// <summary>
+			/// Specifies the implementation for a new or existing void constructor.
+			/// </summary>
+			/// <param name="implementation"></param>
+			/// <returns></returns>
+			public Constructor<#= typeParams #> Implement(ImplementConstructor implementation)
+			{
+				base.ImplementationMethod = implementation.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call before the original constructor implementation.
+			/// </summary>
+			/// <param name="before"></param>
+			/// <returns></returns>
+			public Constructor<#= typeParams #> Before(BeforeConstructor before)
+			{
+				base.BeforeMethod = before.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call before the original constructor implementation, which returns an
+			/// instance of <see cref="TContext"/> that is passed to <see cref="After"/>, <see cref="Catch"/>
+			/// and <see cref="Finally"/> delegates.
+			/// </summary>
+			/// <typeparam name="TContext"></typeparam>
+			/// <param name="before"></param>
+			/// <returns></returns>
+			public Context<TContext> Before<TContext>(Context<TContext>.BeforeConstructor before)
+			{
+				base.BeforeMethod = before.Method;
+				return new Context<TContext>(this);
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call after the original constructor implementation for void constructors.
+			/// </summary>
+			/// <param name="after"></param>
+			/// <returns></returns>
+			public Constructor<#= typeParams #> After(AfterConstructor after)
+			{
+				base.AfterMethod = after.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call when an exception occurs in the original void
+			/// constructor implementation.
+			/// </summary>
+			/// <typeparam name="TException"></typeparam>
+			/// <param name="catch"></param>
+			/// <returns></returns>
+			public Constructor<#= typeParams #> Catch<TException>(CatchConstructor<TException> @catch)
+				where TException : Exception
+			{
+				base.CatchMethod = @catch.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call inside a finally block when the original constructor execution
+			/// exits normally or due to an exception.
+			/// </summary>
+			/// <param name="finally"></param>
+			/// <returns></returns>
+			public Constructor<#= typeParams #> Finally(FinallyConstructor @finally)
+			{
+				base.FinallyMethod = @finally.Method;
+				return this;
+			}
+
+			#endregion
+
+			#region Context
+
+			public class Context<TContext> : Amendment.Constructor
+			{
+				Amendment.Constructor constructor;
+
+				internal Context(Amendment.Constructor constructor)
+					: base(constructor)
+				{
+					this.constructor = constructor;
+				}
+
+				#region Delegates
+
+				public new delegate TContext BeforeConstructor(TAmended instance<#= refArgs #>);
+
+				public new delegate void AfterConstructor(TAmended instance, TContext context<#= args #>);
+
+				public delegate TResult AfterConstructor<TResult>(TAmended instance, TContext context<#= args #>, TResult result);
+
+				public delegate void CatchConstructor<TException>(TAmended instance, TContext context, TException exception<#= args #>)
+					where TException : Exception;
+
+				public delegate TResult CatchConstructor<TException, TResult>(TAmended instance, TContext context, TException exception<#= args #>, TResult result)
+					where TException : Exception;
+
+				public new delegate void FinallyConstructor(TAmended instance, TContext context<#= args #>);
+
+				#endregion
+
+				#region Constructors
+
+				public Context<TContext> Before(BeforeConstructor before)
+				{
+					constructor.BeforeMethod = before.Method;
+					return this;
+				}
+
+				public Context<TContext> After(AfterConstructor after)
+				{
+					constructor.AfterMethod = after.Method;
+					return this;
+				}
+
+				public Context<TContext> Catch<TException>(CatchConstructor<TException> implementation)
+					where TException : Exception
+				{
+					constructor.CatchMethod = implementation.Method;
+					return this;
+				}
+
+				public Context<TContext> Finally(FinallyConstructor implementation)
+				{
+					constructor.FinallyMethod = implementation.Method;
+					return this;
+				}
+
+				#endregion
+
+				#region Enumeration
+
+				public class Enumeration : ConstructorEnumeration<Constructor<#= typeParams #>.Context<TContext>, Enumeration>
+				{
+					public Enumeration()
+					{ }
+
+					internal Enumeration(IEnumerable<Constructor<#= typeParams #>.Context<TContext>> constructors)
+					{
+						this.constructors = constructors; 
+					}
+
+					public Enumeration After(AfterConstructor after)
+					{
+						foreach (var constructor in constructors)
+							constructor.After(after);
+						return this;
+					}
+
+					public Enumeration Catch<TException>(CatchConstructor<TException> @catch)
+						where TException : Exception
+					{
+						foreach (var constructor in constructors)
+							constructor.Catch<TException>(@catch);
+						return this;
+					}
+
+					public Enumeration Finally(FinallyConstructor @finally)
+					{
+						foreach (var constructor in constructors)
+							constructor.Finally(@finally);
+						return this;
+					}
+				}
+
+				#endregion
+			}
+
+			#endregion
+
+			#region Enumeration
+
+			public class Enumeration : ConstructorEnumeration<Constructor<#= typeParams #>, Enumeration>
+			{
+				public Enumeration()
+				{ }
+
+				internal Enumeration(IEnumerable<Constructor<#= typeParams #>> constructors)
+				{
+					this.constructors = constructors;
+				}
+
+				public Enumeration Implement(ImplementConstructor implementation)
+				{
+					foreach (var constructor in constructors)
+						constructor.Implement(implementation);
+					return this;
+				}
+
+				public Enumeration Before(BeforeConstructor before)
+				{
+					foreach (var constructor in constructors)
+						constructor.Before(before);
+					return this;
+				}
+
+				public Context<TContext>.Enumeration Before<TContext>(Context<TContext>.BeforeConstructor before)
+				{
+					foreach (var constructor in constructors)
+						constructor.Before(before);
+					return new Context<TContext>.Enumeration(constructors.Select(m => new Context<TContext>(m)));
+				}
+
+				public Enumeration After(AfterConstructor after)
+				{
+					foreach (var constructor in constructors)
+						constructor.After(after);
+					return this;
+				}
+
+				public Enumeration Catch<TException>(CatchConstructor<TException> @catch)
+					where TException : Exception
+				{
+					foreach (var constructor in constructors)
+						constructor.Catch<TException>(@catch);
+					return this;
+				}
+
+				public Enumeration Finally(FinallyConstructor @finally)
+				{
+					foreach (var constructor in constructors)
+						constructor.Finally(@finally);
+					return this;
+				}
+			}
+
+			#endregion
+		}
+
+		public partial class ConstructorEnumeration : MemberEnumeration<ConstructorEnumeration>, IEnumerable
+		{
+			/// <summary>
+			/// Gets all constructors in the set with the specified parameters.
+			/// </summary>
+			/// <typeparam name="P1"></typeparam>
+			/// <typeparam name="P2"></typeparam>
+			/// <returns></returns>
+			public Constructor<#= typeParams #>.Enumeration WithParams<#= typeParams #>()
+			{
+				return new Constructor<#= typeParams #>.Enumeration(constructors.OfType<Constructor<#= typeParams #>>());
+			}
+		}
+
+		public partial class ConstructorList : ConstructorEnumeration
+		{
+			public Constructor<#= typeParams #> Add<#= typeParams #>(string name, Constructor<#= typeParams #>.ImplementConstructor implementation)
+			{
+				return Add(new Constructor<#= typeParams #>(name) { ImplementationMethod = implementation.Method });
+			}
+		}
+	}
+
+	#endregion
+
+<# 
+	}
+#>
+}

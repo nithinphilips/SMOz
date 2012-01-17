@@ -1,0 +1,453 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+//-----------------------------------------------------------------------------
+//
+// Copyright (c) VC3, Inc. All rights reserved.
+// This code is licensed under the Microsoft Public License.
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+//-----------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Reflection;
+using System.Collections;
+
+namespace Afterthought
+{
+<#
+	for (int i = 0; i <= 10; i++)
+	{
+		var typeParams = "";
+		var typeParamsWithResult = "";
+		var typeSet = "";
+		var refArgs = "";
+		var args = "";
+		if (i > 0)
+		{
+			for (int j = 1; j <= i; j++)
+			{
+				typeSet += ", typeof(P" + j + ")";
+				typeParams += j > 1 ? ", P" + j : "P" + j;
+				refArgs += ", ref P" + j + " param" + j;
+				args += ", P" + j + " param" + j;
+			}
+			typeParamsWithResult = "<" + typeParams + ", TResult>";
+			typeParams = "<" + typeParams + ">";
+		}
+		else
+			typeParamsWithResult = "<TResult>";
+
+#>
+	#region Amendment<TType, TAmended>.Method<#= typeParams #>
+
+	public partial class Amendment<TType, TAmended> : Amendment
+	{
+		/// <summary>
+		/// Represents an amendment for a new or existing method on a type.
+		/// </summary>
+		public partial class Method<#= typeParams #> : Amendment.Method
+		{
+			#region Constructors
+
+			internal Method(string name)
+				: base(name)
+			{ }
+
+			internal Method(MethodInfo method)
+				: base(method)
+			{ }
+
+			#endregion
+
+			#region Delegates
+
+			public delegate void ImplementMethod(TAmended instance<#= args #>);
+
+			public delegate TResult ImplementMethod<TResult>(TAmended instance<#= args #>);
+
+			public delegate void BeforeMethod(TAmended instance<#= refArgs #>);
+
+			public delegate void AfterMethod(TAmended instance<#= args #>);
+
+			public delegate TResult AfterMethod<TResult>(TAmended instance<#= args #>, TResult result);
+
+			public delegate void CatchMethod<TException>(TAmended instance, TException exception<#= args #>)
+				where TException : Exception;
+
+			public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TException exception<#= args #>)
+				where TException : Exception;
+
+			public delegate void FinallyMethod(TAmended instance<#= args #>);
+
+			#endregion
+
+			#region Methods
+			
+			/// <summary>
+			/// Specifies the implementation for a new or existing void method.
+			/// </summary>
+			/// <param name="implementation"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> Implement(ImplementMethod implementation)
+			{
+				base.ImplementationMethod = implementation.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the implementation for a new or existing method returning <see cref="TResult"/>.
+			/// </summary>
+			/// <typeparam name="TResult"></typeparam>
+			/// <param name="implementation"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> Implement<TResult>(ImplementMethod<TResult> implementation)
+			{
+				base.ImplementationMethod = implementation.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call before the original method implementation.
+			/// </summary>
+			/// <param name="before"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> Before(BeforeMethod before)
+			{
+				base.BeforeMethod = before.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call before the original method implementation, which returns an
+			/// instance of <see cref="TContext"/> that is passed to <see cref="After"/>, <see cref="Catch"/>
+			/// and <see cref="Finally"/> delegates.
+			/// </summary>
+			/// <typeparam name="TContext"></typeparam>
+			/// <param name="before"></param>
+			/// <returns></returns>
+			public Context<TContext> Before<TContext>(Context<TContext>.BeforeMethod before)
+			{
+				base.BeforeMethod = before.Method;
+				return new Context<TContext>(this);
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call after the original method implementation for void methods.
+			/// </summary>
+			/// <param name="after"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> After(AfterMethod after)
+			{
+				base.AfterMethod = after.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call after the original method implementation for methods
+			/// returning <see cref="TResult"/>.
+			/// </summary>
+			/// <typeparam name="TResult"></typeparam>
+			/// <param name="after"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> After<TResult>(AfterMethod<TResult> after)
+			{
+				base.AfterMethod = after.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call when an exception occurs in the original void
+			/// method implementation.
+			/// </summary>
+			/// <typeparam name="TException"></typeparam>
+			/// <param name="catch"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> Catch<TException>(CatchMethod<TException> @catch)
+				where TException : Exception
+			{
+				base.CatchMethod = @catch.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call when an exception occurs in the original method
+			/// for methods returning <see cref="TResult"/>.
+			/// </summary>
+			/// <typeparam name="TException"></typeparam>
+			/// <typeparam name="TResult"></typeparam>
+			/// <param name="catch"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> Catch<TException, TResult>(CatchMethod<TException, TResult> @catch)
+				where TException : Exception
+			{
+				base.CatchMethod = @catch.Method;
+				return this;
+			}
+
+			/// <summary>
+			/// Specifies the delegate to call inside a finally block when the original method execution
+			/// exits normally or due to an exception.
+			/// </summary>
+			/// <param name="finally"></param>
+			/// <returns></returns>
+			public Method<#= typeParams #> Finally(FinallyMethod @finally)
+			{
+				base.FinallyMethod = @finally.Method;
+				return this;
+			}
+
+			#endregion
+
+			#region Context
+
+			public class Context<TContext> : Amendment.Method
+			{
+				Amendment.Method method;
+
+				internal Context(Amendment.Method method)
+					: base(method)
+				{
+					this.method = method;
+				}
+
+				#region Delegates
+
+				public new delegate TContext BeforeMethod(TAmended instance<#= refArgs #>);
+
+				public new delegate void AfterMethod(TAmended instance, TContext context<#= args #>);
+
+				public delegate TResult AfterMethod<TResult>(TAmended instance, TContext context<#= args #>, TResult result);
+
+				public delegate void CatchMethod<TException>(TAmended instance, TContext context, TException exception<#= args #>)
+					where TException : Exception;
+
+				public delegate TResult CatchMethod<TException, TResult>(TAmended instance, TContext context, TException exception<#= args #>)
+					where TException : Exception;
+
+				public new delegate void FinallyMethod(TAmended instance, TContext context<#= args #>);
+
+				#endregion
+
+				#region Methods
+
+				public Context<TContext> Before(BeforeMethod before)
+				{
+					method.BeforeMethod = before.Method;
+					return this;
+				}
+
+				public Context<TContext> After(AfterMethod after)
+				{
+					method.AfterMethod = after.Method;
+					return this;
+				}
+
+				public Context<TContext> After<TResult>(AfterMethod<TResult> after)
+				{
+					method.AfterMethod = after.Method;
+					return this;
+				}
+
+				public Context<TContext> Catch<TException>(CatchMethod<TException> implementation)
+					where TException : Exception
+				{
+					method.CatchMethod = implementation.Method;
+					return this;
+				}
+
+				public Context<TContext> Catch<TException, TResult>(CatchMethod<TException, TResult> implementation)
+					where TException : Exception
+				{
+					method.CatchMethod = implementation.Method;
+					return this;
+				}
+
+				public Context<TContext> Finally(FinallyMethod implementation)
+				{
+					method.FinallyMethod = implementation.Method;
+					return this;
+				}
+
+				#endregion
+
+				#region Enumeration
+
+				public class Enumeration : MethodEnumeration<Method<#= typeParams #>.Context<TContext>, Enumeration>
+				{
+					public Enumeration()
+					{ }
+
+					internal Enumeration(IEnumerable<Method<#= typeParams #>.Context<TContext>> methods)
+					{
+						this.methods = methods; 
+					}
+
+					public Enumeration After(AfterMethod after)
+					{
+						foreach (var method in methods)
+							method.After(after);
+						return this;
+					}
+
+					public Enumeration After<TResult>(AfterMethod<TResult> after)
+					{
+						foreach (var method in methods)
+							method.After(after);
+						return this;
+					}
+
+					public Enumeration Catch<TException>(CatchMethod<TException> @catch)
+						where TException : Exception
+					{
+						foreach (var method in methods)
+							method.Catch<TException>(@catch);
+						return this;
+					}
+
+					public Enumeration Catch<TException, TResult>(CatchMethod<TException, TResult> @catch)
+						where TException : Exception
+					{
+						foreach (var method in methods)
+							method.Catch<TException, TResult>(@catch);
+						return this;
+					}
+
+					public Enumeration Finally(FinallyMethod @finally)
+					{
+						foreach (var method in methods)
+							method.Finally(@finally);
+						return this;
+					}
+				}
+
+				#endregion
+			}
+
+			#endregion
+
+			#region Enumeration
+
+			public class Enumeration : MethodEnumeration<Method<#= typeParams #>, Enumeration>
+			{
+				public Enumeration()
+				{ }
+
+				internal Enumeration(IEnumerable<Method<#= typeParams #>> methods)
+				{
+					this.methods = methods;
+				}
+
+				public Enumeration Implement(ImplementMethod implementation)
+				{
+					foreach (var method in methods)
+						method.Implement(implementation);
+					return this;
+				}
+
+				public Enumeration Implement<TResult>(ImplementMethod<TResult> implementation)
+				{
+					foreach (var method in methods)
+						method.Implement<TResult>(implementation);
+					return this;
+				}
+
+				public Enumeration Before(BeforeMethod before)
+				{
+					foreach (var method in methods)
+						method.Before(before);
+					return this;
+				}
+
+				public Context<TContext>.Enumeration Before<TContext>(Context<TContext>.BeforeMethod before)
+				{
+					foreach (var method in methods)
+						method.Before(before);
+					return new Context<TContext>.Enumeration(methods.Select(m => new Context<TContext>(m)));
+				}
+
+				public Enumeration After(AfterMethod after)
+				{
+					foreach (var method in methods)
+						method.After(after);
+					return this;
+				}
+
+				public Enumeration After<TResult>(AfterMethod<TResult> after)
+				{
+					foreach (var method in methods)
+						method.After(after);
+					return this;
+				}
+
+				public Enumeration Catch<TException>(CatchMethod<TException> @catch)
+					where TException : Exception
+				{
+					foreach (var method in methods)
+						method.Catch<TException>(@catch);
+					return this;
+				}
+
+				public Enumeration Catch<TResult, TException>(CatchMethod<TException, TResult> @catch)
+					where TException : Exception
+				{
+					foreach (var method in methods)
+						method.Catch<TException, TResult>(@catch);
+					return this;
+				}
+
+				public Enumeration Finally(FinallyMethod @finally)
+				{
+					foreach (var method in methods)
+						method.Finally(@finally);
+					return this;
+				}
+			}
+
+			#endregion
+		}
+
+		public partial class MethodEnumeration : MemberEnumeration<MethodEnumeration>, IEnumerable
+		{
+			/// <summary>
+			/// Gets all methods in the set with the specified parameters.
+			/// </summary>
+			/// <typeparam name="P1"></typeparam>
+			/// <typeparam name="P2"></typeparam>
+			/// <returns></returns>
+			public Method<#= typeParams #>.Enumeration WithParams<#= typeParams #>()
+			{
+				return new Method<#= typeParams #>.Enumeration(methods.OfType<Method<#= typeParams #>>());
+			}
+		}
+
+		public partial class MethodList : MethodEnumeration
+		{
+			public Method<#= typeParams #> Add<#= typeParams #>(string name, Method<#= typeParams #>.ImplementMethod implementation)
+			{
+				return Add(new Method<#= typeParams #>(name) { ImplementationMethod = implementation.Method });
+			}
+
+			public Method<#= typeParams #> Add<#= typeParamsWithResult #>(string name, Method<#= typeParams #>.ImplementMethod<TResult> implementation)
+			{
+				return Add(new Method<#= typeParams #>(name) { ImplementationMethod = implementation.Method });
+			}
+
+			public Method<#= typeParams #> Override<#= typeParams #>(string name)
+			{
+				return Add(new Method<#= typeParams #>(name) { OverrideMethod = GetOverrideMethod(name<#= typeSet #>) });
+			}
+		}
+	}
+
+	#endregion
+
+<# 
+	}
+#>
+}

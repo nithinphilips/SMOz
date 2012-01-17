@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<package>
+  <metadata>
+	<id>Afterthought</id>
+	<title>Afterthought</title>
+	<version>1.0.8</version>
+	<authors>Jamie Thomas, VC3</authors>
+	<summary>An open source .NET compile-time code amender.</summary>
+	<description>
+	  Afterthought allows developers to post-process .NET assemblies to add code that either cannot be added 
+	  to the original source or is not convenient/efficient to do so. Afterthought runs as a post-build step 
+	  to process one or more assemblies. It discovers and processes amendments that you create or borrow from 
+	  others. The amendments allow you to add or modify the behavior of constructors, properties, methods, or 
+	  events, and add new fields and attributes. Amendments can also modify types to implement new interfaces. 
+	  The modified assembly just includes simple static calls into existing code that you write in a natural 
+	  and strongly-typed way when writing amendments. Assembly amendments support using Afterthought to modify 
+	  an assembly without introducing a runtime dependency on Afterthought.
+	</description>
+	<projectUrl>http://github.com/vc3/Afterthought</projectUrl>
+	<licenseUrl>http://github.com/vc3/Afterthought/blob/master/License.txt</licenseUrl>
+	<iconUrl>http://github.com/vc3/Afterthought/raw/master/Afterthought_Icon.png</iconUrl>
+	<tags>aop, ioc, di, aspect, postsharp, assembly, il, postcompile, injection, weaving, interception</tags>
+  </metadata>
+  <files>
+	<file src="..\bin\Debug\Afterthought.dll" target="lib"/>
+	<file src="..\bin\Debug\Afterthought.dll" target="tools" />
+	<file src="..\bin\Debug\Afterthought.Amender.exe" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.ILGenerator.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.MetadataHelper.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.MetadataModel.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.MutableMetadataModel.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.PdbReader.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.PdbWriter.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.PeReader.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.PeWriter.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Contracts.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.SourceModel.dll" target="tools" />
+	<file src="..\bin\Debug\Microsoft.Cci.SourceModel.dll" target="tools" />
+	<file src="Install.ps1" target="tools" />
+	<file src="Uninstall.ps1" target="tools" />
+  </files>
+</package>
