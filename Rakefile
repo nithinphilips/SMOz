@@ -44,6 +44,8 @@ task :doc     => ["doc:usr", "doc:dev"]
 desc "Cleans all the object files, binaries, dist packages etc."
 task :clean   => ["clean:sln", "clean:sln_winforms", "clean:doc", "clean:website", "clean:dist"]
 
+task :website => "doc:website"
+
 Albacore.configure do |config|
     config.assemblyinfo do |a|
         a.product_name = PRODUCT_LONG
@@ -248,25 +250,25 @@ namespace :doc do
     end
 
     sphinx :usr_html do |s|
-        Rake::Task["dep_graph"].invoke
+        Rake::Task["dep_graph"].invoke unless File.exist?("doc/images/dep_graph.png");
         s.builder = :html
         puts "Building documentation in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
     end
 
     sphinx :usr_htmlhelp do |s|
-        Rake::Task["dep_graph"].invoke
+        Rake::Task["dep_graph"].invoke unless File.exist?("doc/images/dep_graph.png");
         s.builder = :htmlhelp
         puts "Building documentation in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
     end
 
     sphinx :usr_latexpdf do |s|
-        Rake::Task["dep_graph"].invoke
+        Rake::Task["dep_graph"].invoke unless File.exist?("doc/images/dep_graph.png");
         s.builder = :latexpdf
         puts "Building documentation in #{s.builder.to_s} from #{s.sourcedir} into #{s.builddir}."
     end
 
     sphinx :usr_linkcheck do |s|
-        Rake::Task["dep_graph"].invoke
+        Rake::Task["dep_graph"].invoke unless File.exist?("doc/images/dep_graph.png");
         s.builder = :linkcheck
         puts "Checking links in documentation built from #{s.sourcedir} into #{s.builddir}."
     end
@@ -299,10 +301,16 @@ namespace :doc do
 
         # These links in the website reST are changes based on version.
         # Provide them via the rst_epilog file.
-        File.open("website/rst_dynamic_links.txt", 'w') do |f|
+
+        File.open("website/rst_epilog.txt", 'w') do |f|
+
+            f.puts File.open("website/rst_epilog.txt.in", 'r').read if File.exist?("website/rst_epilog.txt.in")
+
             f.puts ".. _Installer: http://sourceforge.net/projects/smoz/files/smoz/#{VERSION}/#{INS_PACKAGE}.exe/download"
             f.puts ".. _Zipped Package: http://sourceforge.net/projects/smoz/files/smoz/#{VERSION}/#{BIN_PACKAGE}.zip/download"
             f.puts ".. _Source Code: http://sourceforge.net/projects/smoz/files/smoz/#{VERSION}/#{SRC_PACKAGE}.zip/download"
+
+            f.puts ".. |releasedate| replace:: " + DateTime.now.strftime("%a %b %-d, %Y")
         end
 
         unless File.exist?(README_FILE) 
@@ -358,7 +366,7 @@ end
 
 namespace :stage do
     task :website do
-            WebsiteRemoteDir = "/home/project-web/smoz/htdocs/staging"
+            WebsiteRemoteDir = "/home/project-web/smoz/htdocs/staging/"
             Rake::Task["deploy:website"].invoke
     end
 end
