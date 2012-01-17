@@ -20,3 +20,4 @@ dep_graph.*
 libSmoz.XML
 *.shfbproj_*
 XPTable.xml
+CSharpOptParse.xml
