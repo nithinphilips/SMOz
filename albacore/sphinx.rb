@@ -98,7 +98,7 @@ class Sphinx
         fail_with_message failure_message if !result
 
         if makepdf == true
-            @loggger.debug "Running pdflatex on output."
+            @logger.debug "Running pdflatex on output."
             run_pdflatex
         elsif @builder == :htmlhelp
             @logger.debug "Running htmlhelp on output."
