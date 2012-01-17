@@ -705,6 +705,8 @@ blockquote {
         float: none;
         margin: 10px -10px -10px;
         width: 100%;
+        box-shadow: none;
+        background-color: none;
     }
 
     div.header ul li:before {
