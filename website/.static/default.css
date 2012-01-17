@@ -706,7 +706,7 @@ blockquote {
         margin: 10px -10px -10px;
         width: 100%;
         box-shadow: none;
-        background-color: none;
+        background: none;
     }
 
     div.header ul li:before {
