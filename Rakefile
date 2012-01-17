@@ -124,8 +124,6 @@ namespace :dist do
 
         gitModules = [
             {"dir" => ".",                "prefix" => "#{PACKAGE}" },
-            {"dir" => "lib/Afterthought", "prefix" => "#{PACKAGE}/lib/Afterthought"},
-            {"dir" => "doc",              "prefix" => "#{PACKAGE}/doc"}
         ]
 
         workingdir = Dir.pwd
