@@ -298,3 +298,7 @@ releaselevel = 'beta'
 
 extlinks = { 'commit': ('https://github.com/nithinphilips/SMOz/commit/%s', 'commit '), 'wikipedia': ('https://en.wikipedia.org/wiki/%s', '') }
 
+# -- Options for linkcheck  ----------------------------------------------------
+
+linkcheck_timeout = 60
+
