@@ -6,7 +6,7 @@ A Quick Tutorial
 The primary input to SMOz is the contents of the :menuselection:`Start --> All Programs`
 menu, a simple example of which might look like this:
 
-.. figure:: images/screenshots/start_menu_1.png
+.. image:: images/screenshots/start_menu_1.png
 	:class: bordered
 	:align: center
 
