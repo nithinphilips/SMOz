@@ -195,10 +195,10 @@ latex_elements = {
 'classoptions': ',openany' ',oneside',
 'preamble': '\\pagestyle{plain}' \
 			'\\pagenumbering{arabic}' \
+			'\\setcounter{tocdepth}{3}' \
 			'\\usepackage{tocbibind}' \
-			'\\hypersetup { pdfstartview={FitH}, pdftitle={SMOz Documentation}, pdfauthor={Keith Brooke} {Nithin Philips}, pdfsubject={SMOz Documentation}, pdfkeywords={smoz} {documentation} }'
-
-
+			'\\hypersetup { pdfstartview={FitH}, pdftitle={SMOz Documentation}, pdfauthor={Keith Brooke} \
+			   {Nithin Philips}, pdfsubject={SMOz Documentation}, pdfkeywords={smoz} {documentation} }'
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
