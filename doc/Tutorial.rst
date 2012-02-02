@@ -6,7 +6,7 @@ A Quick Tutorial
 The primary input to SMOz is the contents of the :menuselection:`Start --> All Programs`
 menu, a simple example of which might look like this:
 
-.. figure:: images/screenshots/start_menu_1.png
+.. image:: images/screenshots/start_menu_1.png
 	:class: bordered
 	:align: center
 
@@ -20,8 +20,8 @@ And here is how SMOz interprets this input on its main screen:
 	:align: center
 
 
-Ignoring the :guilabel:`Startup` and :guilabel:`Accessories` folders by default, SMOz faithfully
-shows each of the six other Start menu items in the right-hand pane of its window.
+Ignoring the :guilabel:`Startup` folder by default and recognizing :guilabel:`Accessories as a category`, SMOz
+detects each of the six other Start menu items in the right-hand pane of its window as candidates for movement.
 The left-hand pane shows the default categories into which it is possible to
 organize the Start menu and distribute these entries.
 

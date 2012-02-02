@@ -193,7 +193,12 @@ latex_elements = {
 'fontpkg': '\\usepackage{palatino}',
 'babel': '\\usepackage[english]{babel}',
 'classoptions': ',openany' ',oneside',
-'preamble': '\\hypersetup { pdfstartview={FitH}, pdftitle={SMOz Documentation}, pdfauthor={Keith Brooke} {Nithin Philips}, pdfsubject={SMOz Documentation}, pdfkeywords={smoz} {documentation} }'
+'preamble': '\\pagestyle{plain}' \
+			'\\pagenumbering{arabic}' \
+			'\\setcounter{tocdepth}{3}' \
+			'\\usepackage{tocbibind}' \
+			'\\hypersetup { pdfstartview={FitH}, pdftitle={SMOz Documentation}, pdfauthor={Keith Brooke} \
+			   {Nithin Philips}, pdfsubject={SMOz Documentation}, pdfkeywords={smoz} {documentation} }'
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
